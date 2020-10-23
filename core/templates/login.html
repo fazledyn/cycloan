@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ADMIN_INFO</title>
+</head>
+<body>
+<h1>Admins</h1>
+<table width="100%"  border="1">
+    <tr style="background-color:lightgray">
+        <th>ID</th>
+        <th>Email</th>
+        <th>Password</th>
+    </tr>
+    {% for adm in admins %}
+       <tr>
+           <td>{{adm.admin_id}}</td>
+           <td>{{adm.admin_email }}</td>
+           <td>{{adm.admin_pass}}</td>
+       </tr>
+    {% endfor %}
+
+</table>
+</body>
+</html>
