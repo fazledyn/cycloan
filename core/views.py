@@ -8,7 +8,6 @@ def insert_admin(request):
         cursor.execute(sql, [101, 'purba@gmail.com', 'purbasha21'])
         connection.commit()
         cursor.close()
-
         cursor = connection.cursor()
         sql = "SELECT * FROM ADMIN"
         cursor.execute(sql)
