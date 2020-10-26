@@ -1,5 +1,41 @@
 from django.shortcuts import render
 from django.db import connection
+from django.views import View
+
+
+## We will use class based view
+## because it is easy to see and understand
+## has two member function: GET and POST 
+
+
+class LoginView(View):
+
+    def get(self, request):
+        return render(request, 'login.html')
+
+    def post(self, request):
+        cursor = connection.cursor()
+        
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+
+        sql = """
+                SELECT password
+                FROM ADMIN
+                WHERE email='%s'
+        """
+        cursor.execute(sql, [email])
+        result = cursor.fetchall()
+        
+        connection.commit()
+
+        sql = """
+
+        """
+
+
+
+"""
 
 def insert_admin(request):
     if request.method == 'GET':
@@ -26,3 +62,4 @@ def insert_admin(request):
         # return render(request,'list_jobs.html',{'jobs' : Job.objects.all()})
         return render(request, 'login.html', {'admins': dict_result})
 
+"""
