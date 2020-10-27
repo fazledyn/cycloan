@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.db import connection
 from django.views import View
 
@@ -9,57 +9,30 @@ from django.views import View
 
 
 class LoginView(View):
-
     def get(self, request):
         return render(request, 'login.html')
 
+
+class OwnerLoginView(View):
+    def get(self, request):
+        return redirect('login-view')
+
     def post(self, request):
-        cursor = connection.cursor()
+        owner_email = request.POST.get('owner-email')
+        owner_pass  = request.POST.get('owner-password')
         
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-
-        sql = """
-                SELECT password
-                FROM ADMIN
-                WHERE email='%s'
-        """
-        cursor.execute(sql, [email])
-        result = cursor.fetchall()
-        
-        connection.commit()
-
-        sql = """
-
-        """
+        # query db te get things
+        pass
 
 
+class CustomerLoginView(View):
+    def get(self, request):
+        return redirect('login-view')
+    
+    def post(self, request):
+        customer_email  = request.POST.get('customer-email')
+        customer_pass   = request.POST.get('customer-pass')
 
-"""
+        # query db to get things
+        pass
 
-def insert_admin(request):
-    if request.method == 'GET':
-        cursor = connection.cursor()
-        sql = "INSERT INTO ADMIN VALUES(%s,%s,%s)"
-        cursor.execute(sql, [101, 'purba@gmail.com', 'purbasha21'])
-        connection.commit()
-        cursor.close()
-        cursor = connection.cursor()
-        sql = "SELECT * FROM ADMIN"
-        cursor.execute(sql)
-        result = cursor.fetchall()
-        cursor.close()
-
-        dict_result = []
-
-        for r in result:
-            admin_id = r[0]
-            admin_email = r[1]
-            admin_pass = r[2]
-            row = {'admin_id': admin_id, 'admin_email': admin_email, 'admin_pass': admin_pass}
-            dict_result.append(row)
-
-        # return render(request,'list_jobs.html',{'jobs' : Job.objects.all()})
-        return render(request, 'login.html', {'admins': dict_result})
-
-"""
