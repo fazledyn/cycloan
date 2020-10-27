@@ -24,6 +24,9 @@ class OwnerLoginView(View):
         # query db te get things
         pass
 
+class OwnerSignup(View):
+    def get(self, request):
+        return redirect('OwnerSignup.html')
 
 class CustomerLoginView(View):
     def get(self, request):

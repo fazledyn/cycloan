@@ -30,6 +30,11 @@
                     <input type="password" class="form-control" id="customer-password" name="customer-password">
                 </div>
                 <button type="submit" class="btn btn-primary">Login</button>
+                <br>
+                <br>
+                <form action="{% url 'owner-signup' %}">
+                    <button type="submit" class="btn btn-primary">CREATE ACCOUNT AS OWNER </button>
+                </form>
             </form>
         </div>
 
@@ -48,6 +53,9 @@
                     <input type="password" class="form-control" id="customer-password" name="customer-password">
                 </div>
                 <button type="submit" class="btn btn-primary">Login</button>
+                <br>
+                <br>
+                <button type="submit" class="btn btn-primary">CREATE ACCOUNT AS CUSTOMER</button>
             </form>
         </div>
 
