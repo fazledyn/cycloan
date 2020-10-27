@@ -21,24 +21,22 @@ class OwnerLoginView(View):
         owner_email = request.POST.get('owner-email')
         owner_pass = request.POST.get('owner-password')
 
-        # query db te get things
-
         cursor = connection.cursor()
         sql = "SELECT PASSWORD FROM OWNER WHERE EMAIL_ADDRESS=%s"
         cursor.execute(sql, [owner_email])
         result = cursor.fetchall()
         cursor.close()
         res = result[0]
-        if res == owner_pass:
-            print('kaaj hoise')
-        else:
-            return redirect('login-view')
 
-        pass
+        # MILLE KI KORA LAGBE ADD KORISH
+        
+        return redirect('login-view')
+
 
 class OwnerSignup(View):
     def get(self, request):
         return redirect('owner-signup')
+
 
 class CustomerLoginView(View):
     def get(self, request):
@@ -56,9 +54,9 @@ class CustomerLoginView(View):
         result = cursor.fetchall()
         cursor.close()
         res = result[0]
+
         if res == customer_pass:
             print('kaaj hoise')
         else:
             return redirect('login-view')
-        pass
 
