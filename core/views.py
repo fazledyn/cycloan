@@ -26,11 +26,19 @@ class OwnerLoginView(View):
         cursor.execute(sql, [owner_email])
         result = cursor.fetchall()
         cursor.close()
-        res = result[0]
+        try:
+            res = result[0]
+            if res == owner_pass:
+                print('kaaj hoise')
+            else:
+                return redirect('login-view')
+        except:
+            return redirect('login-view')
+        # res = result[0]
 
         # MILLE KI KORA LAGBE ADD KORISH
         
-        return redirect('login-view')
+       # return redirect('login-view')
 
 
 class OwnerSignup(View):
@@ -53,10 +61,12 @@ class CustomerLoginView(View):
         cursor.execute(sql, [customer_email])
         result = cursor.fetchall()
         cursor.close()
-        res = result[0]
-
-        if res == customer_pass:
-            print('kaaj hoise')
-        else:
+        try:
+            res = result[0]
+            if res == customer_pass:
+                print('kaaj hoise')
+            else:
+                return redirect('login-view')
+        except:
             return redirect('login-view')
 
