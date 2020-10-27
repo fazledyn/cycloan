@@ -19,14 +19,26 @@ class OwnerLoginView(View):
 
     def post(self, request):
         owner_email = request.POST.get('owner-email')
-        owner_pass  = request.POST.get('owner-password')
-        
+        owner_pass = request.POST.get('owner-password')
+
         # query db te get things
+
+        cursor = connection.cursor()
+        sql = "SELECT PASSWORD FROM OWNER WHERE EMAIL_ADDRESS=%s"
+        cursor.execute(sql, [owner_email])
+        result = cursor.fetchall()
+        cursor.close()
+        res = result[0]
+        if res == owner_pass:
+            print('kaaj hoise')
+        else:
+            return redirect('login-view')
+
         pass
 
 class OwnerSignup(View):
     def get(self, request):
-        return redirect('OwnerSignup.html')
+        return redirect('owner-signup')
 
 class CustomerLoginView(View):
     def get(self, request):
@@ -37,5 +49,16 @@ class CustomerLoginView(View):
         customer_pass   = request.POST.get('customer-pass')
 
         # query db to get things
+
+        cursor = connection.cursor()
+        sql = "SELECT PASSWORD FROM CUSTOMER WHERE EMAIL_ADDRESS=%s"
+        cursor.execute(sql, [customer_email])
+        result = cursor.fetchall()
+        cursor.close()
+        res = result[0]
+        if res == customer_pass:
+            print('kaaj hoise')
+        else:
+            return redirect('login-view')
         pass
 
