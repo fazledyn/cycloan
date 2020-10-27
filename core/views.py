@@ -46,7 +46,7 @@ class CustomerLoginView(View):
     
     def post(self, request):
         customer_email  = request.POST.get('customer-email')
-        customer_pass   = request.POST.get('customer-pass')
+        customer_pass   = request.POST.get('customer-password')
 
         # query db to get things
 
