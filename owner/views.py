@@ -7,7 +7,7 @@ from django.views import View
 class OwnerLoginView(View):
 
     def get(self, request):
-        return redirect('core.login-view')
+        return redirect('login-view')
 
     def post(self, request):
         owner_email = request.POST.get('owner-email')
