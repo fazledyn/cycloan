@@ -20,7 +20,7 @@ class OwnerLoginView(View):
         cursor.close()
         
         try:
-            res = result[0]
+            res = result[0][0]
             if res == owner_pass:
                 print('kaaj hoise')
                 return redirect('owner-dashboard-view')
