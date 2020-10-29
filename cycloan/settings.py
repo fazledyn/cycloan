@@ -75,6 +75,14 @@ TEMPLATES = [
 WSGI_APPLICATION = 'cycloan.wsgi.application'
 
 
+# Sessions Config
+SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
+SESSION_COOKIE_HTTPONLY = True
+
+# 2 WEEKS LONGER cookies
+SESSION_COOKIE_AGE = 1209600
+
+
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
