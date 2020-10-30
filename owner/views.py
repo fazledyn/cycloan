@@ -34,7 +34,7 @@ class OwnerLoginView(View):
 
 class OwnerRegisterView(View):
     def get(self, request):
-        return render(request, 'owner/register.html')
+        return render(request, 'register.html')
     
     def post(self, request):
         # eikhaner o kaaj kora lagbe
@@ -45,4 +45,4 @@ class OwnerRegisterView(View):
 class OwnerDashboardView(View):
 
     def get(self, request):
-        return render(request, 'owner/dashboard.html')
+        return render(request, 'dashboard.html')
