@@ -14,7 +14,7 @@ class OwnerLoginView(View):
         owner_pass = request.POST.get('owner-password')
 
         cursor = connection.cursor()
-        sql = "SELECT PASSWORD FROM OWNER WHERE EMAIL_ADDRESS=%s"
+        sql = "SELECT PASSWORD, OWNER_ID FROM OWNER WHERE EMAIL_ADDRESS=%s"
         cursor.execute(sql, [owner_email])
         result = cursor.fetchall()
         cursor.close()
@@ -23,6 +23,8 @@ class OwnerLoginView(View):
             res = result[0][0]
             if res == owner_pass:
                 print('kaaj hoise')
+                request.session['owner_id'] = result[0][1]
+                print(request.session['owner_id'])
                 return redirect('owner-dashboard-view')
             else:
                 messages.error(request, 'Password did not match. Enter correctly!')
@@ -45,4 +47,12 @@ class OwnerRegisterView(View):
 class OwnerDashboardView(View):
 
     def get(self, request):
-        return render(request, 'dashboard.html')
+        owner_id = request.session['owner_id']
+        cursor = connection.cursor()
+        sql = "SELECT OWNER_NAME FROM OWNER WHERE OWNER_ID=%s"
+        cursor.execute(sql, [owner_id])
+        result = cursor.fetchall()
+        cursor.close()
+        owner_name = result[0][0]
+        context = {'owner_name': owner_name}
+        return render(request, 'dashboard.html',context)
