@@ -1,3 +1,5 @@
+from typing import Dict, Any
+
 from django.db import connection
 from django.contrib import messages
 from django.shortcuts import render, redirect
@@ -36,7 +38,7 @@ class OwnerLoginView(View):
 
 class OwnerRegisterView(View):
     def get(self, request):
-        return render(request, 'register.html')
+        return render(request, 'owner_register.html')
     
     def post(self, request):
         # eikhaner o kaaj kora lagbe
@@ -55,4 +57,4 @@ class OwnerDashboardView(View):
         cursor.close()
         owner_name = result[0][0]
         context = {'owner_name': owner_name}
-        return render(request, 'dashboard.html',context)
+        return render(request, 'owner_dashboard.html', context)
