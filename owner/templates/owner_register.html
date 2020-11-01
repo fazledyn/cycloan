@@ -18,7 +18,7 @@
             <h3>Register as Owner</h3>
 
             <form action="/owner/register/" method="POST">
-
+                {% csrf_token %}
                 <div class="form-group">
                     <label for="email">Email Address</label>
                     <input type="email" class="form-control" id="email" name="email">
