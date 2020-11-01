@@ -9,8 +9,8 @@ import jwt
 
 def verify_auth_token(func):
     @wraps(func)
-    def wrapped(request, *args, **kwargs):
-        auth_token = request.session['auth_token']
+    def wrapped(self, request, *args, **kwargs):
+        auth_token = request.session.get('auth_token')
         if not auth_token:
             messages.warning(request, 'Session expired. Please log in again.')
             return redirect('login-view')
@@ -37,8 +37,8 @@ def create_auth_token(user_id):
 
 def check_customer(func):
     @wraps(func)
-    def wrapped(request, *args, **kwargs):
-        if request.session['user_type'] != 'customer':
+    def wrapped(self, request, *args, **kwargs):
+        if request.session.get('user_type') != 'customer':
             messages.warning(request, 'You are not allowed to view that page.')
             return redirect('owner-dashboard-view')
 
@@ -48,8 +48,8 @@ def check_customer(func):
 
 def check_owner(func):
     @wraps(func)
-    def wrapped(request, *args, **kwargs):
-        if request.session['user_type'] != 'owner':
+    def wrapped(self, request, *args, **kwargs):
+        if request.session.get('user_type') != 'owner':
             messages.warning(request, 'You are not allowed to view that page.')
             return redirect('customer-dashboard-view')
 
