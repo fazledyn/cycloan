@@ -70,7 +70,7 @@ class OwnerRegisterView(View):
 class OwnerDashboardView(View):
 
     def get(self, request):
-        owner_id = request.session['owner_id']
+        owner_id = request.session.get('owner_id')
         cursor = connection.cursor()
         sql = "SELECT OWNER_NAME FROM OWNER WHERE OWNER_ID=%s"
         cursor.execute(sql, [owner_id])
