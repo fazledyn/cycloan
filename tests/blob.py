@@ -15,10 +15,8 @@ print(result)
 file_byte = result[0][1]
 file = file_byte.read()
 
-img_file = open('img.jpg', 'w')
-img_file.write(str(file))
-
-
+img_file = open('img.jpg', 'wb')
+img_file.write(file)
 
 print(file)
 
