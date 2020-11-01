@@ -11,13 +11,31 @@
     <link rel="stylesheet" href="css/main.css">
 </head>
 
+<style>
+
+.message-box {
+    background-color:whitesmoke;
+    border-radius: 4px;
+    padding: 8px;
+    font-size: 16px;
+}
+
+</style>
+
 <body>
     <div class="container">
 
-        <div style="margin: auto; margin-top: 150px; width: 80%;">
+        <div style="margin: auto; padding-top: 120px; padding-bottom: 120px; width: 80%;">
             <h3>Register as Customer</h3>
 
-            <form action="/customer/register/" method="POST">
+            <form action="/customer/register/" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="message-box">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
 
                 <div class="form-group">
                     <label for="email">Email Address</label>
@@ -72,7 +90,7 @@
                     </div>
                     <div class="custom-file">
                         <input type="file" class="custom-file-input" id="inputGroupFile01"
-                            aria-describedby="inputGroupFileAddon01">
+                            aria-describedby="inputGroupFileAddon01" name="document">
                         <label class="custom-file-label" for="inputGroupFile01">Choose file</label>
                     </div>
                 </div>
