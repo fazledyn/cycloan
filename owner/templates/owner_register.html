@@ -29,7 +29,7 @@
         <div style="margin: auto; padding-top: 120px; padding-bottom: 120px; width: 80%;">
             <h3>Register as Owner</h3>
 
-            <form action="/owner/register/" method="POST">
+            <form action="/owner/register/" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
 
                 {% if messages %}
