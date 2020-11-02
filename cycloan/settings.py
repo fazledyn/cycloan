@@ -149,11 +149,11 @@ STATICFILES_DIRS = [
 ]
 
 
-## custom file dirs
+# custom file dirs
 
-OWNER_PHOTO_DIR = 'static/files/owner/photo'
+OWNER_PHOTO_DIR = 'static/files/owner/photo/'
 
-CUSTOMER_PHOTO_DIR = 'static/files/customer/photo'
+CUSTOMER_PHOTO_DIR = 'static/files/customer/photo/'
 
-CUSTOMER_DOC_DIR = 'static/files/customer/doc'
+CUSTOMER_DOC_DIR = 'static/files/customer/doc/'
 
