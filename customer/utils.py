@@ -2,7 +2,7 @@ from cycloan.settings import CUSTOMER_DOC_DIR, CUSTOMER_PHOTO_DIR
 
 
 ## photo filename = ID + . + photo_ext
-def save_customer_photo(photo, customer_id,):
+def save_customer_photo(photo, customer_id):
     
     photo_ext = photo.name.split('.')[-1]
     photo_path = "".join([ CUSTOMER_PHOTO_DIR, str(customer_id), '.', photo_ext ])
