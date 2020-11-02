@@ -1,6 +1,7 @@
 from cycloan.settings import OWNER_PHOTO_DIR
 
 
+## photo filename = ID + . + photo_ext
 def save_owner_photo(photo, owner_id):
     
     photo_ext = photo.name.split('.')[-1]
