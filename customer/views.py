@@ -82,7 +82,7 @@ class CustomerRegisterView(View):
             cursor.execute(sql, [customer_id, doctype, doc_path])
             connection.commit()
             cursor.close()
-
+            request.session['customer_id'] = customer_id
             return redirect('customer-dashboard-view')
 
 

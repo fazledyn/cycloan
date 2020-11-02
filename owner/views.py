@@ -71,7 +71,7 @@ class OwnerRegisterView(View):
             cursor.execute(sql, [owner_id, fullname, password, contact, location, photo_path, email])
             connection.commit()
             cursor.close()
-
+            request.session['owner_id'] = owner_id
             return redirect('owner-dashboard-view')
 
 
