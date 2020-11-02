@@ -3,6 +3,16 @@ from django.db import connection
 from django.views import View
 from django.contrib import messages
 
+from .utils import save_customer_doc, save_customer_photo
+
+from os import path
+
+
+CUSTOMER_ID_CONSTANT = 100
+
+from cycloan.settings import CUSTOMER_DOC_DIR, CUSTOMER_PHOTO_DIR
+
+
 
 class CustomerLoginView(View):
 
@@ -42,6 +52,7 @@ class CustomerRegisterView(View):
 
     def post(self, request):
         
+        photo = request.FILES.get('photo')
         email = request.POST.get('email')
         password = request.POST.get('password')
         password_confirm = request.POST.get('password_confirm')
@@ -50,16 +61,23 @@ class CustomerRegisterView(View):
         contact = request.POST.get('contact')
         doctype = request.POST.get('doctype')
         document = request.FILES.get('document')
+        
+        cursor = connection.cursor()
 
-        print(document.name)
-        print('----')
-        filename = 'files/doc/user_' + email + document.name
-        print(filename)
+        sql = "SELECT COUNT(*) FROM CUSTOMER"
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        customer_id = result[0][0]
 
-        file = open(filename, 'wb')
-        for chunk in document.chunks():
-            file.write(chunk)
-        file.close()
+        photo_path = save_customer_photo(photo, customer_id)
+        doc_path = save_customer_doc(document, customer_id)
+
+        ### CUSTOMER - id, fullname, password, photo_path, contact, email
+        ### DOCUMENT - id, doctype, doc_path, description
+
+        sql = "INSERT INTO CUSTOMER (CUSTOMER_ID, CUSTOMER_NAME, PASSWORD, PHOTO, CUSTOMER_PHONE, EMAIL_ADDRESS)"
+        cursor.execute()
+
 
         return redirect('cutomer-dashboard-view')
 

@@ -41,14 +41,22 @@ class OwnerRegisterView(View):
         return render(request, 'owner_register.html')
     
     def post(self, request):
+
+        photo = request.FILES.get('photo')
         email = request.POST.get('email')
         password = request.POST.get('password')
         password_confirm = request.POST.get('password_confirm')
+
         fullname = request.POST.get('fullname')
         contact = request.POST.get('contact')
         location = request.POST.get('location')
 
+        """
+        save photo here
+        """
+
         if password != password_confirm:
+            messages.warning(request, 'Passwords do not match. Check again')
             return redirect('owner-register-view')
         else:
             cursor = connection.cursor()
