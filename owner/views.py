@@ -7,6 +7,7 @@ from django.views import View
 
 from .utils import save_owner_photo
 
+
 class OwnerLoginView(View):
 
     def get(self, request):
@@ -21,7 +22,7 @@ class OwnerLoginView(View):
         cursor.execute(sql, [owner_email])
         result = cursor.fetchall()
         cursor.close()
-        
+
         try:
             res = result[0][0]
             if res == owner_pass:
@@ -40,7 +41,7 @@ class OwnerLoginView(View):
 class OwnerRegisterView(View):
     def get(self, request):
         return render(request, 'owner_register.html')
-    
+
     def post(self, request):
 
         photo = request.FILES.get('photo')
@@ -52,13 +53,6 @@ class OwnerRegisterView(View):
         contact = request.POST.get('contact')
         location = request.POST.get('location')
 
-        """
-        @Purbasha
-        get owner id here
-        """
-        photo_path = save_owner_photo(photo, owner_id)
-
-
         if password != password_confirm:
             messages.warning(request, 'Passwords do not match. Check again')
             return redirect('owner-register-view')
@@ -69,14 +63,16 @@ class OwnerRegisterView(View):
             result = cursor.fetchall()
             cursor.close()
             count = int(result[0][0])
+            owner_id = 101 + count
+            photo_path = save_owner_photo(photo, owner_id)
 
             cursor = connection.cursor()
-            sql = "INSERT INTO OWNER(OWNER_ID,OWNER_NAME,PASSWORD,OWNER_PHONE,LOCATION,EMAIL_ADDRESS) VALUES(%s, %s, %s, %s, %s, %s)"
-            cursor.execute(sql, [101+count, fullname, password, contact, location, email])
+            sql = "INSERT INTO OWNER(OWNER_ID,OWNER_NAME,PASSWORD,OWNER_PHONE,LOCATION,PHOTO,EMAIL_ADDRESS) VALUES(%s, %s, %s, %s, %s, %s, %s)"
+            cursor.execute(sql, [owner_id, fullname, password, contact, location, photo_path, email])
             connection.commit()
             cursor.close()
-            return redirect('owner-dashboard-view')
 
+            return redirect('owner-dashboard-view')
 
 
 class OwnerDashboardView(View):
