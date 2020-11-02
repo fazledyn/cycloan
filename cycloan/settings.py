@@ -147,3 +147,13 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'files/doc'),
     'static',
 ]
+
+
+## custom file dirs
+
+OWNER_PHOTO_DIR = 'static/files/owner/photo'
+
+CUSTOMER_PHOTO_DIR = 'static/files/customer/photo'
+
+CUSTOMER_DOC_DIR = 'static/files/customer/doc'
+
