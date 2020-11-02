@@ -10,9 +10,6 @@ from os import path
 
 CUSTOMER_ID_CONSTANT = 100
 
-from cycloan.settings import CUSTOMER_DOC_DIR, CUSTOMER_PHOTO_DIR
-
-
 
 class CustomerLoginView(View):
 

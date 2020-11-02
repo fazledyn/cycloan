@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.views import View
 
+from .utils import save_owner_photo
 
 class OwnerLoginView(View):
 
@@ -52,8 +53,11 @@ class OwnerRegisterView(View):
         location = request.POST.get('location')
 
         """
-        save photo here
+        @Purbasha
+        get owner id here
         """
+        photo_path = save_owner_photo(photo, owner_id)
+
 
         if password != password_confirm:
             messages.warning(request, 'Passwords do not match. Check again')
