@@ -20,6 +20,12 @@
     font-size: 16px;
 }
 
+.profile-image {
+    border-radius: 50%;
+    width: 70px;
+    height: auto;
+}
+
 </style>
 
 <body>
@@ -36,6 +42,8 @@
                         <div class="message-box">{{ message }}</div>
                     {% endfor %}
                 {% endif %}
+                
+                
 
                 <div class="form-group">
                     <label for="email">Email Address</label>
@@ -79,19 +87,12 @@
                             <option>Passport</option>
                         </select>
                     </div>
-                </div>
-
-                <div class="form-group">
-                </div>
-
-                <div class="input-group mb-4">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text" id="inputGroupFileAddon01">Upload</span>
-                    </div>
-                    <div class="custom-file">
-                        <input type="file" class="custom-file-input" id="inputGroupFile01"
-                            aria-describedby="inputGroupFileAddon01" name="document">
-                        <label class="custom-file-label" for="inputGroupFile01">Choose file</label>
+                    <div class="form-group col-md-6">
+                        <label for="doctype">Upload Credential</label>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="inputGroupFile01" aria-describedby="inputGroupFileAddon01" name="document">
+                            <label class="custom-file-label" for="inputGroupFile01">Choose file</label>
+                        </div>
                     </div>
                 </div>
 
