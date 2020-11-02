@@ -7,7 +7,6 @@ from .utils import save_customer_doc, save_customer_photo
 
 from os import path
 
-
 CUSTOMER_ID_CONSTANT = 100
 
 
@@ -48,35 +47,43 @@ class CustomerRegisterView(View):
         return render(request, 'customer_register.html')
 
     def post(self, request):
-        
+
         photo = request.FILES.get('photo')
         email = request.POST.get('email')
         password = request.POST.get('password')
         password_confirm = request.POST.get('password_confirm')
-        
         fullname = request.POST.get('fullname')
         contact = request.POST.get('contact')
         doctype = request.POST.get('doctype')
         document = request.FILES.get('document')
-        
-        cursor = connection.cursor()
 
-        sql = "SELECT COUNT(*) FROM CUSTOMER"
-        cursor.execute(sql)
-        result = cursor.fetchall()
-        customer_id = result[0][0]
+        if password != password_confirm:
+            messages.warning(request, 'Passwords do not match. Check again')
+            return redirect('customer-register-view')
+        else:
+            cursor = connection.cursor()
+            sql = "SELECT COUNT(*) FROM CUSTOMER"
+            cursor.execute(sql)
+            result = cursor.fetchall()
+            cursor.close()
+            count = int(result[0][0])
+            customer_id = 101 + count
+            photo_path = save_customer_photo(photo, customer_id)
+            doc_path = save_customer_doc(document, customer_id)
 
-        photo_path = save_customer_photo(photo, customer_id)
-        doc_path = save_customer_doc(document, customer_id)
+            cursor = connection.cursor()
+            sql = "INSERT INTO CUSTOMER(CUSTOMER_ID,CUSTOMER_NAME,PASSWORD,CUSTOMER_PHONE,PHOTO,EMAIL_ADDRESS) VALUES(%s, %s, %s, %s, %s, %s)"
+            cursor.execute(sql, [customer_id, fullname, password, contact, photo_path, email])
+            connection.commit()
+            cursor.close()
 
-        ### CUSTOMER - id, fullname, password, photo_path, contact, email
-        ### DOCUMENT - id, doctype, doc_path, description
+            cursor = connection.cursor()
+            sql = "INSERT INTO DOCUMENT(CUSTOMER_ID,TYPE_NAME,FILE_NAME) VALUES(%s, %s, %s)"
+            cursor.execute(sql, [customer_id, doctype, doc_path])
+            connection.commit()
+            cursor.close()
 
-        sql = "INSERT INTO CUSTOMER (CUSTOMER_ID, CUSTOMER_NAME, PASSWORD, PHOTO, CUSTOMER_PHONE, EMAIL_ADDRESS)"
-        cursor.execute()
-
-
-        return redirect('cutomer-dashboard-view')
+            return redirect('customer-dashboard-view')
 
 
 class CustomerDashboardView(View):

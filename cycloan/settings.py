@@ -69,7 +69,6 @@ WSGI_APPLICATION = 'cycloan.wsgi.application'
 
 # Sessions Config
 SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
-
 SESSION_COOKIE_HTTPONLY = True
 
 # 2 WEEKS LONGER cookies
@@ -97,8 +96,12 @@ SESSION_COOKIE_AGE = 1209600
 
 DATABASES = {   
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.oracle',
+        'NAME': 'orcl',
+        'USER': 'ROOT',
+        'PASSWORD': '6667',
+        'HOST': 'localhost',
+        'PORT': '1521',
     }
 }
 
@@ -147,33 +150,11 @@ STATICFILES_DIRS = [
 ]
 
 
+# custom file dirs
 
-### DJANGO MAIL
+OWNER_PHOTO_DIR = 'static/files/owner/photo/'
 
-EMAIL_HOST = 'sg2plcpnl0223.prod.sin2.secureserver.net'
+CUSTOMER_PHOTO_DIR = 'static/files/customer/photo/'
 
-EMAIL_PORT = 465
+CUSTOMER_DOC_DIR = 'static/files/customer/doc/'
 
-EMAIL_HOST_USER = 'rabid@dhaka-ai.com'
-
-EMAIL_HOST_PASSWORD = 'Ns7ZhxE2mz%t'
-
-EMAIL_USE_TLS = False
-
-EMAIL_USE_SSL = True
-
-
-# PROJECT CONSTANTS
-
-# Static file directory for save
-OWNER_PHOTO_DIR = 'static/files/owner/photo'
-
-CUSTOMER_PHOTO_DIR = 'static/files/customer/photo'
-
-CUSTOMER_DOC_DIR = 'static/files/customer/doc'
-
-
-# User ID Suffix Constant
-CUSTOMER_ID_CONSTANT = 1000
-
-OWNER_ID_CONSTANT = 2000
