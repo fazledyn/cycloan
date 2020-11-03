@@ -68,23 +68,40 @@ class OwnerRegisterView(View):
             return redirect('owner-register-view')
         else:
             cursor = connection.cursor()
-            sql = "SELECT COUNT(*) FROM OWNER"
-            cursor.execute(sql)
+            sql = "SELECT COUNT(*) FROM OWNER WHERE EMAIL_ADDRESS=%s"
+            cursor.execute(sql, [email])
             result = cursor.fetchall()
             cursor.close()
             count = int(result[0][0])
-            owner_id = 101 + count
 
-            photo_path = save_owner_photo(photo, owner_id)
+            if count == 0:
+                cursor = connection.cursor()
+                sql = "SELECT COUNT(*) FROM OWNER"
+                cursor.execute(sql)
+                result = cursor.fetchall()
+                cursor.close()
+                count = int(result[0][0])
+                owner_id = 101 + count
+                photo_path = save_owner_photo(photo, owner_id)
 
-            cursor = connection.cursor()
-            sql = "INSERT INTO OWNER(OWNER_ID,OWNER_NAME,PASSWORD,OWNER_PHONE,LOCATION,PHOTO,EMAIL_ADDRESS) VALUES(%s, %s, %s, %s, %s, %s, %s)"
-            cursor.execute(sql, [owner_id, fullname, password, contact, location, photo_path, email])
-            connection.commit()
-            cursor.close()
+                cursor = connection.cursor()
+                sql = "INSERT INTO OWNER(OWNER_ID,OWNER_NAME,PASSWORD,OWNER_PHONE,LOCATION,PHOTO,EMAIL_ADDRESS) VALUES(%s, %s, %s, %s, %s, %s, %s)"
+                cursor.execute(sql, [owner_id, fullname, password, contact, location, photo_path, email])
+                connection.commit()
+                cursor.close()
 
-            messages.info(request, 'Account created. Wait for verification mail')
-            return redirect('login-view')
+                cursor = connection.cursor()
+                sql = "INSERT INTO OWNER_EMAIL_VERIFICATION(OWNER_ID,IS_VERIFIED,EMAIL_ADDRESS) VALUES(%s, %s, %s)"
+                cursor.execute(sql, [owner_id, 0, email])
+                connection.commit()
+                cursor.close()
+
+                request.session['owner_id'] = owner_id
+                return redirect('owner-dashboard-view')
+
+            else:
+                messages.warning(request, 'Account exists with similar email. Please provide different email')
+                return redirect('owner-register-view')
 
 
 class OwnerDashboardView(View):

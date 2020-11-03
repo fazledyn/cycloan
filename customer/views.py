@@ -62,28 +62,47 @@ class CustomerRegisterView(View):
             return redirect('customer-register-view')
         else:
             cursor = connection.cursor()
-            sql = "SELECT COUNT(*) FROM CUSTOMER"
-            cursor.execute(sql)
+            sql = "SELECT COUNT(*) FROM CUSTOMER WHERE EMAIL_ADDRESS=%s"
+            cursor.execute(sql, [email])
             result = cursor.fetchall()
             cursor.close()
             count = int(result[0][0])
-            customer_id = 101 + count
-            photo_path = save_customer_photo(photo, customer_id)
-            doc_path = save_customer_doc(document, customer_id)
 
-            cursor = connection.cursor()
-            sql = "INSERT INTO CUSTOMER(CUSTOMER_ID,CUSTOMER_NAME,PASSWORD,CUSTOMER_PHONE,PHOTO,EMAIL_ADDRESS) VALUES(%s, %s, %s, %s, %s, %s)"
-            cursor.execute(sql, [customer_id, fullname, password, contact, photo_path, email])
-            connection.commit()
-            cursor.close()
+            if count == 0:
+                cursor = connection.cursor()
+                sql = "SELECT COUNT(*) FROM CUSTOMER"
+                cursor.execute(sql)
+                result = cursor.fetchall()
+                cursor.close()
+                count = int(result[0][0])
+                customer_id = 101 + count
+                photo_path = save_customer_photo(photo, customer_id)
+                doc_path = save_customer_doc(document, customer_id)
 
-            cursor = connection.cursor()
-            sql = "INSERT INTO DOCUMENT(CUSTOMER_ID,TYPE_NAME,FILE_NAME) VALUES(%s, %s, %s)"
-            cursor.execute(sql, [customer_id, doctype, doc_path])
-            connection.commit()
-            cursor.close()
-            request.session['customer_id'] = customer_id
-            return redirect('customer-dashboard-view')
+                cursor = connection.cursor()
+                sql = "INSERT INTO CUSTOMER(CUSTOMER_ID,CUSTOMER_NAME,PASSWORD,CUSTOMER_PHONE,PHOTO,EMAIL_ADDRESS) VALUES(%s, %s, %s, %s, %s, %s)"
+                cursor.execute(sql, [customer_id, fullname, password, contact, photo_path, email])
+                connection.commit()
+                cursor.close()
+
+                cursor = connection.cursor()
+                sql = "INSERT INTO DOCUMENT(CUSTOMER_ID,TYPE_NAME,FILE_NAME) VALUES(%s, %s, %s)"
+                cursor.execute(sql, [customer_id, doctype, doc_path])
+                connection.commit()
+                cursor.close()
+
+                cursor = connection.cursor()
+                sql = "INSERT INTO CUSTOMER_EMAIL_VERIFICATION(CUSTOMER_ID,IS_VERIFIED,EMAIL_ADDRESS) VALUES(%s, %s, %s)"
+                cursor.execute(sql, [customer_id, 0, email])
+                connection.commit()
+                cursor.close()
+
+                request.session['customer_id'] = customer_id
+                return redirect('customer-dashboard-view')
+
+            else:
+                messages.warning(request, 'Account exists with similar email. Please provide different email')
+                return redirect('customer-register-view')
 
 
 class CustomerDashboardView(View):
