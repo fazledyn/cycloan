@@ -96,8 +96,7 @@ class OwnerRegisterView(View):
                 connection.commit()
                 cursor.close()
 
-                request.session['owner_id'] = owner_id
-                return redirect('owner-dashboard-view')
+                return redirect('login-view')
 
             else:
                 messages.warning(request, 'Account exists with similar email. Please provide different email')

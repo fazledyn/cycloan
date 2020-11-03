@@ -5,8 +5,6 @@ from django.contrib import messages
 
 from .utils import save_customer_doc, save_customer_photo
 
-from os import path
-
 CUSTOMER_ID_CONSTANT = 100
 
 
@@ -97,8 +95,7 @@ class CustomerRegisterView(View):
                 connection.commit()
                 cursor.close()
 
-                request.session['customer_id'] = customer_id
-                return redirect('customer-dashboard-view')
+                return redirect('login-view')
 
             else:
                 messages.warning(request, 'Account exists with similar email. Please provide different email')
