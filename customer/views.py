@@ -45,6 +45,18 @@ class CustomerLoginView(View):
             return redirect('login-view')
 
 
+class CustomerLogoutView(View):
+    
+    @verify_auth_token
+    @check_customer
+    def get(self, request):
+        request.session.pop('customer_id', None)    
+        request.session.pop('user_type', None)
+        request.session.pop('auth_token', None)
+        messages.info(request, 'You are logged out.')
+        return redirect('login-view')
+
+
 class CustomerRegisterView(View):
 
     def get(self, request):
@@ -126,3 +138,4 @@ class CustomerDashboardView(View):
         print(customer_name)
         context = {'customer_name': customer_name}
         return render(request, 'customer_dashboard.html', context)
+

@@ -47,6 +47,18 @@ class OwnerLoginView(View):
             return redirect('login-view')
 
 
+class OwnerLogoutView(View):
+    
+    @verify_auth_token
+    @check_owner
+    def get(self, request):
+        request.session.pop('owner_id', None)    
+        request.session.pop('user_type', None)
+        request.session.pop('auth_token', None)
+        messages.info(request, 'You are logged out.')
+        return redirect('login-view')
+
+
 class OwnerRegisterView(View):
     def get(self, request):
         if request.session.get('auth_token'):
