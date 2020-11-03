@@ -20,7 +20,7 @@ def verify_auth_token(func):
         except:
             messages.warning(request, 'Session expired. Please log in again.')
             return redirect('login-view')
-        return func(*args, **kwargs)
+        return func(self, request, *args, **kwargs)
 
     return wrapped
 
@@ -31,28 +31,31 @@ def create_auth_token(user_id):
             'user_id': user_id,
             'exp': datetime.now() + timedelta(seconds=600000)
         }, SECRET_KEY, algorithm='HS256'
-    )
+    ).decode('utf-8')
+    print(type(auth_token))
     return auth_token
 
 
 def check_customer(func):
     @wraps(func)
     def wrapped(self, request, *args, **kwargs):
-        if request.session.get('user_type') != 'customer':
+        
+        if request.session.get('user_type') == 'owner':
             messages.warning(request, 'You are not allowed to view that page.')
             return redirect('owner-dashboard-view')
 
-        return func(*args, **kwargs)
+        return func(self, request, *args, **kwargs)
     return wrapped
 
 
 def check_owner(func):
     @wraps(func)
     def wrapped(self, request, *args, **kwargs):
-        if request.session.get('user_type') != 'owner':
+        
+        if request.session.get('user_type') == 'customer':
             messages.warning(request, 'You are not allowed to view that page.')
             return redirect('customer-dashboard-view')
 
-        return func(*args, **kwargs)
+        return func(self, request, *args, **kwargs)
     return wrapped
 
