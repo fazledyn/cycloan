@@ -4,13 +4,16 @@ from django.views import View
 from django.contrib import messages
 
 from .utils import save_customer_doc, save_customer_photo
+from core.utils import create_auth_token
 
-CUSTOMER_ID_CONSTANT = 100
-
+## decorators
+from core.utils import verify_auth_token, check_customer
 
 class CustomerLoginView(View):
 
     def get(self, request):
+        if request.session.get('auth_token'):
+            return redirect('owner-dashboard-view')
         return redirect('login-view')
 
     def post(self, request):
@@ -24,11 +27,14 @@ class CustomerLoginView(View):
         cursor.close()
 
         try:
-            res = result[0][0]
-            if res == customer_pass:
-                print('kaaj hoise')
-                request.session['customer_id'] = result[0][1]
-                print(request.session['customer_id'])
+            fetched_pass = result[0][0]
+            if fetched_pass == customer_pass:
+                customer_id = result[0][1]
+
+                request.session['customer_id'] = customer_id
+                request.session['auth_token'] = create_auth_token(customer_id)
+                request.session['user_type'] = 'customer'
+                
                 return redirect('customer-dashboard-view')
             else:
                 messages.error(request, 'Password mismatched. Enter correctly!')
@@ -42,6 +48,8 @@ class CustomerLoginView(View):
 class CustomerRegisterView(View):
 
     def get(self, request):
+        if request.session.get('auth_token'):
+            return redirect('owner-dashboard-view')
         return render(request, 'customer_register.html')
 
     def post(self, request):
@@ -95,6 +103,7 @@ class CustomerRegisterView(View):
                 connection.commit()
                 cursor.close()
 
+                messages.success(request, 'Account create successful. Now you can login.')
                 return redirect('login-view')
 
             else:
@@ -104,6 +113,8 @@ class CustomerRegisterView(View):
 
 class CustomerDashboardView(View):
 
+    @verify_auth_token
+    @check_customer
     def get(self, request):
         customer_id = request.session.get('customer_id')
         cursor = connection.cursor()

@@ -36,6 +36,7 @@ class OwnerLoginView(View):
 
                 request.session['owner_id'] = owner_id
                 request.session['auth_token'] = create_auth_token(owner_id)
+                request.session['user_type'] = 'owner'
                 return redirect('owner-dashboard-view')
 
             else:
@@ -96,8 +97,9 @@ class OwnerRegisterView(View):
                 connection.commit()
                 cursor.close()
 
+                messages.success(request, 'Account create successful. Now you can login.')
                 return redirect('login-view')
-
+                
             else:
                 messages.warning(request, 'Account exists with similar email. Please provide different email')
                 return redirect('owner-register-view')
