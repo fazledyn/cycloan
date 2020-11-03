@@ -6,11 +6,17 @@ from django.shortcuts import render, redirect
 from django.views import View
 
 from .utils import save_owner_photo
+from core.utils import create_auth_token
+
+## decorators
+from core.utils import verify_auth_token, check_owner
 
 
 class OwnerLoginView(View):
 
     def get(self, request):
+        if request.session.get('auth_token'):
+            return redirect('owner-dashboard-view')
         return redirect('login-view')
 
     def post(self, request):
@@ -24,12 +30,14 @@ class OwnerLoginView(View):
         cursor.close()
 
         try:
-            res = result[0][0]
-            if res == owner_pass:
-                print('kaaj hoise')
-                request.session['owner_id'] = result[0][1]
-                print(request.session['owner_id'])
+            fetched_pass = result[0][0]
+            if fetched_pass == owner_pass:
+                owner_id = result[0][1]
+
+                request.session['owner_id'] = owner_id
+                request.session['auth_token'] = create_auth_token(owner_id)
                 return redirect('owner-dashboard-view')
+
             else:
                 messages.error(request, 'Password did not match. Enter correctly!')
                 return redirect('login-view')
@@ -40,6 +48,8 @@ class OwnerLoginView(View):
 
 class OwnerRegisterView(View):
     def get(self, request):
+        if request.session.get('auth_token'):
+            return redirect('owner-dashboard-view')
         return render(request, 'owner_register.html')
 
     def post(self, request):
@@ -64,6 +74,7 @@ class OwnerRegisterView(View):
             cursor.close()
             count = int(result[0][0])
             owner_id = 101 + count
+
             photo_path = save_owner_photo(photo, owner_id)
 
             cursor = connection.cursor()
@@ -71,12 +82,15 @@ class OwnerRegisterView(View):
             cursor.execute(sql, [owner_id, fullname, password, contact, location, photo_path, email])
             connection.commit()
             cursor.close()
-            request.session['owner_id'] = owner_id
-            return redirect('owner-dashboard-view')
+
+            messages.info(request, 'Account created. Wait for verification mail')
+            return redirect('login-view')
 
 
 class OwnerDashboardView(View):
 
+    @verify_auth_token
+    @check_owner
     def get(self, request):
         owner_id = request.session.get('owner_id')
         cursor = connection.cursor()
