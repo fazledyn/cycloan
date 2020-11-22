@@ -172,14 +172,18 @@ class CustomerProfileView(View):
     @verify_auth_token
     @check_customer
     def post(self, request):
-        cursor = connection.cursor()
-        
+
+        cursor = connection.cursor()        
         customer_id = request.session.get('customer_id')
-        sql = ""
+        sql = "SELECT PASSWORD FROM CUSTOMER WHERE CUSTOMER_ID=%s"
         cursor.execute(sql, [customer_id])
         result = cursor.fetchall()
         cursor.close()
         
+        
+        #####################   WORK LEFT   ####################
+        ########################################################
+
         """
         :: Customer Profile Data Update
         > Can upload new photo here
@@ -187,9 +191,45 @@ class CustomerProfileView(View):
         > Can update the name ??? (not sure)
         """
 
-        #####################   WORK LEFT   ####################
-        ########################################################
+        """
+        ? Password Change:
+        Get current password through the form.
+        `request.POST.get('old_password)`
 
+        Then get new password
+        `request.POST.get('new_password)`
+        `request.POST.get('new_password_confirm')`
+
+        FlowChart:
+
+        If the old password matches with the DATABASE, then check the new ones (constraints also)
+        If both of them match, then over-write the new password(hash) in the database.
+                
+        """
+
+        old_password = request.POST.get('old_password')
+        new_password = request.POST.get('new_password')
+        new_password_confirm = request.POST.get('new_password_confirm')
+
+        customer_new_phone = request.POST.get('customer_new_phone')
+        customer_new_photo = request.FILES.get('customer_new_photo')
+
+        old_password_from_db = result[0][0]
+
+        if (old_password == "" and new_password == "" and new_password_confirm == ""):
+            # do other changes
+        
+        else:
+            
+            if (new_password == new_password_confirm):
+                if (old_password == old_password_from_db):
+                    pass
+                    ### change the password and return to new page.
+                else:
+                    messages.error('Your current password is not correct!')
+            else:
+                messages.error('The new passwords do not match! Type carefully.')
+                return redirect('customer-profile-view')
 
 
 
