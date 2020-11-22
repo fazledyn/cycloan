@@ -139,3 +139,57 @@ class CustomerDashboardView(View):
         context = {'customer_name': customer_name}
         return render(request, 'customer_dashboard.html', context)
 
+
+class CustomerProfileView(View):
+
+    @verify_auth_token
+    @check_customer
+    def get(self, request):
+        cursor = connection.cursor()
+        
+        customer_id = request.session.get('customer_id')
+        sql = "SELECT * FROM CUSTOMER WHERE CUSTOMER_ID=%s"
+        cursor.execute(sql, [customer_id])
+        result = cursor.fetchall()
+        cursor.close()
+
+        customer_id = result[0][0]
+        customer_name = result[0][1]
+        customer_photo = result[0][3]
+        customer_phone = result[0][4]
+        customer_email = result[0][5]
+
+        context = {
+            'customer_id': customer_id,
+            'customer_name': customer_name,
+            'customer_photo': customer_photo,
+            'customer_phone': customer_phone,
+            'customer_email': customer_email
+        }
+
+        return render(request, 'customer_profile.html', context)
+
+    @verify_auth_token
+    @check_customer
+    def post(self, request):
+        cursor = connection.cursor()
+        
+        customer_id = request.session.get('customer_id')
+        sql = ""
+        cursor.execute(sql, [customer_id])
+        result = cursor.fetchall()
+        cursor.close()
+        
+        """
+        :: Customer Profile Data Update
+        > Can upload new photo here
+        > Can update the phone number
+        > Can update the name ??? (not sure)
+        """
+
+        #####################   WORK LEFT   ####################
+        ########################################################
+
+
+
+
