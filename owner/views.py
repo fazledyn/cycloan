@@ -98,7 +98,7 @@ class OwnerRegisterView(View):
                 photo_path = save_owner_photo(photo, owner_id)
 
                 cursor = connection.cursor()
-                sql = "INSERT INTO OWNER(OWNER_ID,OWNER_NAME,PASSWORD,OWNER_PHONE,LOCATION,PHOTO,EMAIL_ADDRESS) VALUES(%s, %s, %s, %s, %s, %s, %s)"
+                sql = "INSERT INTO OWNER(OWNER_ID,OWNER_NAME,PASSWORD,OWNER_PHONE,LOCATION,PHOTO_PATH,EMAIL_ADDRESS) VALUES(%s, %s, %s, %s, %s, %s, %s)"
                 cursor.execute(sql, [owner_id, fullname, password, contact, location, photo_path, email])
                 connection.commit()
                 cursor.close()

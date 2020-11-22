@@ -98,7 +98,7 @@ class CustomerRegisterView(View):
                 doc_path = save_customer_doc(document, customer_id)
 
                 cursor = connection.cursor()
-                sql = "INSERT INTO CUSTOMER(CUSTOMER_ID,CUSTOMER_NAME,PASSWORD,CUSTOMER_PHONE,PHOTO,EMAIL_ADDRESS) VALUES(%s, %s, %s, %s, %s, %s)"
+                sql = "INSERT INTO CUSTOMER(CUSTOMER_ID,CUSTOMER_NAME,PASSWORD,CUSTOMER_PHONE,PHOTO_PATH,EMAIL_ADDRESS) VALUES(%s, %s, %s, %s, %s, %s)"
                 cursor.execute(sql, [customer_id, fullname, password, contact, photo_path, email])
                 connection.commit()
                 cursor.close()
