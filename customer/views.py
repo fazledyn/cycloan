@@ -9,6 +9,7 @@ from core.utils import create_auth_token
 ## decorators
 from core.utils import verify_auth_token, check_customer
 
+
 class CustomerLoginView(View):
 
     def get(self, request):
@@ -34,7 +35,7 @@ class CustomerLoginView(View):
                 request.session['customer_id'] = customer_id
                 request.session['auth_token'] = create_auth_token(customer_id)
                 request.session['user_type'] = 'customer'
-                
+
                 return redirect('customer-dashboard-view')
             else:
                 messages.error(request, 'Password mismatched. Enter correctly!')
@@ -46,11 +47,11 @@ class CustomerLoginView(View):
 
 
 class CustomerLogoutView(View):
-    
+
     @verify_auth_token
     @check_customer
     def get(self, request):
-        request.session.pop('customer_id', None)    
+        request.session.pop('customer_id', None)
         request.session.pop('user_type', None)
         request.session.pop('auth_token', None)
         messages.info(request, 'You are logged out.')
@@ -146,7 +147,7 @@ class CustomerProfileView(View):
     @check_customer
     def get(self, request):
         cursor = connection.cursor()
-        
+
         customer_id = request.session.get('customer_id')
         sql = "SELECT * FROM CUSTOMER WHERE CUSTOMER_ID=%s"
         cursor.execute(sql, [customer_id])
@@ -173,14 +174,13 @@ class CustomerProfileView(View):
     @check_customer
     def post(self, request):
 
-        cursor = connection.cursor()        
+        cursor = connection.cursor()
         customer_id = request.session.get('customer_id')
         sql = "SELECT PASSWORD FROM CUSTOMER WHERE CUSTOMER_ID=%s"
         cursor.execute(sql, [customer_id])
         result = cursor.fetchall()
         cursor.close()
-        
-        
+
         #####################   WORK LEFT   ####################
         ########################################################
 
@@ -216,20 +216,37 @@ class CustomerProfileView(View):
 
         old_password_from_db = result[0][0]
 
-        if (old_password == "" and new_password == "" and new_password_confirm == ""):
+        if old_password == "" and new_password == "" and new_password_confirm == "":
             # do other changes
-        
+            print("hello")
         else:
-            
-            if (new_password == new_password_confirm):
-                if (old_password == old_password_from_db):
+
+            if new_password == new_password_confirm:
+                if old_password == old_password_from_db:
+                    cursor = connection.cursor()
+                    sql = "INSERT INTO CUSTOMER(PASSWORD) VALUES(%s) WHERE CUSTOMER_ID = %s"
+                    cursor.execute(sql, [new_password, customer_id])
+                    connection.commit()
+                    cursor.close()
                     pass
-                    ### change the password and return to new page.
+                    # change the password and return to new page.
                 else:
                     messages.error('Your current password is not correct!')
             else:
                 messages.error('The new passwords do not match! Type carefully.')
                 return redirect('customer-profile-view')
 
+        cursor = connection.cursor()
+        sql = "INSERT INTO CUSTOMER(CUSTOMER_PHONE) VALUES(%s) WHERE CUSTOMER_ID = %s"
+        cursor.execute(sql, [customer_new_phone, customer_id])
+        connection.commit()
+        cursor.close()
 
+        # Need to delete the previous photo. But don't know how to do it :3
 
+        new_photo_path = save_customer_photo(customer_new_photo, customer_id)
+        cursor = connection.cursor()
+        sql = "INSERT INTO CUSTOMER(PHOTO_PATH) VALUES(%s) WHERE CUSTOMER_ID = %s"
+        cursor.execute(sql, [new_photo_path, customer_id])
+        connection.commit()
+        cursor.close()
