@@ -178,58 +178,41 @@ class CustomerProfileView(View):
         sql = "SELECT PASSWORD FROM CUSTOMER WHERE CUSTOMER_ID=%s"
         cursor.execute(sql, [customer_id])
         result = cursor.fetchall()
-        cursor.close()
-        
+        cursor.close()        
         
         #####################   WORK LEFT   ####################
         ########################################################
-
-        """
-        :: Customer Profile Data Update
-        > Can upload new photo here
-        > Can update the phone number
-        > Can update the name ??? (not sure)
-        """
-
-        """
-        ? Password Change:
-        Get current password through the form.
-        `request.POST.get('old_password)`
-
-        Then get new password
-        `request.POST.get('new_password)`
-        `request.POST.get('new_password_confirm')`
-
-        FlowChart:
-
-        If the old password matches with the DATABASE, then check the new ones (constraints also)
-        If both of them match, then over-write the new password(hash) in the database.
-                
-        """
 
         old_password = request.POST.get('old_password')
         new_password = request.POST.get('new_password')
         new_password_confirm = request.POST.get('new_password_confirm')
 
-        customer_new_phone = request.POST.get('customer_new_phone')
-        customer_new_photo = request.FILES.get('customer_new_photo')
-
         old_password_from_db = result[0][0]
 
         if (old_password == "" and new_password == "" and new_password_confirm == ""):
-            # do other changes
+            customer_new_phone = request.POST.get('customer_new_phone')
+            customer_new_photo = request.FILES.get('customer_new_photo')
+
+            customer_new_photo_path = save_customer_photo(customer_new_photo, customer_id)
+
+            ### ! overwrite these
+
+
+            ### ! end overwrite
+        
+            messages.info('Information updated !')
+            return redirect('customer-profile-view')
         
         else:
             
             if (new_password == new_password_confirm):
                 if (old_password == old_password_from_db):
-                    pass
+
+                    messages.info('Password updated !')
+                    return redirect('customer-profile-view')
                     ### change the password and return to new page.
                 else:
-                    messages.error('Your current password is not correct!')
+                    messages.error('Enter current password correctly !')
             else:
                 messages.error('The new passwords do not match! Type carefully.')
                 return redirect('customer-profile-view')
-
-
-
