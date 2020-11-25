@@ -158,3 +158,18 @@ CUSTOMER_PHOTO_DIR = 'files/customer/photo/'
 
 CUSTOMER_DOC_DIR = 'files/customer/doc/'
 
+# email handling
+
+EMAIL_HOST = 'sg2plcpnl0223.prod.sin2.secureserver.net'
+
+EMAIL_PORT = 465
+
+EMAIL_HOST_USER = 'rabid@dhaka-ai.com'
+
+EMAIL_HOST_PASSWORD = 'Ns7ZhxE2mz%t'
+
+EMAIL_USE_TLS = False
+
+EMAIL_USE_SSL = True
+
+DEFAULT_FROM_EMAIL = 'no-reply@cycloan.com'
