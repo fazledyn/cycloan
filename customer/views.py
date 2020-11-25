@@ -189,41 +189,43 @@ class CustomerProfileView(View):
         new_password_confirm = request.POST.get('new_password_confirm')
 
         customer_new_phone = request.POST.get('customer_new_phone')
-        customer_new_photo = request.POST.get('customer_new_photo')
+        customer_new_photo = request.FILES.get('customer_new_photo')
 
         old_password_from_db = result[0][0]
 
         if old_password == "" and new_password == "" and new_password_confirm == "":
-            # do other changes
-            print("hello")
-        else:
+            
+            if len(customer_new_photo) != 0:
+                new_photo_path = save_customer_photo(customer_new_photo, customer_id)
+                cursor = connection.cursor()
+                sql = "UPDATE CUSTOMER SET PHOTO_PATH = %s WHERE CUSTOMER_ID = %s"
+                cursor.execute(sql, [new_photo_path, customer_id])
+                connection.commit()
+                cursor.close()
+            
+            cursor = connection.cursor()
+            sql = "UPDATE CUSTOMER SET CUSTOMER_PHONE = %s WHERE CUSTOMER_ID = %s"
+            cursor.execute(sql, [customer_new_phone, customer_id])
+            connection.commit()
+            cursor.close()
+            
+            messages.success(request, 'Profile updated !')
 
+        else:
             if new_password == new_password_confirm:
-                if old_password == old_password_from_db:
+                
+                if old_password == old_password_from_db:        
                     cursor = connection.cursor()
-                    sql = "INSERT INTO CUSTOMER(PASSWORD) VALUES(%s) WHERE CUSTOMER_ID = %s"
+                    sql = "UPDATE CUSTOMER SET PASSWORD = %s WHERE CUSTOMER_ID = %s"
                     cursor.execute(sql, [new_password, customer_id])
                     connection.commit()
                     cursor.close()
-                    pass
-                    # change the password and return to new page.
+                    messages.success(request, 'Password updated !')
+            
                 else:
-                    messages.error('Enter current password correctly !')
+                    messages.error('Enter current password correctly!')
+
             else:
                 messages.error('The new passwords do not match! Type carefully.')
-                return redirect('customer-profile-view')
-
-        cursor = connection.cursor()
-        sql = "INSERT INTO CUSTOMER(CUSTOMER_PHONE) VALUES(%s) WHERE CUSTOMER_ID = %s"
-        cursor.execute(sql, [customer_new_phone, customer_id])
-        connection.commit()
-        cursor.close()
-
-        # Need to delete the previous photo. But don't know how to do it :3
-
-        new_photo_path = save_customer_photo(customer_new_photo, customer_id)
-        cursor = connection.cursor()
-        sql = "INSERT INTO CUSTOMER(PHOTO_PATH) VALUES(%s) WHERE CUSTOMER_ID = %s"
-        cursor.execute(sql, [new_photo_path, customer_id])
-        connection.commit()
-        cursor.close()
+    
+        return redirect('customer-profile-view')

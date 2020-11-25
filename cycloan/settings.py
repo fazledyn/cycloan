@@ -152,9 +152,9 @@ STATICFILES_DIRS = [
 
 # custom file dirs
 
-OWNER_PHOTO_DIR = 'static/files/owner/photo/'
+OWNER_PHOTO_DIR = 'files/owner/photo/'
 
-CUSTOMER_PHOTO_DIR = 'static/files/customer/photo/'
+CUSTOMER_PHOTO_DIR = 'files/customer/photo/'
 
-CUSTOMER_DOC_DIR = 'static/files/customer/doc/'
+CUSTOMER_DOC_DIR = 'files/customer/doc/'
 
