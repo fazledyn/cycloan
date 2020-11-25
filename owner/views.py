@@ -131,3 +131,93 @@ class OwnerDashboardView(View):
         owner_name = result[0][0]
         context = {'owner_name': owner_name}
         return render(request, 'owner_dashboard.html', context)
+
+
+class OwnerProfileView(View):
+
+    @verify_auth_token
+    @check_owner
+    def get(self, request):
+        cursor = connection.cursor()
+
+        owner_id = request.session.get('owner_id')
+        sql = "SELECT * FROM OWNER WHERE OWNER_ID=%s"
+        cursor.execute(sql, [owner_id])
+        result = cursor.fetchall()
+        cursor.close()
+
+        owner_id = result[0][0]
+        owner_name = result[0][1]
+        owner_photo = result[0][3]
+        owner_phone = result[0][4]
+        owner_email = result[0][5]
+
+        context = {
+            'owner_id': owner_id,
+            'owner_name': owner_name,
+            'owner_photo': owner_photo,
+            'owner_phone': owner_phone,
+            'owner_email': owner_email
+        }
+
+        return render(request, 'owner_profile.html', context)
+
+    @verify_auth_token
+    @check_owner
+    def post(self, request):
+
+        cursor = connection.cursor()
+        owner_id = request.session.get('owner_id')
+        sql = "SELECT PASSWORD FROM OWNER WHERE OWNER_ID = %s"
+        cursor.execute(sql, [owner_id])
+        result = cursor.fetchall()
+        cursor.close()        
+
+        #####################   WORK LEFT   ####################
+        ########################################################
+
+        old_password = request.POST.get('old_password')
+        new_password = request.POST.get('new_password')
+        new_password_confirm = request.POST.get('new_password_confirm')
+
+        owner_new_phone = request.POST.get('owner_new_phone')
+        owner_new_photo = request.FILES.get('owner_new_photo')
+
+        old_password_from_db = result[0][0]
+
+        if old_password == "" and new_password == "" and new_password_confirm == "":
+            
+            if len(request.FILES) != 0:
+                new_photo_path = save_owner_photo(owner_new_photo, owner_id)
+                cursor = connection.cursor()
+                sql = "UPDATE OWNER SET PHOTO_PATH = %s WHERE OWNER_ID = %s"
+                cursor.execute(sql, [new_photo_path, owner_id])
+                connection.commit()
+                cursor.close()
+            
+            cursor = connection.cursor()
+            sql = "UPDATE OWNER SET OWNER_PHONE = %s WHERE OWNER_ID = %s"
+            cursor.execute(sql, [owner_new_phone, owner_id])
+            connection.commit()
+            cursor.close()
+            
+            messages.success(request, 'Profile updated !')
+
+        else:
+            if new_password == new_password_confirm:
+                
+                if old_password == old_password_from_db:        
+                    cursor = connection.cursor()
+                    sql = "UPDATE OWNER SET PASSWORD = %s WHERE OWNER_ID = %s"
+                    cursor.execute(sql, [new_password, owner_id])
+                    connection.commit()
+                    cursor.close()
+                    messages.success(request, 'Password updated !')
+            
+                else:
+                    messages.error('Enter current password correctly!')
+
+            else:
+                messages.error('The new passwords do not match! Type carefully.')
+    
+        return redirect('owner-profile-view')

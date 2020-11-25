@@ -1,16 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Dashboard - Owner</title>
-</head>
-<body>
-    Welcome, {{owner_name}}!
-    <br>
-    This is Owner Dashboard !
-    <br>
-    Click to <a href="{% url 'owner-logout-view' %}">logout</a>
-</body>
-</html>
+{% extends 'owner_base.html' %}
+
+{% block title %}
+    Owner | Dashboard
+{% endblock %}
+
+{% block content %}
+    Welcome, {{ owner_name }}
+{% endblock %}
