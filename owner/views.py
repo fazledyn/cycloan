@@ -68,6 +68,7 @@ class OwnerRegisterView(View):
     def post(self, request):
 
         photo = request.FILES.get('photo')
+        # InMemoryUplaodedFile
         email = request.POST.get('email')
         password = request.POST.get('password')
         password_confirm = request.POST.get('password_confirm')
