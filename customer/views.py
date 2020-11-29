@@ -153,6 +153,8 @@ class CustomerProfileView(View):
     @verify_auth_token
     @check_customer
     def get(self, request):
+        print(request.session['auth_token'])
+
         cursor = connection.cursor()
 
         customer_id = request.session.get('customer_id')

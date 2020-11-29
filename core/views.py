@@ -1,6 +1,13 @@
 from django.shortcuts import render, redirect
 from django.views import View
 from django.db import connection
+from django.contrib import messages
+
+from datetime import datetime
+
+from cycloan.settings import SECRET_KEY
+
+import jwt
 
 """
 If the user type is owner, it means owner is already logged in. So, redirect to owner dashboard.
@@ -20,4 +27,67 @@ class LoginView(View):
         else:
             return render(request, 'index.html')
 
+
+class EmailVerificationView(View):
+
+    def get(self, request, verification_token):
+        try:        
+            json = jwt.decode(verification_token, SECRET_KEY, algorithms=['HS256'])
+            
+            user_type = json['user_type']
+            user_id   = json['user_id']
+            token_expiry = json['token_expiry']
+
+            token_expiry = datetime.fromisoformat(token_expiry)
+
+            if user_type == 'owner':
+                ### Owner Table Verification
+                sql = "SELECT COUNT(*) FROM OWNER_EMAIL_VERIFICATION WHERE TOKEN_VALUE = %s"
+                cursor = connection.cursor()
+                cursor.execute(sql, [ verification_token ])
+                result = cursor.fetchall()
+                cursor.close()
+
+                user_count = int(result[0][0])
+                
+                if user_count == 0:
+                    messages.warning(request, 'No such accounts exists for verification. Make sure you have completed registration.')
+                else:
+                    sql = "SELECT * FROM OWNER_EMAIL_VERIFICATION WHERE TOKEN_VALUE = %s"
+                    cursor = connection.cursor()
+                    cursor.execute(sql, [ verification_token ])
+                    result = cursor.fetchall()
+
+                    if result[0][1] == 1:
+                        messages.info(request, 'You are already verified')
+                        redirect('login-view')
+                    else:
+                        print(type(result[0][5]))
+
+                        if result[0][5] < datetime.now():
+                            print("#############################################")
+                            print("Not expired yet ........")
+
+                            sql = "UPDATE OWNER_EMAIL_VERIFICATION SET IS_VERIFIED = %s WHERE TOKEN_VALUE = %s"
+                            cursor = connection.cursor()
+                            cursor.execute(sql, [1, verification_token])
+                            cursor.close()
+
+                            messages.success(request, 'Hoorah ! Your account has been verified. Now you can log in.')
+                            return redirect('login-view')
+
+                        else:
+                            print("Token Expired")
+                            messages.error(request, "Sorry. The token is expired.")
+                            return redirect('login-view')
+
+
+
+            elif user_type == 'customer':
+                pass
+
+
+        except:
+            messages.error(request, 'Invalid verification token')
+            redirect('login-view')            
 
