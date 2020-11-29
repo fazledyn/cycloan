@@ -39,10 +39,21 @@ class OwnerLoginView(View):
             if fetched_pass == owner_pass:
                 owner_id = result[0][1]
 
-                request.session['owner_id'] = owner_id
-                request.session['auth_token'] = create_auth_token(owner_id)
-                request.session['user_type'] = 'owner'
-                return redirect('owner-dashboard-view')
+                cursor = connection.cursor()
+                sql = "SELECT IS_VERIFIED FROM OWNER_EMAIL_VERIFICATION WHERE EMAIL_ADDRESS=%s"
+                cursor.execute(sql, [owner_email])
+                verify = cursor.fetchall()
+                cursor.close()
+                v = int(verify[0][0])
+
+                if v == 0:
+                    messages.error(request, 'Email has not been verified yet. Please check your email and verify.')
+                    return redirect('login-view')
+                else:
+                    request.session['owner_id'] = owner_id
+                    request.session['auth_token'] = create_auth_token(owner_id)
+                    request.session['user_type'] = 'owner'
+                    return redirect('owner-dashboard-view')
 
             else:
                 messages.error(request, 'Password did not match. Enter correctly!')
@@ -53,11 +64,11 @@ class OwnerLoginView(View):
 
 
 class OwnerLogoutView(View):
-    
+
     @verify_auth_token
     @check_owner
     def get(self, request):
-        request.session.pop('owner_id', None)    
+        request.session.pop('owner_id', None)
         request.session.pop('user_type', None)
         request.session.pop('auth_token', None)
         messages.info(request, 'You are logged out.')
@@ -116,13 +127,12 @@ class OwnerRegisterView(View):
                 cursor.close()
                 owner_id = result[0][0]
 
-                
                 """
                 TOKEN MAKING
                 """
                 token_created = datetime.now()
                 token_expiry = token_created + timedelta(days=1)
-                
+
                 verification_token = jwt.encode(
                     {
                         'user_type': 'owner',
@@ -141,12 +151,13 @@ class OwnerRegisterView(View):
                 print("VER TOKEN: ", verification_token)
                 print("#################################################")
 
-                email_thread = threading.Thread(target=send_verification_email, args=(email, fullname, 'owner', verification_token))
+                email_thread = threading.Thread(target=send_verification_email,
+                                                args=(email, fullname, 'owner', verification_token))
                 email_thread.start()
 
                 messages.success(request, 'Account create successful. Now you can login.')
                 return redirect('login-view')
-                
+
             else:
                 messages.warning(request, 'Account exists with similar email. Please provide different email')
                 return redirect('owner-register-view')
@@ -206,7 +217,7 @@ class OwnerProfileView(View):
         sql = "SELECT PASSWORD FROM OWNER WHERE OWNER_ID = %s"
         cursor.execute(sql, [owner_id])
         result = cursor.fetchall()
-        cursor.close()        
+        cursor.close()
 
         #####################   WORK LEFT   ####################
         ########################################################
@@ -221,7 +232,7 @@ class OwnerProfileView(View):
         old_password_from_db = result[0][0]
 
         if old_password == "" and new_password == "" and new_password_confirm == "":
-            
+
             if len(request.FILES) != 0:
                 new_photo_path = save_owner_photo(owner_new_photo, owner_id)
                 cursor = connection.cursor()
@@ -229,30 +240,30 @@ class OwnerProfileView(View):
                 cursor.execute(sql, [new_photo_path, owner_id])
                 connection.commit()
                 cursor.close()
-            
+
             cursor = connection.cursor()
             sql = "UPDATE OWNER SET OWNER_PHONE = %s WHERE OWNER_ID = %s"
             cursor.execute(sql, [owner_new_phone, owner_id])
             connection.commit()
             cursor.close()
-            
+
             messages.success(request, 'Profile updated !')
 
         else:
             if new_password == new_password_confirm:
-                
-                if old_password == old_password_from_db:        
+
+                if old_password == old_password_from_db:
                     cursor = connection.cursor()
                     sql = "UPDATE OWNER SET PASSWORD = %s WHERE OWNER_ID = %s"
                     cursor.execute(sql, [new_password, owner_id])
                     connection.commit()
                     cursor.close()
                     messages.success(request, 'Password updated !')
-            
+
                 else:
                     messages.error('Enter current password correctly!')
 
             else:
                 messages.error('The new passwords do not match! Type carefully.')
-    
+
         return redirect('owner-profile-view')

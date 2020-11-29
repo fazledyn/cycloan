@@ -36,15 +36,24 @@ class CustomerLoginView(View):
             if fetched_pass == customer_pass:
                 customer_id = result[0][1]
 
-                request.session['customer_id'] = customer_id
-                request.session['auth_token'] = create_auth_token(customer_id)
-                request.session['user_type'] = 'customer'
+                cursor = connection.cursor()
+                sql = "SELECT IS_VERIFIED FROM CUSTOMER_EMAIL_VERIFICATION WHERE EMAIL_ADDRESS=%s"
+                cursor.execute(sql, [customer_email])
+                verify = cursor.fetchall()
+                cursor.close()
+                v = int(verify[0][0])
 
-                return redirect('customer-dashboard-view')
+                if v == 0:
+                    messages.error(request, 'Email has not been verified yet. Please check your email and verify.')
+                    return redirect('login-view')
+                else:
+                    request.session['customer_id'] = customer_id
+                    request.session['auth_token'] = create_auth_token(customer_id)
+                    request.session['user_type'] = 'customer'
+                    return redirect('customer-dashboard-view')
             else:
                 messages.error(request, 'Password mismatched. Enter correctly!')
                 return redirect('login-view')
-
         except:
             messages.error(request, 'Your email was not found in database. Enter correctly!')
             return redirect('login-view')
