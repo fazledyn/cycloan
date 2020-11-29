@@ -99,13 +99,20 @@ class CustomerRegisterView(View):
                 doc_path = save_customer_doc(document, customer_id)
 
                 cursor = connection.cursor()
-                sql = "INSERT INTO CUSTOMER(CUSTOMER_ID,CUSTOMER_NAME,PASSWORD,CUSTOMER_PHONE,PHOTO_PATH,EMAIL_ADDRESS) VALUES(%s, %s, %s, %s, %s, %s)"
-                cursor.execute(sql, [customer_id, fullname, password, contact, photo_path, email])
+                sql = "INSERT INTO CUSTOMER(CUSTOMER_ID,CUSTOMER_NAME,PASSWORD,CUSTOMER_PHONE,PHOTO_PATH,EMAIL_ADDRESS) VALUES(CUSTOMER_INCREMENT.NEXTVAL, %s, %s, %s, %s, %s)"
+                cursor.execute(sql, [fullname, password, contact, photo_path, email])
                 connection.commit()
                 cursor.close()
 
                 cursor = connection.cursor()
-                sql = "INSERT INTO DOCUMENT(CUSTOMER_ID,TYPE_NAME,FILE_NAME) VALUES(%s, %s, %s)"
+                sql = "SELECT CUSTOMER_ID FROM CUSTOMER WHERE EMAIL_ADDRESS=%s"
+                cursor.execute(sql, [email])
+                result = cursor.fetchall()
+                cursor.close()
+                customer_id = result[0][0]
+
+                cursor = connection.cursor()
+                sql = "INSERT INTO DOCUMENT(CUSTOMER_ID,TYPE_NAME,FILE_PATH) VALUES(%s, %s, %s)"
                 cursor.execute(sql, [customer_id, doctype, doc_path])
                 connection.commit()
                 cursor.close()

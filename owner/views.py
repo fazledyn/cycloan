@@ -99,10 +99,17 @@ class OwnerRegisterView(View):
                 photo_path = save_owner_photo(photo, owner_id)
 
                 cursor = connection.cursor()
-                sql = "INSERT INTO OWNER(OWNER_ID,OWNER_NAME,PASSWORD,OWNER_PHONE,LOCATION,PHOTO_PATH,EMAIL_ADDRESS) VALUES(%s, %s, %s, %s, %s, %s, %s)"
-                cursor.execute(sql, [owner_id, fullname, password, contact, location, photo_path, email])
+                sql = "INSERT INTO OWNER(OWNER_ID,OWNER_NAME,PASSWORD,OWNER_PHONE,LOCATION,PHOTO_PATH,EMAIL_ADDRESS) VALUES(OWNER_INCREMENT.NEXTVAL, %s, %s, %s, %s, %s, %s)"
+                cursor.execute(sql, [fullname, password, contact, location, photo_path, email])
                 connection.commit()
                 cursor.close()
+
+                cursor = connection.cursor()
+                sql = "SELECT OWNER_ID FROM OWNER WHERE EMAIL_ADDRESS=%s"
+                cursor.execute(sql, [email])
+                result = cursor.fetchall()
+                cursor.close()
+                owner_id = result[0][0]
 
                 cursor = connection.cursor()
                 sql = "INSERT INTO OWNER_EMAIL_VERIFICATION(OWNER_ID,IS_VERIFIED,EMAIL_ADDRESS) VALUES(%s, %s, %s)"
