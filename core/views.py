@@ -25,7 +25,7 @@ class LoginView(View):
         elif user_type == 'customer':
             return redirect('customer-dashboard-view')
         else:
-            return render(request, 'index.html')
+            return render(request, 'core/index.html')
 
 
 class EmailVerificationView(View):

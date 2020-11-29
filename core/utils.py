@@ -75,7 +75,7 @@ def send_verification_email(to, user_name, user_type, verification_token):
     }
 
     #   html_content = render_to_string('email.html', context)
-    html_content = get_template('email.html').render(context)
+    html_content = get_template('core/email.html').render(context)
     text_content = str(html_content)
 
     subject = "[CYCLOAN] Verify your email"
