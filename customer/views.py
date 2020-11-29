@@ -94,9 +94,9 @@ class CustomerRegisterView(View):
                 result = cursor.fetchall()
                 cursor.close()
                 count = int(result[0][0])
-                customer_id = 101 + count
-                photo_path = save_customer_photo(photo, customer_id)
-                doc_path = save_customer_doc(document, customer_id)
+                customer_count = 50001 + count
+                photo_path = save_customer_photo(photo, customer_count)
+                doc_path = save_customer_doc(document, customer_count)
 
                 cursor = connection.cursor()
                 sql = "INSERT INTO CUSTOMER(CUSTOMER_ID,CUSTOMER_NAME,PASSWORD,CUSTOMER_PHONE,PHOTO_PATH,EMAIL_ADDRESS) VALUES(CUSTOMER_INCREMENT.NEXTVAL, %s, %s, %s, %s, %s)"

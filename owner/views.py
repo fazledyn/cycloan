@@ -95,8 +95,8 @@ class OwnerRegisterView(View):
                 result = cursor.fetchall()
                 cursor.close()
                 count = int(result[0][0])
-                owner_id = 101 + count
-                photo_path = save_owner_photo(photo, owner_id)
+                owner_count = 10001 + count
+                photo_path = save_owner_photo(photo, owner_count)
 
                 cursor = connection.cursor()
                 sql = "INSERT INTO OWNER(OWNER_ID,OWNER_NAME,PASSWORD,OWNER_PHONE,LOCATION,PHOTO_PATH,EMAIL_ADDRESS) VALUES(OWNER_INCREMENT.NEXTVAL, %s, %s, %s, %s, %s, %s)"
