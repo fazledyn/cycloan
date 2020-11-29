@@ -4,7 +4,7 @@ from django.views import View
 from django.contrib import messages
 
 
-class OwnerSearch(View):
+class OwnerPublicView(View):
     def get(self, request):
         owner_id = request.POST.get('owner_id')
         cursor = connection.cursor()
@@ -26,17 +26,32 @@ class OwnerSearch(View):
             phone = result[0][2]
             location = result[0][3]
             email = result[0][4]
-            rating = result[0][5]
+            owner_rating = result[0][5]
 
             cursor = connection.cursor()
             sql = "SELECT PHOTO,MODEL,RATING FROM CYCLE WHERE OWNER_ID = %s"
             cursor.execute(sql, owner_id)
             cycle = cursor.fetchall()
             cursor.close()
+            for c in cycle:
+                cycle_photo_path = cycle[0]
+                model = cycle[1]
+                cycle_rating = cycle[3]
+
+            cursor = connection.cursor()
+            sql = "SELECT P.CUSTOMER_ID, C.CUSTOMER_NAME, P.COMMENT_TEXT, P.RATING FROM PEER_REVIEW P, CUSTOMER C WHERE P.OWNER_ID = %s AND P.CUSTOMER_ID = C.CUSTOMER_ID"
+            cursor.execute(sql, [owner_id])
+            review_list = cursor.fetchall()
+            cursor.close()
+            for r in review_list:
+                reviewer_id = review_list[0]
+                reviewer_name = review_list[1]
+                comment = review_list[2]
+                given_rating = review_list[3]
 
 
+class CustomerPublicView(View):
 
-class CustomerSearch(View):
     def get(self, request):
         customer_id = request.POST.get('customer_id')
         cursor = connection.cursor()
@@ -66,3 +81,39 @@ class CustomerSearch(View):
             doctype = info[0][0]
             doc_path = info[0][1]
             description = info[0][2]
+
+
+class CyclePublicView(View):
+    def get(self, request):
+        cycle_id = request.POST.get('cycle_id')
+        cursor = connection.cursor()
+        sql = "SELECT COUNT(*) FROM CYCLE WHERE CYCLE_ID = %s"
+        cursor.execute(sql, cycle_id)
+        count = cursor.fetchall()
+        cursor.close()
+        c = int(count[0][0])
+        if c == 0:
+            messages.warning(request, 'No cycle with this ID')
+        else:
+            cursor = connection.cursor()
+            sql = "SELECT PHOTO,MODEL,STATUS,RATING,OWNER_ID FROM CYCLE WHERE CYCLE_ID = %s"
+            cursor.execute(sql, [cycle_id])
+            result = cursor.fetchall()
+            cursor.close()
+            photo_path = result[0][0]
+            model = result[0][1]
+            status = result[0][2]
+            cycle_rating = result[0][3]
+            owner_id = result[0][4]
+
+            cursor = connection.cursor()
+            sql = "SELECT CR.CUSTOMER_ID, C.CUSTOMER_NAME, CR.COMMENT_TEXT, CR.RATING FROM CYCLE_REVIEW CR, CUSTOMER C WHERE CR.CYCLE_ID = %s AND CR.CUSTOMER_ID = C.CUSTOMER_ID "
+            cursor.execute(sql, [cycle_id])
+            review_list = cursor.fetchall()
+            cursor.close()
+            for r in review_list:
+                reviewer_id = review_list[0]
+                reviewer_name = review_list[1]
+                comment = review_list[2]
+                given_rating = review_list[3]
+
