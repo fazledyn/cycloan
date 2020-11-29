@@ -242,3 +242,10 @@ BEGIN
 
 END;
 /
+
+--------------------------------------------------------
+----------------------FINDING OWNER REVIEW---------------------------
+
+SELECT P.CUSTOMER_ID, C.CUSTOMER_NAME, P.COMMENT_TEXT, P.RATING
+FROM PEER_REVIEW P, CUSTOMER C
+WHERE P.OWNER_ID = SOMETHING AND P.CUSTOMER_ID = C.CUSTOMER_ID
