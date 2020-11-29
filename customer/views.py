@@ -4,7 +4,7 @@ from django.views import View
 from django.contrib import messages
 
 from .utils import save_customer_doc, save_customer_photo
-from core.utils import create_auth_token
+from core.utils import create_auth_token, send_verification_email
 
 ## decorators
 from core.utils import verify_auth_token, check_customer

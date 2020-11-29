@@ -35,6 +35,7 @@ class OwnerSearch(View):
             cursor.close()
 
 
+
 class CustomerSearch(View):
     def get(self, request):
         customer_id = request.POST.get('customer_id')

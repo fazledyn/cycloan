@@ -82,7 +82,6 @@ class EmailVerificationView(View):
                             return redirect('login-view')
 
 
-
             elif user_type == 'customer':
                 pass
 
