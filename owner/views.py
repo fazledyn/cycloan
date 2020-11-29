@@ -234,7 +234,14 @@ class OwnerProfileView(View):
         if old_password == "" and new_password == "" and new_password_confirm == "":
 
             if len(request.FILES) != 0:
-                new_photo_path = save_owner_photo(owner_new_photo, owner_id)
+                cursor = connection.cursor()
+                sql = "SELECT OWNER_PHONE FROM OWNER WHERE OWNER_ID = %s"
+                cursor.execute(sql, [owner_id])
+                result = cursor.fetchall()
+                cursor.close()
+                contact = result[0][0]
+
+                new_photo_path = save_owner_photo(owner_new_photo, owner_id, contact)
                 cursor = connection.cursor()
                 sql = "UPDATE OWNER SET PHOTO_PATH = %s WHERE OWNER_ID = %s"
                 cursor.execute(sql, [new_photo_path, owner_id])

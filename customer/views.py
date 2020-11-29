@@ -239,7 +239,14 @@ class CustomerProfileView(View):
         if old_password == "" and new_password == "" and new_password_confirm == "":
             
             if len(request.FILES) != 0:
-                new_photo_path = save_customer_photo(customer_new_photo, customer_id)
+                cursor = connection.cursor()
+                sql = "SELECT CUSTOMER_PHONE FROM CUSTOMER WHERE CUSTOMER_ID=%s"
+                cursor.execute(sql, [customer_id])
+                result = cursor.fetchall()
+                cursor.close()
+                contact = result[0][0]
+
+                new_photo_path = save_customer_photo(customer_new_photo, customer_id, contact)
                 cursor = connection.cursor()
                 sql = "UPDATE CUSTOMER SET PHOTO_PATH = %s WHERE CUSTOMER_ID = %s"
                 cursor.execute(sql, [new_photo_path, customer_id])
