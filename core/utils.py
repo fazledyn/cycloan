@@ -4,7 +4,7 @@ from django.template.loader import render_to_string, get_template
 from django.template import Context
 from django.contrib import messages
 from cycloan.settings import SECRET_KEY
-from django.core.mail import send_mail, EmailMessage
+from django.core.mail import EmailMultiAlternatives, send_mail
 
 from datetime import datetime, timedelta
 import jwt
@@ -63,7 +63,7 @@ def check_owner(func):
     return wrapped
 
 
-async def send_verification_email(user_name, user_type, verification_token):
+def send_verification_email(to, user_name, user_type, verification_token):
 
     site_address = "http://localhost:8000/"
     verification_link = "".join([ site_address, "email-verification/", verification_token ]) 
@@ -75,9 +75,20 @@ async def send_verification_email(user_name, user_type, verification_token):
     }
 
     #   html_content = render_to_string('email.html', context)
-    html_content = get_template('email.html').render(Context(context))
-    mail_message = EmailMessage(subject='[ Cycloan ] Verify your account', body=html_content)
-    mail_message.content_subtype='html'
-    mail_message.send()
+    html_content = get_template('email.html').render(context)
+    text_content = str(html_content)
 
-    print("Email SENT !!!")
+    subject = "[CYCLOAN] Verify your email"
+    from_email = 'rabid@dhaka-ai.com'
+    msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
+    msg.attach_alternative(html_content, "text/html")
+    msg.send(fail_silently=False)
+
+    # send_mail(
+    #     subject="Verify account",
+    #     message=text_content,
+    #     from_email=from_email,
+    #     recipient_list=[to],
+    #     fail_silently=False,
+    #     html_message=html_content
+    # )

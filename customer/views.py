@@ -5,6 +5,10 @@ from django.contrib import messages
 
 from .utils import save_customer_doc, save_customer_photo
 from core.utils import create_auth_token, send_verification_email
+from cycloan.settings import SECRET_KEY
+
+from datetime import datetime, timedelta
+import jwt, threading
 
 ## decorators
 from core.utils import verify_auth_token, check_customer
@@ -95,8 +99,8 @@ class CustomerRegisterView(View):
                 cursor.close()
                 count = int(result[0][0])
                 customer_count = 50001 + count
-                photo_path = save_customer_photo(photo, customer_count)
-                doc_path = save_customer_doc(document, customer_count)
+                photo_path = save_customer_photo(photo, customer_count, contact)
+                doc_path = save_customer_doc(document, customer_count, contact)
 
                 cursor = connection.cursor()
                 sql = "INSERT INTO CUSTOMER(CUSTOMER_ID,CUSTOMER_NAME,PASSWORD,CUSTOMER_PHONE,PHOTO_PATH,EMAIL_ADDRESS) VALUES(CUSTOMER_INCREMENT.NEXTVAL, %s, %s, %s, %s, %s)"
@@ -117,11 +121,32 @@ class CustomerRegisterView(View):
                 connection.commit()
                 cursor.close()
 
+                """
+                TOKEN MAKING
+                """
+                token_created = datetime.now()
+                token_expiry = token_created + timedelta(days=1)
+                
+                verification_token = jwt.encode(
+                    {
+                        'user_type': 'customer',
+                        'user_id': customer_id,
+                        'token_expiry': str(token_expiry)
+                    }, SECRET_KEY, algorithm='HS256'
+                ).decode('utf-8')
+
                 cursor = connection.cursor()
-                sql = "INSERT INTO CUSTOMER_EMAIL_VERIFICATION(CUSTOMER_ID,IS_VERIFIED,EMAIL_ADDRESS) VALUES(%s, %s, %s)"
-                cursor.execute(sql, [customer_id, 0, email])
+                sql = "INSERT INTO CUSTOMER_EMAIL_VERIFICATION(CUSTOMER_ID, IS_VERIFIED, EMAIL_ADDRESS, TOKEN_CREATED, TOKEN_EXPIRY, TOKEN_VALUE) VALUES(%s, %s, %s, %s, %s, %s)"
+                cursor.execute(sql, [customer_id, 0, email, token_created, token_expiry, verification_token])
                 connection.commit()
                 cursor.close()
+
+                print("#################################################")
+                print("VER TOKEN: ", verification_token)
+                print("#################################################")
+
+                email_thread = threading.Thread(target=send_verification_email, args=(email, fullname, 'customer', verification_token))
+                email_thread.start()
 
                 messages.success(request, 'Account create successful. Now you can login.')
                 return redirect('login-view')

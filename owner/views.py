@@ -6,7 +6,12 @@ from django.shortcuts import render, redirect
 from django.views import View
 
 from .utils import save_owner_photo
-from core.utils import create_auth_token
+from core.utils import create_auth_token, send_verification_email
+
+from datetime import datetime, timedelta
+import jwt, threading
+
+from cycloan.settings import SECRET_KEY
 
 ## decorators
 from core.utils import verify_auth_token, check_owner
@@ -96,7 +101,7 @@ class OwnerRegisterView(View):
                 cursor.close()
                 count = int(result[0][0])
                 owner_count = 10001 + count
-                photo_path = save_owner_photo(photo, owner_count)
+                photo_path = save_owner_photo(photo, owner_count, contact)
 
                 cursor = connection.cursor()
                 sql = "INSERT INTO OWNER(OWNER_ID,OWNER_NAME,PASSWORD,OWNER_PHONE,LOCATION,PHOTO_PATH,EMAIL_ADDRESS) VALUES(OWNER_INCREMENT.NEXTVAL, %s, %s, %s, %s, %s, %s)"
@@ -111,11 +116,33 @@ class OwnerRegisterView(View):
                 cursor.close()
                 owner_id = result[0][0]
 
+                
+                """
+                TOKEN MAKING
+                """
+                token_created = datetime.now()
+                token_expiry = token_created + timedelta(days=1)
+                
+                verification_token = jwt.encode(
+                    {
+                        'user_type': 'owner',
+                        'user_id': owner_id,
+                        'token_expiry': str(token_expiry)
+                    }, SECRET_KEY, algorithm='HS256'
+                ).decode('utf-8')
+
                 cursor = connection.cursor()
-                sql = "INSERT INTO OWNER_EMAIL_VERIFICATION(OWNER_ID,IS_VERIFIED,EMAIL_ADDRESS) VALUES(%s, %s, %s)"
-                cursor.execute(sql, [owner_id, 0, email])
+                sql = "INSERT INTO OWNER_EMAIL_VERIFICATION(OWNER_ID, IS_VERIFIED, EMAIL_ADDRESS, TOKEN_CREATED, TOKEN_EXPIRY, TOKEN_VALUE) VALUES(%s, %s, %s, %s, %s, %s)"
+                cursor.execute(sql, [owner_id, 0, email, token_created, token_expiry, verification_token])
                 connection.commit()
                 cursor.close()
+
+                print("#################################################")
+                print("VER TOKEN: ", verification_token)
+                print("#################################################")
+
+                email_thread = threading.Thread(target=send_verification_email, args=(email, fullname, 'owner', verification_token))
+                email_thread.start()
 
                 messages.success(request, 'Account create successful. Now you can login.')
                 return redirect('login-view')
