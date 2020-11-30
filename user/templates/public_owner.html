@@ -1,0 +1,27 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}
+    {{ owner_name }} | Owner
+{% endblock %}
+
+{% block content %}
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="message-box">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <h3>Owner Details:</h3>
+    <img src="{% static owner_photo %}" class="profile-picture">
+    
+    <div>
+        <b>Name: </b>{{ owner_name }} <br>
+        <b>Email: </b>{{ owner_email }} <br>
+        <b>Contact: </b>{{ owner_phone }} <br>
+        <b>Location: </b>{{ owner_location }} <br>
+        <b>Rating: </b>{{ owner_rating }} <br>
+    </div>
+    
+{% endblock %}

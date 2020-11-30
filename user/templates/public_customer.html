@@ -1,0 +1,25 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}
+    {{ customer_name }} | Customer
+{% endblock %}
+
+{% block content %}
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="message-box">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <h3>Customer Details:</h3>
+    <img src="{% static customer_photo %}" class="profile-picture">
+    
+    <div>
+        <b>Name: </b>{{ customer_name }} <br>
+        <b>Email: </b>{{ customer_email }} <br>
+        <b>Contact: </b>{{ customer_phone }} <br>    
+    </div>
+    
+{% endblock %}
