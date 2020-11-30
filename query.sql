@@ -85,7 +85,7 @@ for cyc in cycle_list:
 	cursor.close()
 
 -----------------
--------------------------trigger for updating rating of cycle-----------------
+---------------------------------------------TRIGGER FOR CYCLE_RATING_UPDATE----------------------------------------
 
 CREATE OR REPLACE TRIGGER UPDATE_RATING_CYCLE
 AFTER INSERT
@@ -93,24 +93,11 @@ ON CYCLE_REVIEW
 FOR EACH ROW
 DECLARE
 	CYC_ID NUMBER;
-	NEW_RATING NUMBER;
 	NEW_AVG_RATING NUMBER;
-	SUM_RATING NUMBER;
-	COUNTING NUMBER;
 BEGIN
 	CYC_ID := :NEW.CYCLE_ID;
-	NEW_RATING := :NEW.RATING;
-	SUM_RATING := 0;
-	COUNTING := 0;
 
-	FOR R IN (SELECT RATING FROM CYCLE_REVIEW WHERE CYCLE_ID = CYC_ID )
-	LOOP
-		SUM_RATING := SUM_RATING + R.RATING;
-		COUNTING := COUNTING + 1;
-	END LOOP;
-
-	SUM_RATING := SUM_RATING + NEW_RATING;
-	NEW_AVG_RATING := SUM_RATING/(COUNTING + 1);
+	SELECT AVG(RATING) INTO NEW_AVG_RATING FROM CYCLE_REVIEW WHERE CYCLE_ID = CYC_ID;
 
 	UPDATE CYCLE SET RATING = NEW_AVG_RATING WHERE CYCLE_ID = CYC_ID;
 EXCEPTION
@@ -120,9 +107,7 @@ EXCEPTION
 		DBMS_OUTPUT.PUT_LINE('DO NOT KNOW');
 END;
 /
-
------------------------------------------
----------------------------trigger for updating owner rating--------------------------
+-----------------------------------------------------TRIGGER FOR OWNER_RATING_UPDATE------------------------------------------------------
 
 CREATE OR REPLACE TRIGGER UPDATE_RATING_OWNER
 AFTER INSERT
@@ -130,24 +115,11 @@ ON PEER_REVIEW
 FOR EACH ROW
 DECLARE
 	OWN_ID NUMBER;
-	NEW_RATING NUMBER;
 	NEW_AVG_RATING NUMBER;
-	SUM_RATING NUMBER;
-	COUNTING NUMBER;
 BEGIN
 	OWN_ID := :NEW.OWNER_ID;
-	NEW_RATING := :NEW.RATING;
-	SUM_RATING := 0;
-	COUNTING := 0;
 
-	FOR R IN (SELECT RATING FROM PEER_REVIEW WHERE OWNER_ID = OWN_ID )
-	LOOP
-		SUM_RATING := SUM_RATING + R.RATING;
-		COUNTING := COUNTING + 1;
-	END LOOP;
-
-	SUM_RATING := SUM_RATING + NEW_RATING;
-	NEW_AVG_RATING := SUM_RATING/(COUNTING + 1);
+	SELECT AVG(RATING) INTO NEW_AVG_RATING FROM PEER_REVIEW WHERE OWNER_ID = OWN_ID;
 
 	UPDATE OWNER SET RATING = NEW_AVG_RATING WHERE OWNER_ID = OWN_ID;
 EXCEPTION
@@ -158,6 +130,7 @@ EXCEPTION
 END;
 /
 
+-----------------------------------------------------------------
 -------------------------------SEQUENCE------------------------------------------
 
 CREATE SEQUENCE OWNER_INCREMENT
