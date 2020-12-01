@@ -6,12 +6,6 @@
 {% endblock %}
 
 {% block content %}
-    
-    {% if messages %}
-        {% for message in messages %}
-            <div class="message-box">{{ message }}</div>
-        {% endfor %}
-    {% endif %}
 
     <h3>Customer Details:</h3>
     <img src="{% static customer_photo %}" class="profile-picture">

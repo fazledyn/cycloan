@@ -7,8 +7,8 @@
 
 {% block content %}
 
-    <div class="flex-container" style="flex-direction: row; display: inline-block;">
-        <div class="flex-item">
+    <div class="flex-container" style="margin-top: 30px; margin-bottom: 10px;">
+        <div class="flex-item" style="margin-bottom: 20px;">
             <img class="profile-picture" src="{% static owner_photo %}" alt="owner-profile-picture">
         </div>
         <div class="flex-item">
@@ -19,57 +19,53 @@
         </div>
     </div>
 
-    <form action="/owner/profile/" method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
-
-        {% if messages %}
-            {% for message in messages %}
-                <div class="message-box">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
-        
-        <div class="form-row">
-            <div class="form-group col-md-6">
-                <label for="doctype">Upload Photo</label>
-                <div class="custom-file">
-                    <input type="file" class="custom-file-input" id="inputGroupFile01" aria-describedby="inputGroupFileAddon01" name="owner_new_photo">
-                    <label class="custom-file-label" for="inputGroupFile01">Change photo</label>
+    <div style="margin-bottom: 80px; margin-top: 40px;">
+            
+        <form action="/owner/profile/" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="doctype">Update Profile Picture</label>
+                    <div class="custom-file">
+                        <input type="file" class="custom-file-input" id="inputGroupFile01" aria-describedby="inputGroupFileAddon01" name="owner_new_photo">
+                        <label class="custom-file-label" for="inputGroupFile01">Select new photo</label>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!--
-        -->
+            <!--
+            -->
 
-        <div class="form-group">
-            <label for="contact">Contact No.</label>
-            <input type="text" class="form-control" id="contact" name="owner_new_phone" value="{{ owner_phone }}">
-        </div>
+            <div class="form-group">
+                <label for="contact">Contact No.</label>
+                <input type="text" class="form-control" id="contact" name="owner_new_phone" value="{{ owner_phone }}">
+            </div>
 
-        <div class="form-group">
-        </div>
-        
-        <!--
-        -->
+            <div class="form-group">
+            </div>
+            
+            <!--
+            -->
 
-        <div class="form-group">
-            <label for="old_password">Current Password</label>
-            <input type="password" class="form-control" id="old_password" name="old_password">
-        </div>
+            <div class="form-group">
+                <label for="old_password">Current Password</label>
+                <input type="password" class="form-control" id="old_password" name="old_password">
+            </div>
 
-        <div class="form-group">
-            <label for="new_password">New Password</label>
-            <input type="password" class="form-control" id="new_password" name="new_password">
-        </div>
+            <div class="form-group">
+                <label for="new_password">New Password</label>
+                <input type="password" class="form-control" id="new_password" name="new_password">
+            </div>
 
-        <div class="form-group">
-            <label for="password_confirm">Confirm New Password</label>
-            <input type="password" class="form-control" id="password_confirm" name="new_password_confirm">
-        </div>
+            <div class="form-group">
+                <label for="password_confirm">Confirm New Password</label>
+                <input type="password" class="form-control" id="password_confirm" name="new_password_confirm">
+            </div>
 
-        <button type="submit" class="btn btn-warning">Save</button>
+            <button type="submit" class="btn btn-warning">Save</button>
 
-    </form>
-
+        </form>
+    </div>
 
 {% endblock %}

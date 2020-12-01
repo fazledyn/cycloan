@@ -87,6 +87,13 @@
     {% endif %}
 
     {% endblock %}
+    <div class="container" style="width: 600px;">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message-box">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    </div>
 
     <div class="container" style="width: 750px;">
         {% block content %}

@@ -21,12 +21,6 @@
 
     <form action="/customer/profile/" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
-
-        {% if messages %}
-            {% for message in messages %}
-                <div class="message-box">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
         
         <div class="form-row">
             <div class="form-group col-md-6">
