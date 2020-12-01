@@ -178,6 +178,29 @@ class OwnerDashboardView(View):
         context = {'owner_name': owner_name}
         return render(request, 'owner_dashboard.html', context)
 
+    def post(self, request):
+        owner_id = request.session.get('owner_id')
+        model = request.POST.get('model')
+        photo = request.FILES.get('photo')
+
+        cursor = connection.cursor()
+        sql = "SELECT COUNT(*) FROM CYCLE WHERE OWNER_ID = %s"
+        cursor.execute(sql, [owner_id])
+        result = cursor.fetchall()
+        cursor.close()
+
+        count_cycle = int(result[0][0])
+        count_cycle = count_cycle + 1
+
+        ## NEED TO PASS THE NUMBER OF CYCLE AN OWNER HAS AND THE OWNER_ID NUMBER TO THE PHOTO_PATH FUNCTION
+        photo_path = save_owner_photo(photo, count_cycle, owner_id)
+
+        cursor = connection.cursor()
+        sql = "INSERT INTO CYCLE(CYCLE_ID,MODEL,STATUS,PHOTO_PATH,OWNER_ID) VALUES(CYCLE_INCREMENT.NEXTVAL, %s, %s, %s, %s)"
+        cursor.execute(sql, [model, 0, photo_path, owner_id])
+        connection.commit()
+        cursor.close()
+
 
 class OwnerProfileView(View):
 
