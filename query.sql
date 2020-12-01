@@ -1,44 +1,3 @@
-
-
---------adding cycle---------
-owner_id = request.session.get('owner_id')
-
-cursor = connection.cursor()
-sql = "SELECT COUNT(*) FROM CYCLE WHERE OWNER_ID = %s"
-cursor.execute(sql, [owner_id])
-result = cursor.fetchall()
-cursor.close()
-count_cycle = int(result[0][0])
-count_cycle = count_cycle + 1
--- NEED TO PASS THE NUMBER OF CYCLE AN OWNER HAS AND THE OWNER_ID NUMBER TO THE PHOTO_PATH FUNCTION
--- photo_path = SOMETHING(count_cycle,owner_id)
-
-
-cursor = connection.cursor()
-sql = "INSERT INTO CYCLE(CYCLE_ID,MODEL,STATUS,PHOTO_PATH,OWNER_ID) VALUES(CYCLE_INCREMENT.NEXTVAL, %s, %s, %s, %s)"
-cursor.execute(sql, [model, 0, photo_path, owner_id])
-connection.commit()
-cursor.close()
-
----------------------------------------------------------
-
-----------------show my cycle--------------
-
-owner_id = request.session.get('owner_id')
-
-cursor = connection.cursor()
-sql = "SELECT PHOTO,MODEL,RATING FROM CYCLE WHERE OWNER_ID = %s"
-cursor.execute(sql,owner_id)
-result = cursor.fetchall()
-cursor.close()
-
-for r in result:
-	photo_path = r[0]
-	model = r[1]
-	rating = r[3]
-
-----------------------------------------------------
-
 --------------------searching for cycle in my location---------------------
 
 location = request.POST.get('location')
@@ -85,7 +44,6 @@ for cyc in cycle_list:
 	cycle = cursor.fetchall()
 	cursor.close()
 
------------------
 ---------------------------------------------TRIGGER FOR CYCLE_RATING_UPDATE----------------------------------------
 
 CREATE OR REPLACE TRIGGER UPDATE_RATING_CYCLE
