@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'core',
     'user',
     'owner',
+    'cycle',
     'customer',
 ]
 
