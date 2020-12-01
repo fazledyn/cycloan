@@ -156,6 +156,8 @@ STATICFILES_DIRS = [
 
 OWNER_PHOTO_DIR = 'files/owner/photo/'
 
+CYCLE_PHOTO_DIR = 'files/owner/cycle/'
+
 CUSTOMER_PHOTO_DIR = 'files/customer/photo/'
 
 CUSTOMER_DOC_DIR = 'files/customer/doc/'
