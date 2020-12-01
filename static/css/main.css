@@ -3,3 +3,15 @@
     width: 150px;
     border-radius: 50%;
 }
+
+.featured-photo {
+    height: 350px;
+    width: auto;
+}
+
+.message-box {
+    background-color:whitesmoke;
+    border-radius: 4px;
+    padding: 8px;
+    font-size: 16px;
+}
