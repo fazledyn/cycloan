@@ -5,5 +5,48 @@
 {% endblock %}
 
 {% block content %}
-    Welcome, {{ owner_name }}
+
+<div style="margin-top: 20px;">
+    <h4 style="font-weight: 600; text-align: center; padding: 5px;"> Add cycle</h4>
+    <form action="{% url 'cycle-add-view' %}" method="POST", enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="form-row">            
+            <div class="form-group col-md-6">
+                <label for="doctype">Photo</label>
+                <div class="custom-file">
+                    <input type="file" class="custom-file-input" id="inputGroupFile01" aria-describedby="inputGroupFileAddon01" name="cycle_photo">
+                    <label class="custom-file-label" for="inputGroupFile01">Select cycle photo</label>
+                </div>
+            </div>
+
+            <div class="form-group col-md-6">
+                <label for="cycle_model">Model</label>
+                <input type="text" class="form-control" id="cycle_model" name="cycle_model">
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-success">Add</button>
+    </form>
+</div>
+
+    <br>
+
+    <h2>Your Cycles: </h2>
+    {% for cycle in cycle_list %}
+    <div style="border-radius: 10px; padding: 10px; background-color: whitesmoke;">
+        <h4>ID: <a href="{% url 'cycle-single-view' cycle_id=cycle.0 %}" target="_blank">{{ cycle.0 }}</a></h3><br>
+        <h5>Model: {{ cycle.1 }}</h5><br>
+        <h5>Status: 
+            {% if cycle.2 == 0 %}
+                Free
+            {% elif cycle.2 == 1 %}
+                Reserved
+            {% endif %}
+        </h5>
+        <br>
+        <h5>Rating: {{ cycle.3 }}</h5><br>
+        <span><a href="{% url 'cycle-delete-view' cycle_id=cycle.0 %}">Remove this cycle</a></span>
+    </div>
+    {% endfor %}
 {% endblock %}
