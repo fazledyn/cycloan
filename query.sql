@@ -1,21 +1,22 @@
 
 
 --------adding cycle---------
-
-cursor = connection.cursor()
-sql = "SELECT COUNT(*) FROM CYCLE"
-cursor.execute(sql)
-result = cursor.fetchall()
-cursor.close()
-count = int(result[0][0])
-cycle_id = 101 + count
-## photo_path = save_owner_photo(photo, owner_id)
-
 owner_id = request.session.get('owner_id')
 
 cursor = connection.cursor()
-sql = "INSERT INTO CYCLE(CYCLE_ID,MODEL,STATUS,RATING,PHOTO_PATH,OWNER_ID) VALUES(%s, %s, %s, %s, %s, %s)"
-cursor.execute(sql, [cycle_id, model, status, rating, photo_path, owner_id])
+sql = "SELECT COUNT(*) FROM CYCLE WHERE OWNER_ID = %s"
+cursor.execute(sql, [owner_id])
+result = cursor.fetchall()
+cursor.close()
+count_cycle = int(result[0][0])
+count_cycle = count_cycle + 1
+-- NEED TO PASS THE NUMBER OF CYCLE AN OWNER HAS AND THE OWNER_ID NUMBER TO THE PHOTO_PATH FUNCTION
+-- photo_path = SOMETHING(count_cycle,owner_id)
+
+
+cursor = connection.cursor()
+sql = "INSERT INTO CYCLE(CYCLE_ID,MODEL,STATUS,PHOTO_PATH,OWNER_ID) VALUES(CYCLE_INCREMENT.NEXTVAL, %s, %s, %s, %s)"
+cursor.execute(sql, [model, 0, photo_path, owner_id])
 connection.commit()
 cursor.close()
 
