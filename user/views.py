@@ -33,17 +33,6 @@ class OwnerPublicView(View):
             cursor.close()
             c_c = int(count_cycle[0][0])
 
-            if c_c != 0:
-                cursor = connection.cursor()
-                sql = "SELECT PHOTO,MODEL,RATING FROM CYCLE WHERE OWNER_ID = %s"
-                cursor.execute(sql, [ owner_id ])
-                cycle = cursor.fetchall()
-                cursor.close()
-                for c in cycle:
-                    cycle_photo_path = c[0]
-                    model = c[1]
-                    cycle_rating = c[3]
-
             cursor = connection.cursor()
             sql = "SELECT COUNT(*) FROM PEER_REVIEW WHERE OWNER_ID = %s"
             cursor.execute(sql, [ owner_id ])
@@ -115,49 +104,4 @@ class CustomerPublicView(View):
             }
 
         return render(request, 'public_customer.html', context)
-
-
-class CyclePublicView(View):
-    def get(self, request, cycle_id):
-        cursor = connection.cursor()
-        sql = "SELECT COUNT(*) FROM CYCLE WHERE CYCLE_ID = %s"
-        cursor.execute(sql, [ cycle_id ])
-        count = cursor.fetchall()
-        cursor.close()
-
-        c = int(count[0][0])
-
-        if c == 0:
-            messages.warning(request, 'No cycle with this ID')
-        else:
-            cursor = connection.cursor()
-            sql = "SELECT PHOTO,MODEL,STATUS,RATING,OWNER_ID FROM CYCLE WHERE CYCLE_ID = %s"
-            cursor.execute(sql, [ cycle_id ])
-            result = cursor.fetchall()
-            cursor.close()
-
-            photo_path = result[0][0]
-            model = result[0][1]
-            status = result[0][2]
-            cycle_rating = result[0][3]
-            owner_id = result[0][4]
-
-            cursor = connection.cursor()
-            sql = "SELECT COUNT(*) FROM CYCLE_REVIEW WHERE CYCLE_ID = %s "
-            cursor.execute(sql, [ cycle_id ])
-            count_review = cursor.fetchall()
-            cursor.close()
-            c_r = int(count_review[0][0])
-
-            if c_r != 0:
-                cursor = connection.cursor()
-                sql = "SELECT CR.CUSTOMER_ID, C.CUSTOMER_NAME, CR.COMMENT_TEXT, CR.RATING FROM CYCLE_REVIEW CR, CUSTOMER C WHERE CR.CYCLE_ID = %s AND CR.CUSTOMER_ID = C.CUSTOMER_ID "
-                cursor.execute(sql, [ cycle_id ])
-                review_list = cursor.fetchall()
-                cursor.close()
-                for r in review_list:
-                    reviewer_id = r[0]
-                    reviewer_name = r[1]
-                    comment = r[2]
-                    given_rating = r[3]
 

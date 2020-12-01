@@ -169,13 +169,21 @@ class OwnerDashboardView(View):
     @check_owner
     def get(self, request):
         owner_id = request.session.get('owner_id')
+        
         cursor = connection.cursor()
-        sql = "SELECT OWNER_NAME FROM OWNER WHERE OWNER_ID=%s"
-        cursor.execute(sql, [owner_id])
-        result = cursor.fetchall()
-        cursor.close()
-        owner_name = result[0][0]
-        context = {'owner_name': owner_name}
+        sql = "SELECT OWNER_NAME FROM OWNER WHERE OWNER_ID = %s"
+        cursor.execute(sql, [ owner_id ])
+        owner_name = cursor.fetchall()
+
+        cursor = connection.cursor()
+        sql = "SELECT CYCLE_ID, MODEL, STATUS, RATING FROM CYCLE WHERE OWNER_ID = %s"
+        cursor.execute(sql, [ owner_id ])
+        cycle_list = cursor.fetchall()
+
+        context = {
+            'owner_name': owner_name[0][0],
+            'cycle_list': cycle_list
+        }
         return render(request, 'owner_dashboard.html', context)
 
     def post(self, request):
