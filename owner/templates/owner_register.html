@@ -21,6 +21,17 @@
     
 </style>
 
+<script>
+    function checkPhotoSelected() {
+        if(document.getElementById("photo").value == "") {
+            alert("No photo selected. You must select a photo.");
+            document.querySelector("#photo").value = "";
+            return false;
+        }
+        return true;
+    }
+</script>
+
 
 <body>
     <div class="container">
@@ -28,7 +39,7 @@
         <div style="margin: auto; padding-top: 120px; padding-bottom: 120px; width: 80%;">
             <h3>Register as Owner</h3>
 
-            <form action="/owner/register/" method="POST" enctype="multipart/form-data">
+            <form action="/owner/register/" method="POST" enctype="multipart/form-data" onsubmit="return checkPhotoSelected();">
                 {% csrf_token %}
 
                 {% if messages %}
@@ -41,8 +52,8 @@
                     <div class="form-group col-md-6">
                         <label for="doctype">Upload Photo</label>
                         <div class="custom-file">
-                            <input type="file" class="custom-file-input" id="inputGroupFile01" aria-describedby="inputGroupFileAddon01" name="photo">
-                            <label class="custom-file-label" for="inputGroupFile01">Choose photo</label>
+                            <input type="file" class="custom-file-input" id="photo" aria-describedby="inputGroupFileAddon01" name="photo">
+                            <label class="custom-file-label" for="photo">Choose photo</label>
                         </div>
                     </div>
                 </div>
