@@ -36,7 +36,7 @@ class CycleSingleView(View):
             cursor.close()
 
             if cycle[0][2] == 0:
-                cycle_status = "Free"
+                cycle_status = "Available"
             elif cycle[0][2] == 1:
                 cycle_status = "Reserved"
 
@@ -68,21 +68,15 @@ class CycleAddView(View):
     def post(self, request):
         owner_id = request.session.get('owner_id')
 
-        # cursor = connection.cursor()
-        # sql = "SELECT COUNT(*) FROM CYCLE WHERE OWNER_ID = %s"
-        # cursor.execute(sql, [owner_id])
-        # result = cursor.fetchall()
-        # cursor.close()
-        # cycle_count = int(result[0][0]) + 1 
-
         cycle_photo = request.FILES.get('cycle_photo')
         cycle_model = request.POST.get('cycle_model')
+        cycle_fare = request.POST.get('cycle_fare')
 
         cycle_photo_path = save_cycle_photo(cycle_photo, owner_id, cycle_model)
 
         cursor = connection.cursor()
         sql = "INSERT INTO CYCLE(CYCLE_ID, MODEL, STATUS, PHOTO_PATH, OWNER_ID, FARE_PER_DAY) VALUES(CYCLE_INCREMENT.NEXTVAL, %s, %s, %s, %s, %s)"
-        cursor.execute(sql, [ cycle_model, 0, cycle_photo_path, owner_id, 1000 ])
+        cursor.execute(sql, [ cycle_model, 0, cycle_photo_path, owner_id, cycle_fare ])
         connection.commit()
         cursor.close()
 
