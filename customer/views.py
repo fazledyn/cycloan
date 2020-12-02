@@ -139,7 +139,7 @@ class CustomerRegisterView(View):
                 verification_token = jwt.encode(
                     {
                         'user_type': 'customer',
-                        'user_email': customer_email,
+                        'user_email': email,
                         'token_expiry': str(token_expiry)
                     }, SECRET_KEY, algorithm='HS256'
                 ).decode('utf-8')
