@@ -46,6 +46,7 @@
         </h5>
         <br>
         <h5>Rating: {{ cycle.3 }}</h5><br>
+        <h5>Fare per day: {{ cycle.4 }}</h5><br>
         <span><a href="{% url 'cycle-delete-view' cycle_id=cycle.0 %}">Remove this cycle</a></span>
     </div>
     {% endfor %}

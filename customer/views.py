@@ -154,6 +154,14 @@ class CustomerRegisterView(View):
                 print("VER TOKEN: ", verification_token)
                 print("#################################################")
 
+                # cursor = connection.cursor()
+                # sql = """BEGIN INSERT_CUSTOMER(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
+                # END;
+                # /"""
+                # cursor.execute(sql, [fullname, email, password, contact, photo_path, doc_path, doctype, token_created, token_expiry, verification_token])
+                # connection.commit()
+                # cursor.close()
+
                 email_thread = threading.Thread(target=send_verification_email, args=(email, fullname, 'customer', verification_token))
                 email_thread.start()
 

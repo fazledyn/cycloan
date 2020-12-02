@@ -21,7 +21,7 @@ class OwnerPublicView(View):
 
         else:
             cursor = connection.cursor()
-            sql = "SELECT OWNER_NAME,PHOTO_PATH,OWNER_PHONE,LOCATION,EMAIL_ADDRESS,RATING FROM OWNER WHERE OWNER_ID=%s"
+            sql = "SELECT OWNER_NAME,PHOTO_PATH,OWNER_PHONE,LOCATION,EMAIL_ADDRESS, OWNER_RATING(OWNER_ID) FROM OWNER WHERE OWNER_ID=%s"
             cursor.execute(sql, [ owner_id ])
             result = cursor.fetchall()
             cursor.close()

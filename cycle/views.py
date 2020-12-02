@@ -12,16 +12,16 @@ from .utils import save_cycle_photo
 class CycleSingleView(View):
 
     def get(self, request, cycle_id):
-        
+
         cursor = connection.cursor()
         sql = "SELECT COUNT(*) FROM CYCLE WHERE CYCLE_ID = %s"
         cursor.execute(sql, [ cycle_id ])
         cycle_count = cursor.fetchall()
         cursor.close()
-        
+
         if cycle_count[0][0] == 0:
             messages.error(request, "There is no cycle with this ID.")
-        
+
         else:
             cursor = connection.cursor()
             sql = "SELECT * FROM CYCLE WHERE CYCLE_ID = %s"
@@ -29,11 +29,17 @@ class CycleSingleView(View):
             cycle = cursor.fetchall()
             cursor.close()
 
+            cursor = connection.cursor()
+            sql = "SELECT CYCLE_RATING(CYCLE_ID) FROM CYCLE WHERE CYCLE_ID = %s"
+            cursor.execute(sql, [cycle_id])
+            cycle_rating_list = cursor.fetchall()
+            cursor.close()
+
             if cycle[0][2] == 0:
                 cycle_status = "Free"
             elif cycle[0][2] == 1:
                 cycle_status = "Reserved"
-        
+
             cursor = connection.cursor()
             sql = "SELECT * FROM CYCLE_REVIEW WHERE CYCLE_ID = %s"
             cursor.execute(sql, [ cycle_id ])
@@ -44,10 +50,11 @@ class CycleSingleView(View):
                 'cycle_id': cycle[0][0],
                 'cycle_model': cycle[0][1],
                 'cycle_status': cycle_status,
-                'cycle_rating': cycle[0][3],
-                'cycle_photo': cycle[0][4],
-                'cycle_owner': cycle[0][5],
-                'cycle_review_list': cycle_review_list 
+                'cycle_rating': cycle_rating_list[0][0],
+                'cycle_photo': cycle[0][3],
+                'cycle_owner': cycle[0][4],
+                'cycle_fare_per_day': cycle[0][5],
+                'cycle_review_list': cycle_review_list
             }
 
         return render(request, 'public_cycle.html', context)
@@ -67,15 +74,15 @@ class CycleAddView(View):
         # result = cursor.fetchall()
         # cursor.close()
         # cycle_count = int(result[0][0]) + 1 
-        
+
         cycle_photo = request.FILES.get('cycle_photo')
         cycle_model = request.POST.get('cycle_model')
 
         cycle_photo_path = save_cycle_photo(cycle_photo, owner_id, cycle_model)
 
         cursor = connection.cursor()
-        sql = "INSERT INTO CYCLE(CYCLE_ID, MODEL, STATUS, PHOTO_PATH, RATING, OWNER_ID) VALUES(CYCLE_INCREMENT.NEXTVAL, %s, %s, %s, %s, %s)"
-        cursor.execute(sql, [ cycle_model, 0, cycle_photo_path, 0, owner_id ])
+        sql = "INSERT INTO CYCLE(CYCLE_ID, MODEL, STATUS, PHOTO_PATH, OWNER_ID, FARE_PER_DAY) VALUES(CYCLE_INCREMENT.NEXTVAL, %s, %s, %s, %s, %s)"
+        cursor.execute(sql, [ cycle_model, 0, cycle_photo_path, owner_id, 1000 ])
         connection.commit()
         cursor.close()
 

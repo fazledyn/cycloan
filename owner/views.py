@@ -176,7 +176,7 @@ class OwnerDashboardView(View):
         owner_name = cursor.fetchall()
 
         cursor = connection.cursor()
-        sql = "SELECT CYCLE_ID, MODEL, STATUS, RATING FROM CYCLE WHERE OWNER_ID = %s"
+        sql = "SELECT CYCLE_ID, MODEL, STATUS, CYCLE_RATING(CYCLE_ID), FARE_PER_DAY FROM CYCLE WHERE OWNER_ID = %s"
         cursor.execute(sql, [ owner_id ])
         cycle_list = cursor.fetchall()
 
