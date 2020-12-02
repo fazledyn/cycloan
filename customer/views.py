@@ -4,7 +4,7 @@ from django.views import View
 from django.contrib import messages
 
 from .utils import save_customer_doc, save_customer_photo
-from core.utils import create_auth_token, send_verification_email
+from core.utils import create_auth_token, send_verification_email, create_verification_token
 from cycloan.settings import SECRET_KEY
 
 from datetime import datetime, timedelta
@@ -33,6 +33,7 @@ class CustomerLoginView(View):
 
         try:
             fetched_pass = result[0][0]
+
             if fetched_pass == customer_pass:
                 customer_id = result[0][1]
 
@@ -60,7 +61,6 @@ class CustomerLoginView(View):
 
 
 class CustomerLogoutView(View):
-
     @verify_auth_token
     @check_customer
     def get(self, request):
@@ -92,6 +92,7 @@ class CustomerRegisterView(View):
         if password != password_confirm:
             messages.warning(request, 'Passwords do not match. Check again')
             return redirect('customer-register-view')
+        
         else:
             cursor = connection.cursor()
             sql = "SELECT COUNT(*) FROM CUSTOMER WHERE EMAIL_ADDRESS=%s"
@@ -106,53 +107,16 @@ class CustomerRegisterView(View):
                 cursor.execute(sql)
                 result = cursor.fetchall()
                 cursor.close()
+        
                 count = int(result[0][0])
                 customer_count = 50001 + count
                 photo_path = save_customer_photo(photo, customer_count, contact)
                 doc_path = save_customer_doc(document, customer_count, contact)
 
-                # cursor = connection.cursor()
-                # sql = "INSERT INTO CUSTOMER(CUSTOMER_ID,CUSTOMER_NAME,PASSWORD,CUSTOMER_PHONE,PHOTO_PATH,EMAIL_ADDRESS) VALUES(CUSTOMER_INCREMENT.NEXTVAL, %s, %s, %s, %s, %s)"
-                # cursor.execute(sql, [fullname, password, contact, photo_path, email])
-                # connection.commit()
-                # cursor.close()
-                #
-                # cursor = connection.cursor()
-                # sql = "SELECT CUSTOMER_ID FROM CUSTOMER WHERE EMAIL_ADDRESS=%s"
-                # cursor.execute(sql, [email])
-                # result = cursor.fetchall()
-                # cursor.close()
-                # customer_id = result[0][0]
-                #
-                # cursor = connection.cursor()
-                # sql = "INSERT INTO DOCUMENT(CUSTOMER_ID,TYPE_NAME,FILE_PATH) VALUES(%s, %s, %s)"
-                # cursor.execute(sql, [customer_id, doctype, doc_path])
-                # connection.commit()
-                # cursor.close()
-
-                """
-                TOKEN MAKING
-                """
                 token_created = datetime.now()
-                token_expiry = token_created + timedelta(days=1)
+                token_expiry = token_created + timedelta(days=1)                
+                verification_token = create_verification_token("customer", email, token_expiry)
                 
-                verification_token = jwt.encode(
-                    {
-                        'user_type': 'customer',
-                        'user_email': email,
-                        'token_expiry': str(token_expiry)
-                    }, SECRET_KEY, algorithm='HS256'
-                ).decode('utf-8')
-
-                # cursor = connection.cursor()
-                # sql = "INSERT INTO CUSTOMER_EMAIL_VERIFICATION(CUSTOMER_ID, IS_VERIFIED, EMAIL_ADDRESS, TOKEN_CREATED, TOKEN_EXPIRY, TOKEN_VALUE) VALUES(%s, %s, %s, %s, %s, %s)"
-                # cursor.execute(sql, [customer_id, 0, email, token_created, token_expiry, verification_token])
-                # connection.commit()
-                # cursor.close()
-
-                print("#################################################")
-                print("VER TOKEN: ", verification_token)
-                print("#################################################")
 
                 cursor = connection.cursor()
                 cursor.callproc("INSERT_CUSTOMER", [fullname, email, password, contact, photo_path, doc_path, doctype, token_created, token_expiry, verification_token])
@@ -161,7 +125,7 @@ class CustomerRegisterView(View):
                 email_thread = threading.Thread(target=send_verification_email, args=(email, fullname, 'customer', verification_token))
                 email_thread.start()
 
-                messages.success(request, 'Account create successful. Now you can login.')
+                messages.success(request, 'Successfully created account. Now you must verify your email and then you can log in.')
                 return redirect('login-view')
 
             else:
@@ -175,14 +139,16 @@ class CustomerDashboardView(View):
     @check_customer
     def get(self, request):
         customer_id = request.session.get('customer_id')
+        
         cursor = connection.cursor()
         sql = "SELECT CUSTOMER_NAME FROM CUSTOMER WHERE CUSTOMER_ID=%s"
         cursor.execute(sql, [customer_id])
         result = cursor.fetchall()
         cursor.close()
+
         customer_name = result[0][0]
-        print(customer_name)
         context = {'customer_name': customer_name}
+        
         return render(request, 'customer_dashboard.html', context)
 
 
@@ -227,9 +193,6 @@ class CustomerProfileView(View):
         cursor.execute(sql, [customer_id])
         result = cursor.fetchall()
         cursor.close()        
-
-        #####################   WORK LEFT   ####################
-        ########################################################
 
         old_password = request.POST.get('old_password')
         new_password = request.POST.get('new_password')

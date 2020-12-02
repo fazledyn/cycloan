@@ -6,7 +6,7 @@ from django.shortcuts import render, redirect
 from django.views import View
 
 from .utils import save_owner_photo
-from core.utils import create_auth_token, send_verification_email
+from core.utils import create_auth_token, send_verification_email, create_verification_token
 
 from datetime import datetime, timedelta
 import jwt, threading
@@ -84,7 +84,6 @@ class OwnerRegisterView(View):
     def post(self, request):
 
         photo = request.FILES.get('photo')
-        # InMemoryUplaodedFile
         email = request.POST.get('email')
         password = request.POST.get('password')
         password_confirm = request.POST.get('password_confirm')
@@ -110,46 +109,14 @@ class OwnerRegisterView(View):
                 cursor.execute(sql)
                 result = cursor.fetchall()
                 cursor.close()
+
                 count = int(result[0][0])
                 owner_count = 10001 + count
                 photo_path = save_owner_photo(photo, owner_count, contact)
 
-                # cursor = connection.cursor()
-                # sql = "INSERT INTO OWNER(OWNER_ID,OWNER_NAME,PASSWORD,OWNER_PHONE,LOCATION,PHOTO_PATH,EMAIL_ADDRESS) VALUES(OWNER_INCREMENT.NEXTVAL, %s, %s, %s, %s, %s, %s)"
-                # cursor.execute(sql, [fullname, password, contact, location, photo_path, email])
-                # connection.commit()
-                # cursor.close()
-                #
-                # cursor = connection.cursor()
-                # sql = "SELECT OWNER_ID FROM OWNER WHERE EMAIL_ADDRESS=%s"
-                # cursor.execute(sql, [email])
-                # result = cursor.fetchall()
-                # cursor.close()
-                # owner_id = result[0][0]
-
-                """
-                TOKEN MAKING
-                """
                 token_created = datetime.now()
                 token_expiry = token_created + timedelta(days=1)
-
-                verification_token = jwt.encode(
-                    {
-                        'user_type': 'owner',
-                        'user_id': email,
-                        'token_expiry': str(token_expiry)
-                    }, SECRET_KEY, algorithm='HS256'
-                ).decode('utf-8')
-
-                # cursor = connection.cursor()
-                # sql = "INSERT INTO OWNER_EMAIL_VERIFICATION(OWNER_ID, IS_VERIFIED, EMAIL_ADDRESS, TOKEN_CREATED, TOKEN_EXPIRY, TOKEN_VALUE) VALUES(%s, %s, %s, %s, %s, %s)"
-                # cursor.execute(sql, [owner_id, 0, email, token_created, token_expiry, verification_token])
-                # connection.commit()
-                # cursor.close()
-
-                print("#################################################")
-                print("VER TOKEN: ", verification_token)
-                print("#################################################")
+                verification_token = create_verification_token("owner", email, token_expiry)
 
                 cursor = connection.cursor()
                 cursor.callproc("INSERT_OWNER", [fullname, email, password, contact, photo_path, location, token_created, token_expiry, verification_token])
@@ -159,7 +126,7 @@ class OwnerRegisterView(View):
                                                 args=(email, fullname, 'owner', verification_token))
                 email_thread.start()
 
-                messages.success(request, 'Account create successful. Now you can login.')
+                messages.success(request, 'Successfully created account. Now you must verify your email and then you can log in.')
                 return redirect('login-view')
 
             else:
@@ -203,8 +170,6 @@ class OwnerDashboardView(View):
 
         count_cycle = int(result[0][0])
         count_cycle = count_cycle + 1
-
-        ## NEED TO PASS THE NUMBER OF CYCLE AN OWNER HAS AND THE OWNER_ID NUMBER TO THE PHOTO_PATH FUNCTION
         photo_path = save_owner_photo(photo, count_cycle, owner_id)
 
         cursor = connection.cursor()
@@ -253,9 +218,6 @@ class OwnerProfileView(View):
         cursor.execute(sql, [owner_id])
         result = cursor.fetchall()
         cursor.close()
-
-        #####################   WORK LEFT   ####################
-        ########################################################
 
         old_password = request.POST.get('old_password')
         new_password = request.POST.get('new_password')
