@@ -35,7 +35,6 @@ def create_auth_token(user_id):
             'exp': datetime.now() + timedelta(seconds=600000)
         }, SECRET_KEY, algorithm='HS256'
     ).decode('utf-8')
-    print(type(auth_token))
     return auth_token
 
 
@@ -61,6 +60,19 @@ def check_owner(func):
 
         return func(self, request, *args, **kwargs)
     return wrapped
+
+
+def create_verification_token(user_type, user_email, token_expiry):
+
+    token =  jwt.encode(
+        {
+            'user_type': user_type,
+            'user_email': user_email,
+            'token_expiry': str(token_expiry)
+        }, SECRET_KEY, algorithm='HS256'
+    ).decode('utf-8')
+
+    return token
 
 
 def send_verification_email(to, user_name, user_type, verification_token):
@@ -92,3 +104,5 @@ def send_verification_email(to, user_name, user_type, verification_token):
     #     fail_silently=False,
     #     html_message=html_content
     # )
+
+
