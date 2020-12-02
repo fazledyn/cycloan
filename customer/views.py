@@ -111,24 +111,24 @@ class CustomerRegisterView(View):
                 photo_path = save_customer_photo(photo, customer_count, contact)
                 doc_path = save_customer_doc(document, customer_count, contact)
 
-                cursor = connection.cursor()
-                sql = "INSERT INTO CUSTOMER(CUSTOMER_ID,CUSTOMER_NAME,PASSWORD,CUSTOMER_PHONE,PHOTO_PATH,EMAIL_ADDRESS) VALUES(CUSTOMER_INCREMENT.NEXTVAL, %s, %s, %s, %s, %s)"
-                cursor.execute(sql, [fullname, password, contact, photo_path, email])
-                connection.commit()
-                cursor.close()
-
-                cursor = connection.cursor()
-                sql = "SELECT CUSTOMER_ID FROM CUSTOMER WHERE EMAIL_ADDRESS=%s"
-                cursor.execute(sql, [email])
-                result = cursor.fetchall()
-                cursor.close()
-                customer_id = result[0][0]
-
-                cursor = connection.cursor()
-                sql = "INSERT INTO DOCUMENT(CUSTOMER_ID,TYPE_NAME,FILE_PATH) VALUES(%s, %s, %s)"
-                cursor.execute(sql, [customer_id, doctype, doc_path])
-                connection.commit()
-                cursor.close()
+                # cursor = connection.cursor()
+                # sql = "INSERT INTO CUSTOMER(CUSTOMER_ID,CUSTOMER_NAME,PASSWORD,CUSTOMER_PHONE,PHOTO_PATH,EMAIL_ADDRESS) VALUES(CUSTOMER_INCREMENT.NEXTVAL, %s, %s, %s, %s, %s)"
+                # cursor.execute(sql, [fullname, password, contact, photo_path, email])
+                # connection.commit()
+                # cursor.close()
+                #
+                # cursor = connection.cursor()
+                # sql = "SELECT CUSTOMER_ID FROM CUSTOMER WHERE EMAIL_ADDRESS=%s"
+                # cursor.execute(sql, [email])
+                # result = cursor.fetchall()
+                # cursor.close()
+                # customer_id = result[0][0]
+                #
+                # cursor = connection.cursor()
+                # sql = "INSERT INTO DOCUMENT(CUSTOMER_ID,TYPE_NAME,FILE_PATH) VALUES(%s, %s, %s)"
+                # cursor.execute(sql, [customer_id, doctype, doc_path])
+                # connection.commit()
+                # cursor.close()
 
                 """
                 TOKEN MAKING
@@ -144,23 +144,19 @@ class CustomerRegisterView(View):
                     }, SECRET_KEY, algorithm='HS256'
                 ).decode('utf-8')
 
-                cursor = connection.cursor()
-                sql = "INSERT INTO CUSTOMER_EMAIL_VERIFICATION(CUSTOMER_ID, IS_VERIFIED, EMAIL_ADDRESS, TOKEN_CREATED, TOKEN_EXPIRY, TOKEN_VALUE) VALUES(%s, %s, %s, %s, %s, %s)"
-                cursor.execute(sql, [customer_id, 0, email, token_created, token_expiry, verification_token])
-                connection.commit()
-                cursor.close()
+                # cursor = connection.cursor()
+                # sql = "INSERT INTO CUSTOMER_EMAIL_VERIFICATION(CUSTOMER_ID, IS_VERIFIED, EMAIL_ADDRESS, TOKEN_CREATED, TOKEN_EXPIRY, TOKEN_VALUE) VALUES(%s, %s, %s, %s, %s, %s)"
+                # cursor.execute(sql, [customer_id, 0, email, token_created, token_expiry, verification_token])
+                # connection.commit()
+                # cursor.close()
 
                 print("#################################################")
                 print("VER TOKEN: ", verification_token)
                 print("#################################################")
 
-                # cursor = connection.cursor()
-                # sql = """BEGIN INSERT_CUSTOMER(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
-                # END;
-                # /"""
-                # cursor.execute(sql, [fullname, email, password, contact, photo_path, doc_path, doctype, token_created, token_expiry, verification_token])
-                # connection.commit()
-                # cursor.close()
+                cursor = connection.cursor()
+                cursor.callproc("INSERT_CUSTOMER", [fullname, email, password, contact, photo_path, doc_path, doctype, token_created, token_expiry, verification_token])
+                cursor.close()
 
                 email_thread = threading.Thread(target=send_verification_email, args=(email, fullname, 'customer', verification_token))
                 email_thread.start()

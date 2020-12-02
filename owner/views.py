@@ -114,18 +114,18 @@ class OwnerRegisterView(View):
                 owner_count = 10001 + count
                 photo_path = save_owner_photo(photo, owner_count, contact)
 
-                cursor = connection.cursor()
-                sql = "INSERT INTO OWNER(OWNER_ID,OWNER_NAME,PASSWORD,OWNER_PHONE,LOCATION,PHOTO_PATH,EMAIL_ADDRESS) VALUES(OWNER_INCREMENT.NEXTVAL, %s, %s, %s, %s, %s, %s)"
-                cursor.execute(sql, [fullname, password, contact, location, photo_path, email])
-                connection.commit()
-                cursor.close()
-
-                cursor = connection.cursor()
-                sql = "SELECT OWNER_ID FROM OWNER WHERE EMAIL_ADDRESS=%s"
-                cursor.execute(sql, [email])
-                result = cursor.fetchall()
-                cursor.close()
-                owner_id = result[0][0]
+                # cursor = connection.cursor()
+                # sql = "INSERT INTO OWNER(OWNER_ID,OWNER_NAME,PASSWORD,OWNER_PHONE,LOCATION,PHOTO_PATH,EMAIL_ADDRESS) VALUES(OWNER_INCREMENT.NEXTVAL, %s, %s, %s, %s, %s, %s)"
+                # cursor.execute(sql, [fullname, password, contact, location, photo_path, email])
+                # connection.commit()
+                # cursor.close()
+                #
+                # cursor = connection.cursor()
+                # sql = "SELECT OWNER_ID FROM OWNER WHERE EMAIL_ADDRESS=%s"
+                # cursor.execute(sql, [email])
+                # result = cursor.fetchall()
+                # cursor.close()
+                # owner_id = result[0][0]
 
                 """
                 TOKEN MAKING
@@ -136,20 +136,24 @@ class OwnerRegisterView(View):
                 verification_token = jwt.encode(
                     {
                         'user_type': 'owner',
-                        'user_id': owner_id,
+                        'user_id': email,
                         'token_expiry': str(token_expiry)
                     }, SECRET_KEY, algorithm='HS256'
                 ).decode('utf-8')
 
-                cursor = connection.cursor()
-                sql = "INSERT INTO OWNER_EMAIL_VERIFICATION(OWNER_ID, IS_VERIFIED, EMAIL_ADDRESS, TOKEN_CREATED, TOKEN_EXPIRY, TOKEN_VALUE) VALUES(%s, %s, %s, %s, %s, %s)"
-                cursor.execute(sql, [owner_id, 0, email, token_created, token_expiry, verification_token])
-                connection.commit()
-                cursor.close()
+                # cursor = connection.cursor()
+                # sql = "INSERT INTO OWNER_EMAIL_VERIFICATION(OWNER_ID, IS_VERIFIED, EMAIL_ADDRESS, TOKEN_CREATED, TOKEN_EXPIRY, TOKEN_VALUE) VALUES(%s, %s, %s, %s, %s, %s)"
+                # cursor.execute(sql, [owner_id, 0, email, token_created, token_expiry, verification_token])
+                # connection.commit()
+                # cursor.close()
 
                 print("#################################################")
                 print("VER TOKEN: ", verification_token)
                 print("#################################################")
+
+                cursor = connection.cursor()
+                cursor.callproc("INSERT_OWNER", [fullname, email, password, contact, photo_path, location, token_created, token_expiry, verification_token])
+                cursor.close()
 
                 email_thread = threading.Thread(target=send_verification_email,
                                                 args=(email, fullname, 'owner', verification_token))
