@@ -180,3 +180,19 @@ EMAIL_USE_TLS = False
 EMAIL_USE_SSL = False
 
 DEFAULT_FROM_EMAIL = 'no-reply@cycloan.com'
+
+# Cycle Status Constants
+
+CYCLE_AVAILABLE = 0
+
+CYCLE_BOOKED = 1
+
+# Trip Status Constants
+
+TRIP_REQUESTED = 0
+
+TRIP_ONGOING = 1
+
+TRIP_REJECTED = 2
+
+TRIP_COMPLETED = 3
