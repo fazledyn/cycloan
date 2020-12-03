@@ -146,7 +146,7 @@ class AdminRegisterView(View):
                 cursor = connection.cursor()
                 sql = "INSERT INTO ADMIN(ADMIN_ID,ADMIN_NAME,ADMIN_EMAIL,ADMIN_PASSWORD) VALUES(ADMIN_INCREMENT.NEXTVAL, %s, %s, %s)"
                 cursor.execute(sql, [fullname, email, password])
-                cursor.commit()
+                connection.commit()
                 cursor.close()
 
                 messages.success(request, 'Successfully created account. Now you must verify your email and then you can log in.')
