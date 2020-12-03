@@ -1,9 +1,60 @@
 {% extends 'core/base.html' %}
 
 {% block title %}
-    Customer | Dashboard
+Customer | Dashboard
 {% endblock %}
 
 {% block content %}
-    Welcome, {{ customer_name }}
+Welcome, {{ customer_name }}
+
+<form action="{% url 'customer-dashboard-view' %}" method="POST">
+    {% csrf_token %}
+
+    <input type="checkbox" name="preference" value="1" id="preference">
+    <label for="preference">Show nearby cycles</label>
+
+    <div id="map"></div>
+    <input type="hidden" id="lng" readonly="yes" name="longtitude">
+    <input type="hidden" id="lat" readonly="yes" name="latitude">
+
+    <button type="submit" class="btn btn-success">Find Cycle</button>
+
+</form>
+
+<div>
+    {% for cycle in cycle_list %}
+    <br>
+    <div>{{ cycle.0 }}</div>
+    <div>{{ cycle.1 }}</div>
+    <div>{{ cycle.2 }}</div>
+    <div>{{ cycle.3 }}</div>
+    <div><a href="{% url 'request-cycle-view' cycle_id=cycle.0 %}">Request this cycle</a></div>
+    <br>
+    {% endfor %}
+
+    <br><br>
+
+    <h3>Requested trip: </h3>
+    {% for trip in requested_trip %}
+        <div>{{ trip.0 }}</div>
+        <div>{{ trip.1 }}</div>
+        <div>{{ trip.2 }}</div>
+        <div>{{ trip.3 }}</div>
+        <div>{{ trip.4 }}</div>
+        <div>{{ trip.5 }}</div> 
+    {% endfor %}
+
+    <br><br>
+
+    <h3>Ongoing trip: </h3>
+    {% for trip in ongoing_trip %}
+        <div>{{ trip.0 }}</div>
+        <div>{{ trip.1 }}</div>
+        <div>{{ trip.2 }}</div>
+        <div>{{ trip.3 }}</div>
+        <div>{{ trip.4 }}</div>
+        <div>{{ trip.5 }}</div> 
+    {% endfor %}
+    
+</div>
 {% endblock %}

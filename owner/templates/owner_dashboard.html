@@ -37,6 +37,16 @@
 
     <br>
 
+    <h3>Cycle Requests:</h3>
+    <div>
+        {% for cycle in cycle_request_list %}
+            {{ cycle.0 }}<br>
+            {{ cycle.1 }}<br>
+            {{ cycle.2 }}<br>
+            <a href="{% url 'approve-cycle-view' trip_id=cycle.0 %}">Approve this cycle</a>
+        {% endfor %}
+    </div>
+
     <h2>Your Cycles: </h2>
     {% for cycle in cycle_list %}
     <div style="border-radius: 10px; padding: 10px; background-color: whitesmoke;">

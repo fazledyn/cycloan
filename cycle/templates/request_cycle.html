@@ -1,0 +1,38 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}
+Request Cycle | Cycloan
+{% endblock %}
+
+{% block content %}
+
+<h2>Cycle Info:</h2>
+
+{{ cycle.0.0 }}<br>
+{{ cycle.0.1 }}<br>
+{{ cycle.0.2 }}<br>
+{{ cycle.0.3 }}<br>
+{{ cycle.0.4 }}<br>
+{{ cycle.0.5 }}<br>
+{{ cycle.0.6 }}<br>
+
+<form action="{% url 'request-cycle-view' cycle_id=cycle.0.0 %}" method="POST">
+    {% csrf_token %}
+
+    <label for="start_datetime">Start Datetime</label>
+    <input type="datetime-local" name="start_datetime" id="start_datetime">
+    <br>
+    <label for="end_datetime">End Datetime</label>
+    <input type="datetime-local" name="end_datetime" id="end_datetime">
+    <br>
+    <label for="payment_type">Payment Type</label>
+    <input type="text" name="payment_type" id="payment_type">
+    <br>
+    <button class="btn btn-success" type="submit">Send request</button>
+
+</form>
+
+<br><br><br><br>
+
+{% endblock %}

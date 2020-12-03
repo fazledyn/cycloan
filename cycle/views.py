@@ -3,10 +3,14 @@ from django.contrib import messages
 from django.db import connection
 from django.views import View
 
-from core.utils import check_owner
+from core.utils import check_owner, check_customer
 from core.utils import verify_auth_token
 
 from .utils import save_cycle_photo
+from cycloan.settings import CYCLE_AVAILABLE, CYCLE_BOOKED
+
+from cycloan.settings import TRIP_REQUESTED, TRIP_ONGOING, TRIP_REJECTED, TRIP_COMPLETED
+from datetime import datetime
 
 # GET   /cycle/<id>
 class CycleSingleView(View):
@@ -97,5 +101,114 @@ class CycleDeleteView(View):
         cursor.close()
 
         messages.info(request, "The cycle has been deleted.")
+        return redirect('owner-dashboard-view')
+
+
+class RequestCycleView(View):
+
+    @verify_auth_token
+    @check_customer
+    def get(self, request, cycle_id):
+        customer_id = request.session.get('customer_id')
+        cursor = connection.cursor()
+        sql =   """
+                SELECT *
+                FROM CYCLE C, OWNER O
+                WHERE C.OWNER_ID = O.OWNER_ID
+                AND C.CYCLE_ID = %s
+                AND C.STATUS = %s
+                """
+        cursor.execute(sql, [ cycle_id, CYCLE_AVAILABLE ])
+        cycle = cursor.fetchall()
+        context = { 'cycle': cycle }
+
+        print("REQUEST CYCLE VIEW (GET) ")
+        print(cycle)
+        print("-------------------------------------")
+        return render(request, 'request_cycle.html', context)
+
+    @verify_auth_token
+    @check_customer
+    def post(self, request, cycle_id):
+        customer_id = request.session.get('customer_id')
+        customer_id = int(customer_id)
+
+        cursor = connection.cursor()
+        sql = "SELECT STATUS FROM CYCLE WHERE CYCLE_ID = %s"
+        cursor.execute(sql, [ cycle_id ])
+        status = cursor.fetchall()
+        connection.commit()
+        cursor.close()
+
+        start_datetime = request.POST.get('start_datetime')
+        end_datetime = request.POST.get('end_datetime')
+        payment_type = request.POST.get('payment_type')
+
+        start_datetime = datetime.fromisoformat(start_datetime)
+        end_datetime = datetime.fromisoformat(end_datetime)
+
+        print(type(start_datetime))        
+        print(start_datetime)
+
+        print(payment_type)
+        print(type(payment_type))
+
+        if status[0][0] == CYCLE_AVAILABLE:
+            print("Cycle is available")
+
+            cursor = connection.cursor()
+            sql = "INSERT INTO TRIP_DETAILS(TRIP_ID, START_DATE_TIME, END_DATE_TIME, STATUS, PAYMENT_TYPE, CUSTOMER_ID, CYCLE_ID) VALUES(TRIP_INCREMENT.NEXTVAL, %s, %s, %s, %s, %s, %s)"
+            cursor.execute(sql, [ start_datetime, end_datetime, TRIP_REQUESTED, payment_type, customer_id, cycle_id ])
+            connection.commit()
+            cursor.close()
+
+            messages.success(request, "Cycle requested. You'll be notified after owner confirms it.")
+            return redirect('customer-dashboard-view')
+
+        else:
+            print("Fuck off, no cycle for you")
+            messages.warning(request, "Sorry, this cycle isn't available.")
+            return redirect('customer-dashboard-view')
+
+
+class ApproveCycleView(View):
+
+    @verify_auth_token
+    @check_owner
+    def get(self, request, trip_id):
+        owner_id = request.session.get('owner_id')
+        owner_id = int(owner_id)
+
+        cursor = connection.cursor()
+        sql = "SELECT CYCLE_ID, CUSTOMER_ID FROM TRIP_DETAILS WHERE TRIP_ID = %s AND STATUS = %s"
+        cursor.execute(sql, [ trip_id, TRIP_REQUESTED ])
+        result = cursor.fetchall()
+        cycle_id = result[0][0]
+        customer_id = result[0][1]
+
+        # Update the Cycle STATUS for Availability & Concurrency
+        # If someone searches for a cycle by the time this view gets executed
+        cursor = connection.cursor()
+        sql = "UPDATE CYCLE SET STATUS = %s WHERE CYCLE_ID = %s"
+        cursor.execute(sql, [ CYCLE_BOOKED, cycle_id ])
+        connection.commit()
+        cursor.close()
+
+        # Cancelling every trip request made on this cycle which have STATUS = TRIP_REQUESTED
+        cursor = connection.cursor()
+        sql = "UPDATE TRIP_DETAILS SET STATUS = %s WHERE CYCLE_ID = %s AND STATUS = %s"
+        cursor.execute(sql, [ TRIP_REJECTED, cycle_id, TRIP_REQUESTED ])
+        connection.commit()
+        cursor.close()
+
+        # After cancellation, we must only approve the trip which the user had chosen.
+        # Only approve the chosen trip by its TRIP_ID that we had got earlied
+        cursor = connection.cursor()
+        sql = "UPDATE TRIP_DETAILS SET STATUS = %s WHERE TRIP_ID = %s"
+        cursor.execute(sql, [ TRIP_ONGOING, trip_id ])
+        connection.commit()
+        cursor.close()
+
+        messages.success(request, "The cycle has been approved.")
         return redirect('owner-dashboard-view')
 

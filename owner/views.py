@@ -12,6 +12,8 @@ from datetime import datetime, timedelta
 import jwt, threading
 
 from cycloan.settings import SECRET_KEY
+from cycloan.settings import CYCLE_BOOKED, CYCLE_AVAILABLE
+from cycloan.settings import TRIP_REQUESTED, TRIP_ONGOING, TRIP_REJECTED, TRIP_COMPLETED
 
 ## decorators
 from core.utils import verify_auth_token, check_owner
@@ -83,6 +85,10 @@ class OwnerRegisterView(View):
 
     def post(self, request):
 
+        print()
+        print(request.POST)
+        print()
+
         photo = request.FILES.get('photo')
         email = request.POST.get('email')
         password = request.POST.get('password')
@@ -90,7 +96,12 @@ class OwnerRegisterView(View):
 
         fullname = request.POST.get('fullname')
         contact = request.POST.get('contact')
-        location = request.POST.get('location')
+        
+        longtitude = request.POST.get('longtitude')
+        latitude = request.POST.get('latitude')
+
+        longtitude = float(longtitude)
+        latitude = float(latitude)
 
         if password != password_confirm:
             messages.warning(request, 'Passwords do not match. Check again')
@@ -119,7 +130,7 @@ class OwnerRegisterView(View):
                 verification_token = create_verification_token("owner", email, token_expiry)
 
                 cursor = connection.cursor()
-                cursor.callproc("INSERT_OWNER", [fullname, email, password, contact, photo_path, location, token_created, token_expiry, verification_token])
+                cursor.callproc("INSERT_OWNER", [fullname, email, password, contact, photo_path, longtitude, latitude, token_created, token_expiry, verification_token])
                 cursor.close()
 
                 email_thread = threading.Thread(target=send_verification_email,
@@ -145,38 +156,35 @@ class OwnerDashboardView(View):
         sql = "SELECT OWNER_NAME FROM OWNER WHERE OWNER_ID = %s"
         cursor.execute(sql, [ owner_id ])
         owner_name = cursor.fetchall()
+        connection.commit()
+        cursor.close()
 
         cursor = connection.cursor()
         sql = "SELECT CYCLE_ID, MODEL, STATUS, CYCLE_RATING(CYCLE_ID), FARE_PER_DAY FROM CYCLE WHERE OWNER_ID = %s"
         cursor.execute(sql, [ owner_id ])
         cycle_list = cursor.fetchall()
-
-        context = {
-            'owner_name': owner_name[0][0],
-            'cycle_list': cycle_list
-        }
-        return render(request, 'owner_dashboard.html', context)
-
-    def post(self, request):
-        owner_id = request.session.get('owner_id')
-        model = request.POST.get('model')
-        photo = request.FILES.get('photo')
-
-        cursor = connection.cursor()
-        sql = "SELECT COUNT(*) FROM CYCLE WHERE OWNER_ID = %s"
-        cursor.execute(sql, [owner_id])
-        result = cursor.fetchall()
-        cursor.close()
-
-        count_cycle = int(result[0][0])
-        count_cycle = count_cycle + 1
-        photo_path = save_owner_photo(photo, count_cycle, owner_id)
-
-        cursor = connection.cursor()
-        sql = "INSERT INTO CYCLE(CYCLE_ID,MODEL,STATUS,PHOTO_PATH,OWNER_ID) VALUES(CYCLE_INCREMENT.NEXTVAL, %s, %s, %s, %s)"
-        cursor.execute(sql, [model, 0, photo_path, owner_id])
         connection.commit()
         cursor.close()
+        
+        cursor = connection.cursor()
+        sql =   """
+                SELECT TD.TRIP_ID, TD.CUSTOMER_ID, TD.CYCLE_ID
+                FROM TRIP_DETAILS TD, CYCLE C
+                WHERE TD.CYCLE_ID = C.CYCLE_ID
+                AND C.OWNER_ID = %s
+                AND TD.STATUS = %s
+                """
+        cursor.execute(sql, [ owner_id, TRIP_REQUESTED ])
+        cycle_request_list = cursor.fetchall()
+        connection.commit()
+        cursor.close()
+        
+        context = {
+            'owner_name': owner_name[0][0],
+            'cycle_list': cycle_list,
+            'cycle_request_list': cycle_request_list
+        }
+        return render(request, 'owner_dashboard.html', context)
 
 
 class OwnerProfileView(View):

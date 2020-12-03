@@ -3,9 +3,11 @@ from django.db import connection
 from django.views import View
 from django.contrib import messages
 
-from .utils import save_customer_doc, save_customer_photo
+from .utils import save_customer_doc, save_customer_photo, calculate_distance
 from core.utils import create_auth_token, send_verification_email, create_verification_token
 from cycloan.settings import SECRET_KEY
+from cycloan.settings import TRIP_COMPLETED, TRIP_ONGOING, TRIP_REJECTED, TRIP_REQUESTED
+from cycloan.settings import CYCLE_AVAILABLE, CYCLE_BOOKED
 
 from datetime import datetime, timedelta
 import jwt, threading
@@ -144,13 +146,106 @@ class CustomerDashboardView(View):
         sql = "SELECT CUSTOMER_NAME FROM CUSTOMER WHERE CUSTOMER_ID=%s"
         cursor.execute(sql, [customer_id])
         result = cursor.fetchall()
+        connection.commit()
         cursor.close()
 
         customer_name = result[0][0]
-        context = {'customer_name': customer_name}
-        
+
+        # This section is for ongoing trips where the owner has given approval to use their cycle.
+        cursor = connection.cursor()
+        sql =   """
+                SELECT *
+                FROM TRIP_DETAILS TD, CYCLE C
+                WHERE TD.CYCLE_ID = C.CYCLE_ID
+                AND TD.CUSTOMER_ID = %s
+                AND TD.STATUS = %s
+                """
+        cursor.execute(sql, [ customer_id, TRIP_ONGOING ])
+        ongoing_trip = cursor.fetchall()
+        connection.commit()
+        cursor.close()
+
+        # The part for cycle request put
+        cursor = connection.cursor()
+        sql =   """
+                SELECT *
+                FROM TRIP_DETAILS TD, CYCLE C
+                WHERE TD.CYCLE_ID = C.CYCLE_ID
+                AND TD.CUSTOMER_ID = %s
+                AND TD.STATUS = %s
+                """
+        cursor.execute(sql, [ customer_id, TRIP_REQUESTED ])
+        requested_trip = cursor.fetchall()
+        connection.commit()
+        cursor.close()
+
+        context = {
+            'customer_name': customer_name,
+            'ongoing_trip': ongoing_trip,
+            'requested_trip': requested_trip,
+        }
+
         return render(request, 'customer_dashboard.html', context)
 
+    @verify_auth_token
+    @check_customer
+    def post(self, request):
+        # CONSTANT
+        DLONG = 0.09
+        DLAT = 0.09
+
+        print(" = ====================")
+        print(request.POST)
+
+        customer_lat = request.POST.get('latitude')
+        customer_long = request.POST.get('longtitude')
+        preference = request.POST.get('preference')
+
+        customer_lat = float(customer_lat)
+        customer_long = float(customer_long)
+
+        cursor = connection.cursor()
+
+        if preference == "1":
+            sql =   """
+                        SELECT C.CYCLE_ID, O.LATITUDE, O.LONGTITUDE
+                        FROM CYCLE C, OWNER O
+                        WHERE C.OWNER_ID = O.OWNER_ID
+                        AND ABS(O.LATITUDE - %s) <= %s
+                        AND ABS(O.LONGTITUDE - %s) <= %s
+                        AND C.STATUS = %s
+                    """
+            cursor.execute(sql, [ customer_lat, DLAT, customer_long, DLONG, 0 ])
+        else:
+            sql =   """
+                    SELECT C.CYCLE_ID, O.LATITUDE, O.LONGTITUDE
+                    FROM CYCLE C, OWNER O
+                    WHERE C.OWNER_ID = O.OWNER_ID
+                    AND C.STATUS = %s
+                    """
+            cursor.execute(sql, [ 0 ])
+
+        result = cursor.fetchall()
+
+        if len(result) == 0:
+            print("There are no cycles to show")
+            messages.info(request, "There are no cycles to show")
+            context = {}
+
+        else:
+            print("There are cycles to show")
+            context = {
+                'cycle_list': result
+            }
+
+            for item in result:
+                print("--------------------------------")
+                dist = calculate_distance(customer_lat, customer_long, float(item[0]), float(item[1]))
+                print("distance between: ", dist, "km")
+                print("--------------------------------")
+
+        return render(request, 'customer_dashboard.html', context)
+            
 
 class CustomerProfileView(View):
 
@@ -246,3 +341,53 @@ class CustomerProfileView(View):
                 messages.error('The new passwords do not match! Type carefully.')
     
         return redirect('customer-profile-view')
+
+
+class CycleSearchView(View):
+    def get(self, request):
+        return render(request, 'cycle_search.html')
+
+    def post(self, request):
+        
+        # CONSTANT
+        DLONG = 0.00079
+        DLAT = 0.00079
+
+        customer_long = request.POST.get('customer_longtitude')
+        customer_lat = request.POST.get('customer_latitude')
+        preference = request.POST.get('preference')
+
+        if preference == "Show all cycles":
+            cursor = connection.cursor()
+            sql =   """
+                        SELECT *
+                        FROM CYCLE C, OWNER O
+                        WHERE C.OWNER_ID = O.OWNER_ID
+                        AND C.STATUS = "AVAILABLE"
+                    """
+            cursor.execute(sql, [])
+
+        elif preference == "Show Nearby Cycles":
+            cursor = connection.cursor()
+            sql =   """
+                        SELECT *
+                        FROM CYCLE C, OWNER O
+                        WHERE C.OWNER_ID = O.OWNER_ID
+                        AND ABS(O.LONGTITUDE - %s) <= %s
+                        AND ABS(O.LATITUDE - %s) <= %s
+                        AND C.STATUS = "AVAILABLE"
+                    """
+            cursor.execute(sql, [ customer_long, DLONG, customer_lat, DLAT ])
+            result = cursor.fetchall()
+
+            if len(result) == 0:
+                print("There are no cycles to show")
+                messages.info(request, "There are no cycles to show")
+            
+            else:
+                print("There are cycles to show")
+                context = {
+                    'cycle_list': result,
+                }
+                return render(request, 'cycle_search.html', context)
+
