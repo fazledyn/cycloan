@@ -49,6 +49,13 @@ NOCYCLE ;
 
 --DROP SEQUENCE PEER_REVIEW_INCREMENT
 
+CREATE SEQUENCE ADMIN_INCREMENT
+INCREMENT BY 1
+START WITH 1000
+MAXVALUE 9999
+NOCYCLE ;
+
+--DROP SEQUENCE ADMIN_INCREMENT;
 -------------------------------------------------------
 
 --------------------------------------------------------

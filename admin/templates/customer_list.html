@@ -1,0 +1,21 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% block title %}
+    Admin | Customer List
+{% endblock %}
+
+{% block content %}
+    {% for customer in customer_list %}
+        <img src="{% static customer.0 %}" class="profile-picture">
+        <div>
+            <b>ID: </b>{{ customer.1 }} <br>
+            <b>Name: </b>{{ customer.2 }} <br>
+            <b>Contact: </b>{{ customer.3 }} <br>
+            <b>Email: </b>{{ customer.4 }} <br>
+            <br>
+            <br>
+        </div>
+
+    {% endfor %}
+
+{% endblock %}
