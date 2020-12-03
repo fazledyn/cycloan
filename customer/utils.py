@@ -1,5 +1,5 @@
 from cycloan.settings import CUSTOMER_DOC_DIR, CUSTOMER_PHOTO_DIR
-
+from math import sin, cos, asin, sqrt, radians
 
 # photo filename = ID + . + photo_ext
 def save_customer_photo(photo, customer_id, contact):
@@ -29,3 +29,21 @@ def save_customer_doc(document, customer_id, contact):
 
     # save it in database
     return doc_path
+
+
+def calculate_distance(baseLat, baseLong, pointLat, pointLong):
+
+    baseLat = radians(baseLat)
+    baseLong = radians(baseLong)
+    pointLat = radians(pointLat)
+    pointLong = radians(pointLong)
+
+    radius = 6341
+    dLat = baseLat - pointLat
+    dLong = baseLong - pointLong
+
+    a = sin(dLat/2)**2 + cos(baseLat) * cos(pointLat) * sin(dLong/2)**2
+    curvature = 2*asin(sqrt(a))
+    distance = curvature * radius
+    
+    return distance
