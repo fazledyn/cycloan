@@ -15,3 +15,8 @@
     padding: 8px;
     font-size: 16px;
 }
+
+#map {
+    width: 350px;
+    height: 250px;
+}
