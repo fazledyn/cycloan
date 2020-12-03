@@ -1,0 +1,23 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% block title %}
+    Admin | Owner List
+{% endblock %}
+
+{% block content %}
+    {% for owner in owner_list %}
+        <img src="{% static owner.0 %}" class="profile-picture">
+        <div>
+            <b>ID: </b>{{ owner.1 }} <br>
+            <b>Name: </b>{{ owner.2 }} <br>
+            <b>Contact: </b>{{ owner.3 }} <br>
+            <b>Location: </b>{{ owner.4 }} <br>
+            <b>Email: </b>{{ owner.5 }} <br>
+            <b>Rating: </b>{{ owner.6}} <br>
+            <br>
+            <br>
+        </div>
+
+    {% endfor %}
+
+{% endblock %}

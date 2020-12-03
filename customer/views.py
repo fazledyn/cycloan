@@ -116,7 +116,6 @@ class CustomerRegisterView(View):
                 token_created = datetime.now()
                 token_expiry = token_created + timedelta(days=1)                
                 verification_token = create_verification_token("customer", email, token_expiry)
-                
 
                 cursor = connection.cursor()
                 cursor.callproc("INSERT_CUSTOMER", [fullname, email, password, contact, photo_path, doc_path, doctype, token_created, token_expiry, verification_token])
