@@ -21,6 +21,14 @@ class LoginView(View):
         else:
             return render(request, 'core/index.html')
 
+class LoginViewForAdmin(View):
+    def get(self, request):
+        user_type = request.session.get('user_type')
+
+        if user_type == 'admin':
+            return redirect('admin-dashboard-view')
+        else:
+            return render(request, 'core/admin_login.html')
 
 class EmailVerificationView(View):
 

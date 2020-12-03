@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'owner',
     'cycle',
     'customer',
+    'admin',
 ]
 
 MIDDLEWARE = [
