@@ -102,7 +102,7 @@ class CycleDeleteView(View):
 
         cursor = connection.cursor()
         sql = "SELECT COUNT(*) FROM TRIP_DETAILS WHERE STATUS = %s AND CYCLE_ID = %s"
-        cursor.execute(sql, [1, cycle_id])
+        cursor.execute(sql, [TRIP_ONGOING, cycle_id])
         result = cursor.fetchall()
         cursor.close()
 

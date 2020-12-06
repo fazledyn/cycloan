@@ -168,6 +168,9 @@ class CustomerDashboardView(View):
         connection.commit()
         cursor.close()
 
+        cursor = connection.cursor()
+        cursor.call()        
+
         # The part for cycle request put
         cursor = connection.cursor()
         sql = """
