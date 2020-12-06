@@ -326,6 +326,7 @@ class ReceiveCycleView(View):
             connection.commit()
             cursor.close()
 
+            messages.success(request, "Congrats! The trip is ended.")
             return redirect('trip-details-view', trip_id=trip_id)
             ## NOW made the cycle available
         else:

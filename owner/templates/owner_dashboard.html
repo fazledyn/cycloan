@@ -66,10 +66,12 @@
     </div>
     {% endfor %}
 
+    <h3>Ongoing Trips:</h3>
     {% for trip in ongoing_trip_list %}
         TRIP ID: <div>{{ trip.0 }}</div>
         CUSTOMER ID: <div>{{ trip.1 }}</div>
         CYCLE ID: <div>{{ trip.2 }}</div>
+        <a href="{% url 'receive-cycle-view' trip_id=trip.0 %}"><button>End trip</button></a>
     {% endfor %}
 
 {% endblock %}

@@ -167,10 +167,7 @@ class CustomerDashboardView(View):
         ongoing_trip = cursor.fetchall()
         connection.commit()
         cursor.close()
-
-        cursor = connection.cursor()
-        cursor.call()        
-
+        
         # The part for cycle request put
         cursor = connection.cursor()
         sql = """
