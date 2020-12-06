@@ -342,51 +342,56 @@ class CustomerProfileView(View):
         return redirect('customer-profile-view')
 
 
-class CycleSearchView(View):
-    def get(self, request):
-        return render(request, 'cycle_search.html')
+class TripFeedbackView(View):
 
-    def post(self, request):
+    def get(self, request, trip_id):
+        customer_id = request.session.get('customer_id')
+
+        cursor = connection.cursor()
+        sql = "SELECT * FROM TRIP_DETAILS WHERE TRIP_ID = %s"
+        cursor.execute(sql, [ trip_id ])
+        resutl = cursor.fetchall()
+        connection.commit()
+        cursor.close()
+
+        context = {
+            'trip_id': trip_id,
+        }
+
+        return render(request, 'trip_feedback_view.html',context)
+
+
+    def post(self, request, trip_id):
+        customer_id = request.session.get('customer_id')
         
-        # CONSTANT
-        DLONG = 0.00079
-        DLAT = 0.00079
+        print(" ======================================== ")
+        print(request.POST)
 
-        customer_long = request.POST.get('customer_longtitude')
-        customer_lat = request.POST.get('customer_latitude')
-        preference = request.POST.get('preference')
+        cycle_rating = request.POST.get('cycle_rating')
+        cycle_comment = request.POST.get('cycle_comment')
+        owner_rating = request.POST.get('owner_rating')
+        owner_comment = request.POST.get('owner_comment')
+        
+        cursor = connection.cursor()
+        sql =   """
+                @Purbasha
+                # INSERTING INTO PEER_REVIEW
+                """
+        cursor.execute(sql, [ trip_id ])
+        connection.commit()
+        cursor.close()
+        
+        ###################################
+        ###################################
 
-        if preference == "Show all cycles":
-            cursor = connection.cursor()
-            sql =   """
-                        SELECT *
-                        FROM CYCLE C, OWNER O
-                        WHERE C.OWNER_ID = O.OWNER_ID
-                        AND C.STATUS = "AVAILABLE"
-                    """
-            cursor.execute(sql, [])
-
-        elif preference == "Show Nearby Cycles":
-            cursor = connection.cursor()
-            sql =   """
-                        SELECT *
-                        FROM CYCLE C, OWNER O
-                        WHERE C.OWNER_ID = O.OWNER_ID
-                        AND ABS(O.LONGTITUDE - %s) <= %s
-                        AND ABS(O.LATITUDE - %s) <= %s
-                        AND C.STATUS = "AVAILABLE"
-                    """
-            cursor.execute(sql, [ customer_long, DLONG, customer_lat, DLAT ])
-            result = cursor.fetchall()
-
-            if len(result) == 0:
-                print("There are no cycles to show")
-                messages.info(request, "There are no cycles to show")
-            
-            else:
-                print("There are cycles to show")
-                context = {
-                    'cycle_list': result,
-                }
-                return render(request, 'cycle_search.html', context)
+        cursor = connection.cursor()
+        sql =   """
+                @Purbasha
+                # INSERTING INTO cycle_REVIEW
+                """
+        cursor.execute(sql, [ trip_id ])
+        connection.commit()
+        cursor.close()
+        
+        pass
 

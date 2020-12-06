@@ -9,17 +9,19 @@ from core.utils import verify_auth_token
 from .utils import save_cycle_photo
 from cycloan.settings import CYCLE_AVAILABLE, CYCLE_BOOKED
 
-from cycloan.settings import TRIP_REQUESTED, TRIP_ONGOING, TRIP_REJECTED, TRIP_COMPLETED
+from cycloan.settings import TRIP_REQUESTED, TRIP_ONGOING, TRIP_REJECTED, TRIP_COMPLETED, TRIP_REVIEWED
 from datetime import datetime
 
 # GET   /cycle/<id>
+
+
 class CycleSingleView(View):
 
     def get(self, request, cycle_id):
 
         cursor = connection.cursor()
         sql = "SELECT COUNT(*) FROM CYCLE WHERE CYCLE_ID = %s"
-        cursor.execute(sql, [ cycle_id ])
+        cursor.execute(sql, [cycle_id])
         cycle_count = cursor.fetchall()
         cursor.close()
 
@@ -29,7 +31,7 @@ class CycleSingleView(View):
         else:
             cursor = connection.cursor()
             sql = "SELECT * FROM CYCLE WHERE CYCLE_ID = %s"
-            cursor.execute(sql, [ cycle_id ])
+            cursor.execute(sql, [cycle_id])
             cycle = cursor.fetchall()
             cursor.close()
 
@@ -46,7 +48,7 @@ class CycleSingleView(View):
 
             cursor = connection.cursor()
             sql = "SELECT * FROM CYCLE_REVIEW WHERE CYCLE_ID = %s"
-            cursor.execute(sql, [ cycle_id ])
+            cursor.execute(sql, [cycle_id])
             cycle_review_list = cursor.fetchall()
             cursor.close()
 
@@ -64,7 +66,7 @@ class CycleSingleView(View):
         return render(request, 'public_cycle.html', context)
 
 
-# POST  /cycle/add/ 
+# POST  /cycle/add/
 class CycleAddView(View):
 
     @verify_auth_token
@@ -80,7 +82,8 @@ class CycleAddView(View):
 
         cursor = connection.cursor()
         sql = "INSERT INTO CYCLE(CYCLE_ID, MODEL, STATUS, PHOTO_PATH, OWNER_ID, FARE_PER_DAY) VALUES(CYCLE_INCREMENT.NEXTVAL, %s, %s, %s, %s, %s)"
-        cursor.execute(sql, [ cycle_model, 0, cycle_photo_path, owner_id, cycle_fare ])
+        cursor.execute(
+            sql, [cycle_model, 0, cycle_photo_path, owner_id, cycle_fare])
         connection.commit()
         cursor.close()
 
@@ -88,6 +91,8 @@ class CycleAddView(View):
         return redirect('owner-dashboard-view')
 
 # GET /cycle/delete/<id>
+
+
 class CycleDeleteView(View):
 
     @verify_auth_token
@@ -96,7 +101,7 @@ class CycleDeleteView(View):
 
         cursor = connection.cursor()
         sql = "DELETE FROM CYCLE WHERE CYCLE_ID = %s"
-        cursor.execute(sql, [ cycle_id ])
+        cursor.execute(sql, [cycle_id])
         connection.commit()
         cursor.close()
 
@@ -111,16 +116,16 @@ class RequestCycleView(View):
     def get(self, request, cycle_id):
         customer_id = request.session.get('customer_id')
         cursor = connection.cursor()
-        sql =   """
+        sql = """
                 SELECT *
                 FROM CYCLE C, OWNER O
                 WHERE C.OWNER_ID = O.OWNER_ID
                 AND C.CYCLE_ID = %s
                 AND C.STATUS = %s
                 """
-        cursor.execute(sql, [ cycle_id, CYCLE_AVAILABLE ])
+        cursor.execute(sql, [cycle_id, CYCLE_AVAILABLE])
         cycle = cursor.fetchall()
-        context = { 'cycle': cycle }
+        context = {'cycle': cycle}
 
         print("REQUEST CYCLE VIEW (GET) ")
         print(cycle)
@@ -135,7 +140,7 @@ class RequestCycleView(View):
 
         cursor = connection.cursor()
         sql = "SELECT STATUS FROM CYCLE WHERE CYCLE_ID = %s"
-        cursor.execute(sql, [ cycle_id ])
+        cursor.execute(sql, [cycle_id])
         status = cursor.fetchall()
         connection.commit()
         cursor.close()
@@ -147,7 +152,7 @@ class RequestCycleView(View):
         start_datetime = datetime.fromisoformat(start_datetime)
         end_datetime = datetime.fromisoformat(end_datetime)
 
-        print(type(start_datetime))        
+        print(type(start_datetime))
         print(start_datetime)
 
         print(payment_type)
@@ -158,11 +163,13 @@ class RequestCycleView(View):
 
             cursor = connection.cursor()
             sql = "INSERT INTO TRIP_DETAILS(TRIP_ID, START_DATE_TIME, END_DATE_TIME, STATUS, PAYMENT_TYPE, CUSTOMER_ID, CYCLE_ID) VALUES(TRIP_INCREMENT.NEXTVAL, %s, %s, %s, %s, %s, %s)"
-            cursor.execute(sql, [ start_datetime, end_datetime, TRIP_REQUESTED, payment_type, customer_id, cycle_id ])
+            cursor.execute(sql, [start_datetime, end_datetime,
+                                 TRIP_REQUESTED, payment_type, customer_id, cycle_id])
             connection.commit()
             cursor.close()
 
-            messages.success(request, "Cycle requested. You'll be notified after owner confirms it.")
+            messages.success(
+                request, "Cycle requested. You'll be notified after owner confirms it.")
             return redirect('customer-dashboard-view')
 
         else:
@@ -181,7 +188,7 @@ class ApproveCycleView(View):
 
         cursor = connection.cursor()
         sql = "SELECT CYCLE_ID, CUSTOMER_ID FROM TRIP_DETAILS WHERE TRIP_ID = %s AND STATUS = %s"
-        cursor.execute(sql, [ trip_id, TRIP_REQUESTED ])
+        cursor.execute(sql, [trip_id, TRIP_REQUESTED])
         result = cursor.fetchall()
         cycle_id = result[0][0]
         customer_id = result[0][1]
@@ -190,14 +197,14 @@ class ApproveCycleView(View):
         # If someone searches for a cycle by the time this view gets executed
         cursor = connection.cursor()
         sql = "UPDATE CYCLE SET STATUS = %s WHERE CYCLE_ID = %s"
-        cursor.execute(sql, [ CYCLE_BOOKED, cycle_id ])
+        cursor.execute(sql, [CYCLE_BOOKED, cycle_id])
         connection.commit()
         cursor.close()
 
         # Cancelling every trip request made on this cycle which have STATUS = TRIP_REQUESTED
         cursor = connection.cursor()
         sql = "UPDATE TRIP_DETAILS SET STATUS = %s WHERE CYCLE_ID = %s AND STATUS = %s"
-        cursor.execute(sql, [ TRIP_REJECTED, cycle_id, TRIP_REQUESTED ])
+        cursor.execute(sql, [TRIP_REJECTED, cycle_id, TRIP_REQUESTED])
         connection.commit()
         cursor.close()
 
@@ -205,10 +212,99 @@ class ApproveCycleView(View):
         # Only approve the chosen trip by its TRIP_ID that we had got earlied
         cursor = connection.cursor()
         sql = "UPDATE TRIP_DETAILS SET STATUS = %s WHERE TRIP_ID = %s"
-        cursor.execute(sql, [ TRIP_ONGOING, trip_id ])
+        cursor.execute(sql, [TRIP_ONGOING, trip_id])
         connection.commit()
         cursor.close()
 
         messages.success(request, "The cycle has been approved.")
         return redirect('owner-dashboard-view')
+
+
+class CycleSearchView(View):
+    def get(self, request):
+        return render(request, 'cycle_search.html')
+
+    def post(self, request):
+
+        # CONSTANT
+        DLONG = 0.00079
+        DLAT = 0.00079
+
+        customer_long = request.POST.get('customer_longtitude')
+        customer_lat = request.POST.get('customer_latitude')
+        preference = request.POST.get('preference')
+
+        if preference == "Show all cycles":
+            cursor = connection.cursor()
+            sql = """
+                        SELECT *
+                        FROM CYCLE C, OWNER O
+                        WHERE C.OWNER_ID = O.OWNER_ID
+                        AND C.STATUS = "AVAILABLE"
+                    """
+            cursor.execute(sql, [])
+
+        elif preference == "Show Nearby Cycles":
+            cursor = connection.cursor()
+            sql = """
+                        SELECT *
+                        FROM CYCLE C, OWNER O
+                        WHERE C.OWNER_ID = O.OWNER_ID
+                        AND ABS(O.LONGTITUDE - %s) <= %s
+                        AND ABS(O.LATITUDE - %s) <= %s
+                        AND C.STATUS = "AVAILABLE"
+                    """
+            cursor.execute(sql, [customer_long, DLONG, customer_lat, DLAT])
+            result = cursor.fetchall()
+
+            if len(result) == 0:
+                print("There are no cycles to show")
+                messages.info(request, "There are no cycles to show")
+
+            else:
+                print("There are cycles to show")
+                context = {
+                    'cycle_list': result,
+                }
+                return render(request, 'cycle_search.html', context)
+
+
+class ReceiveCycleView(View):
+
+    def get(self, request, trip_id):
+        owner_id = request.session.get('owner_id')
+
+        cursor = connection.cursor()
+        sql = "SELECT OWNER_ID FROM RESERVES WHERE TRIP_ID = %s"
+        cursor.execute(sql, [ trip_id ])
+        result = cursor.fetchall()
+        connection.commit()
+        cursor.close()
+
+        print("...............")
+        print(result)
+        print("...............")
+
+        if owner_id == result[0][0]:
+            ## yes, this trip belongs to this owner
+            cursor = connection.cursor()
+            sql = "UPDATE TRIP_DETAILS SET STATUS = %s WHERE TRIP_ID = %s"
+            cursor.execute(sql, [ TRIP_COMPLETED, trip_id ])
+            connection.commit()
+            cursor.close()
+            ##  the trip has been completed
+            ##  now make the cycle available
+
+            cursor = connection.cursor()
+            sql = "UPDATE CYCLE SET STATUS = %s WHERE TRIP_DETAILS.TRIP_ID = %s AND CYCLE.CYCLE_ID = TRIP_DETAILS.CYCLE_ID"
+            cursor.execute(sql, [ CYCLE_AVAILABLE, trip_id ])
+            connection.commit()
+            cursor.close()
+
+            return redirect('trip-details-view', trip_id=trip_id)
+            ## NOW made the cycle available
+        else:
+            ## not his trip
+            ## send to FORBIDDEN 403
+            pass
 

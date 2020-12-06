@@ -1,13 +1,9 @@
------------------------------------------------------------------
--------------------------------SEQUENCE------------------------------------------
-
 CREATE SEQUENCE OWNER_INCREMENT
 INCREMENT BY 1
 START WITH 10000
 MAXVALUE 50000
 NOCYCLE ;
 
---DROP SEQUENCE OWNER_INCREMENT
 
 CREATE SEQUENCE CUSTOMER_INCREMENT
 INCREMENT BY 1
@@ -15,7 +11,6 @@ START WITH 50000
 MAXVALUE 90000
 NOCYCLE ;
 
---DROP SEQUENCE CUSTOMER_INCREMENT
 
 CREATE SEQUENCE CYCLE_INCREMENT
 INCREMENT BY 1
@@ -23,7 +18,6 @@ START WITH 90000
 MAXVALUE 130000
 NOCYCLE ;
 
---DROP SEQUENCE CYCLE_INCREMENT
 
 CREATE SEQUENCE TRIP_INCREMENT
 INCREMENT BY 1
@@ -31,7 +25,6 @@ START WITH 10000
 MAXVALUE 99999
 NOCYCLE ;
 
---DROP SEQUENCE TRIP_INCREMENT
 
 CREATE SEQUENCE CYCLE_REVIEW_INCREMENT
 INCREMENT BY 1
@@ -39,7 +32,6 @@ START WITH 10000
 MAXVALUE 99999
 NOCYCLE ;
 
---DROP SEQUENCE CYCLE_REVIEW_INCREMENT
 
 CREATE SEQUENCE PEER_REVIEW_INCREMENT
 INCREMENT BY 1
@@ -47,25 +39,12 @@ START WITH 10000
 MAXVALUE 99999
 NOCYCLE ;
 
---DROP SEQUENCE PEER_REVIEW_INCREMENT
 
 CREATE SEQUENCE ADMIN_INCREMENT
 INCREMENT BY 1
 START WITH 1000
 MAXVALUE 9999
 NOCYCLE ;
-
---DROP SEQUENCE ADMIN_INCREMENT;
--------------------------------------------------------
-
---------------------------------------------------------
-----------------------FINDING OWNER REVIEW---------------------------
-
-SELECT P.CUSTOMER_ID, C.CUSTOMER_NAME, P.COMMENT_TEXT, P.RATING
-FROM PEER_REVIEW P, CUSTOMER C
-WHERE P.OWNER_ID = SOMETHING AND P.CUSTOMER_ID = C.CUSTOMER_ID
-
-------------------------------------------
 
 -----------------------------OWNS INSERTING TRIGGER--------------------
 
@@ -90,10 +69,6 @@ EXCEPTION
 END;
 /
 
--------------------------------------------
-
---------------------------------OWNS DELETE TRIGGER------------------
-
 
 CREATE OR REPLACE TRIGGER DELETE_OWNS
 BEFORE DELETE
@@ -112,10 +87,7 @@ EXCEPTION
 END;
 /
 
----------------------------------------------------------------
-
 -------------------------PROCEDURE FOR INSERTING IN CUSTOMER-----------------------
-
 
 CREATE OR REPLACE PROCEDURE INSERT_CUSTOMER( FNAME IN VARCHAR2, EMAIL IN VARCHAR2, PASS IN VARCHAR2, CONTACT IN VARCHAR2, PPATH IN VARCHAR2, DPATH IN VARCHAR2, DTYPE IN VARCHAR2, TOKCREATED IN VARCHAR2, TOKEXPIRY IN VARCHAR2, TOKEN IN VARCHAR2) IS
 	CUS_ID NUMBER;
@@ -136,7 +108,7 @@ EXCEPTION
 		DBMS_OUTPUT.PUT_LINE('DO NOT KNOW');
 END;
 /
------------------------------------------------------------------
+
 ------------------------------------PROCEDURE FOR INSERTING IN OWNER-------------------------
 
 CREATE OR REPLACE PROCEDURE INSERT_OWNER(FNAME IN VARCHAR2, EMAIL IN VARCHAR2, PASS IN VARCHAR2, CONTACT IN VARCHAR2, PPATH IN VARCHAR2, LONGT IN VARCHAR2, LAT IN VARCHAR2, TOKCREATED IN VARCHAR2, TOKEXPIRY IN VARCHAR2, TOKEN IN VARCHAR2) IS
@@ -157,7 +129,6 @@ EXCEPTION
 END;
 /
 
----------------------------------------
 --------------------------function for owner rating calculation---------------------
 
 CREATE OR REPLACE FUNCTION OWNER_RATING( OWN_ID IN NUMBER )
@@ -176,9 +147,6 @@ EXCEPTION
 END;
 /
 
-
------------------------------------------------------------------------------------
-
 --------------------------function for CYCLE rating calculation---------------------
 
 CREATE OR REPLACE FUNCTION CYCLE_RATING( CYC_ID IN NUMBER )
@@ -196,9 +164,6 @@ EXCEPTION
 		DBMS_OUTPUT.PUT_LINE('DO NOT KNOW');
 END;
 /
-
---------------------------------------------------------------------
---------------------------------------------------------------------
 
 -----------------------------------TRIGGER FOR INSERT IN RESERVES-----------------------
 
@@ -230,8 +195,6 @@ EXCEPTION
 END;
 /
 
------------------------------------------------------------
-
 ---------------------------------PROCEDURE TO INSERT REVIEW AND UPDATE TRIP (COMPLETE)-----------------------------
 
 CREATE OR REPLACE PROCEDURE REVIEW_INSERT( CUS_ID IN NUMBER, CYC_ID IN NUMBER, CYC_RAT IN NUMBER, CYC_COMMENT IN VARCHAR2, OWN_ID IN NUMBER, OWN_RAT IN NUMBER, OWN_COMMENT IN VARCHAR2, TRP_ID IN NUMBER )IS
@@ -252,5 +215,3 @@ EXCEPTION
 		DBMS_OUTPUT.PUT_LINE('DO NOT KNOW');
 END;
 /
-
-------------------------------------------------------------------------------
