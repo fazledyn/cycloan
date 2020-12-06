@@ -121,6 +121,47 @@ class EmailVerificationView(View):
             return redirect('login-view')
 
 
+
+class TripFeedbackView(View):
+
+    def get(self, request, trip_id):
+        customer_id = request.session.get('customer_id')
+
+        cursor = connection.cursor()
+        sql = "SELECT * FROM TRIP_DETAILS WHERE TRIP_ID = %s"
+        cursor.execute(sql, [trip_id])
+        result = cursor.fetchall()
+        connection.commit()
+        cursor.close()
+
+        context = {
+            'trip_id': trip_id,
+            'trip': result[0]
+        }
+
+        return render(request, 'core/trip_feedback.html', context)
+
+
+    def post(self, request, trip_id):
+        customer_id = request.session.get('customer_id')
+
+        print(" ======================================== ")
+        print(request.POST)
+
+        cycle_rating = request.POST.get('cycle_rating')
+        cycle_comment = request.POST.get('cycle_comment')
+        owner_rating = request.POST.get('owner_rating')
+        owner_comment = request.POST.get('owner_comment')
+
+        cursor = connection.cursor()
+        cursor.callproc("REVIEW_INSERT", [cycle_rating, cycle_comment, owner_rating, owner_comment, trip_id])
+        cursor.close()
+
+        messages.success(request, 'Your review has been added')
+        return redirect('customer-dashboard-view')
+
+
+
 class Http403View(View):
     def get(self, request):
         return render(request, '403.html')

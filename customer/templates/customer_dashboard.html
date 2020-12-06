@@ -56,5 +56,30 @@ Welcome, {{ customer_name }}
         <div>{{ trip.5 }}</div> 
     {% endfor %}
     
+    <h3>Completed trip: </h3>
+    {% for trip in completed_trip %}
+        <div>{{ trip.0 }}</div>
+        <div>{{ trip.1 }}</div>
+        <div>{{ trip.2 }}</div>
+        <div>{{ trip.3 }}</div>
+        <form action="{% url 'trip-feedback-view' trip_id=trip.0 %}" method="POST">
+            {% csrf_token %}
+            <div>
+                Cycle Comment: <br>
+                <textarea name="cycle_comment">
+                </textarea><br>
+                Owner Comment: <br>
+                <textarea name="owner_comment">
+                </textarea><br>
+                Owner Rating: <br>
+                <input type="range" max="5" min="1" name="owner_rating"><br>
+                Cycle Rating: <br>
+                <input type="range" max="5" min="1" name="cycle_rating"><br>
+            </div>  
+            <button type="submit">Submit Review</button>
+        </form> 
+    {% endfor %}
+    
+
 </div>
 {% endblock %}

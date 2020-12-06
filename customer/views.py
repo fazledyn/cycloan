@@ -182,10 +182,24 @@ class CustomerDashboardView(View):
         connection.commit()
         cursor.close()
 
+        cursor = connection.cursor()
+        sql = """
+                SELECT *
+                FROM TRIP_DETAILS TD, CYCLE C
+                WHERE TD.CYCLE_ID = C.CYCLE_ID
+                AND TD.CUSTOMER_ID = %s
+                AND TD.STATUS = %s
+                """
+        cursor.execute(sql, [customer_id, TRIP_COMPLETED])
+        completed_trip = cursor.fetchall()
+        connection.commit()
+        cursor.close()
+
         context = {
             'customer_name': customer_name,
             'ongoing_trip': ongoing_trip,
             'requested_trip': requested_trip,
+            'completed_trip': completed_trip,
         }
 
         return render(request, 'customer_dashboard.html', context)
@@ -346,39 +360,3 @@ class CustomerProfileView(View):
         return redirect('customer-profile-view')
 
 
-class TripFeedbackView(View):
-
-    def get(self, request, trip_id):
-        customer_id = request.session.get('customer_id')
-
-        cursor = connection.cursor()
-        sql = "SELECT * FROM TRIP_DETAILS WHERE TRIP_ID = %s"
-        cursor.execute(sql, [trip_id])
-        result = cursor.fetchall()
-        connection.commit()
-        cursor.close()
-
-        context = {
-            'trip_id': trip_id,
-            'trip': result[0]
-        }
-
-        return render(request, 'trip_feedback.html', context)
-
-
-    def post(self, request, trip_id):
-        customer_id = request.session.get('customer_id')
-
-        print(" ======================================== ")
-        print(request.POST)
-
-        cycle_rating = request.POST.get('cycle_rating')
-        cycle_comment = request.POST.get('cycle_comment')
-        owner_rating = request.POST.get('owner_rating')
-        owner_comment = request.POST.get('owner_comment')
-
-        cursor = connection.cursor()
-        cursor.callproc("REVIEW_INSERT", [cycle_rating, cycle_comment, owner_rating, owner_comment, trip_id])
-        cursor.close()
-
-        pass

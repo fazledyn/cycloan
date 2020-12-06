@@ -1,5 +1,5 @@
 from django.db import connection
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views import View
 from django.contrib import messages
 from django.http import request
@@ -118,5 +118,4 @@ class TripDetailsView(View):
 
         context = { 'trip_detail': result[0] }
         return render(request, 'trip_details.html', context)
-
 
