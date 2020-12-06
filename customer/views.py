@@ -94,7 +94,7 @@ class CustomerRegisterView(View):
         if password != password_confirm:
             messages.warning(request, 'Passwords do not match. Check again')
             return redirect('customer-register-view')
-        
+
         else:
             cursor = connection.cursor()
             sql = "SELECT COUNT(*) FROM CUSTOMER WHERE EMAIL_ADDRESS=%s"
@@ -109,24 +109,28 @@ class CustomerRegisterView(View):
                 cursor.execute(sql)
                 result = cursor.fetchall()
                 cursor.close()
-        
+
                 count = int(result[0][0])
                 customer_count = 50001 + count
                 photo_path = save_customer_photo(photo, customer_count, contact)
                 doc_path = save_customer_doc(document, customer_count, contact)
 
                 token_created = datetime.now()
-                token_expiry = token_created + timedelta(days=1)                
+                token_expiry = token_created + timedelta(days=1)
                 verification_token = create_verification_token("customer", email, token_expiry)
 
                 cursor = connection.cursor()
-                cursor.callproc("INSERT_CUSTOMER", [fullname, email, password, contact, photo_path, doc_path, doctype, token_created, token_expiry, verification_token])
+                cursor.callproc("INSERT_CUSTOMER",
+                                [fullname, email, password, contact, photo_path, doc_path, doctype, token_created,
+                                 token_expiry, verification_token])
                 cursor.close()
 
-                email_thread = threading.Thread(target=send_verification_email, args=(email, fullname, 'customer', verification_token))
+                email_thread = threading.Thread(target=send_verification_email,
+                                                args=(email, fullname, 'customer', verification_token))
                 email_thread.start()
 
-                messages.success(request, 'Successfully created account. Now you must verify your email and then you can log in.')
+                messages.success(request,
+                                 'Successfully created account. Now you must verify your email and then you can log in.')
                 return redirect('login-view')
 
             else:
@@ -140,7 +144,7 @@ class CustomerDashboardView(View):
     @check_customer
     def get(self, request):
         customer_id = request.session.get('customer_id')
-        
+
         cursor = connection.cursor()
         sql = "SELECT CUSTOMER_NAME FROM CUSTOMER WHERE CUSTOMER_ID=%s"
         cursor.execute(sql, [customer_id])
@@ -152,28 +156,28 @@ class CustomerDashboardView(View):
 
         # This section is for ongoing trips where the owner has given approval to use their cycle.
         cursor = connection.cursor()
-        sql =   """
+        sql = """
                 SELECT *
                 FROM TRIP_DETAILS TD, CYCLE C
                 WHERE TD.CYCLE_ID = C.CYCLE_ID
                 AND TD.CUSTOMER_ID = %s
                 AND TD.STATUS = %s
                 """
-        cursor.execute(sql, [ customer_id, TRIP_ONGOING ])
+        cursor.execute(sql, [customer_id, TRIP_ONGOING])
         ongoing_trip = cursor.fetchall()
         connection.commit()
         cursor.close()
 
         # The part for cycle request put
         cursor = connection.cursor()
-        sql =   """
+        sql = """
                 SELECT *
                 FROM TRIP_DETAILS TD, CYCLE C
                 WHERE TD.CYCLE_ID = C.CYCLE_ID
                 AND TD.CUSTOMER_ID = %s
                 AND TD.STATUS = %s
                 """
-        cursor.execute(sql, [ customer_id, TRIP_REQUESTED ])
+        cursor.execute(sql, [customer_id, TRIP_REQUESTED])
         requested_trip = cursor.fetchall()
         connection.commit()
         cursor.close()
@@ -206,7 +210,7 @@ class CustomerDashboardView(View):
         cursor = connection.cursor()
 
         if preference == "1":
-            sql =   """
+            sql = """
                         SELECT C.CYCLE_ID, O.LATITUDE, O.LONGTITUDE
                         FROM CYCLE C, OWNER O
                         WHERE C.OWNER_ID = O.OWNER_ID
@@ -214,15 +218,15 @@ class CustomerDashboardView(View):
                         AND ABS(O.LONGTITUDE - %s) <= %s
                         AND C.STATUS = %s
                     """
-            cursor.execute(sql, [ customer_lat, DLAT, customer_long, DLONG, 0 ])
+            cursor.execute(sql, [customer_lat, DLAT, customer_long, DLONG, 0])
         else:
-            sql =   """
+            sql = """
                     SELECT C.CYCLE_ID, O.LATITUDE, O.LONGTITUDE
                     FROM CYCLE C, OWNER O
                     WHERE C.OWNER_ID = O.OWNER_ID
                     AND C.STATUS = %s
                     """
-            cursor.execute(sql, [ 0 ])
+            cursor.execute(sql, [0])
 
         result = cursor.fetchall()
 
@@ -244,7 +248,7 @@ class CustomerDashboardView(View):
                 print("--------------------------------")
 
         return render(request, 'customer_dashboard.html', context)
-            
+
 
 class CustomerProfileView(View):
 
@@ -286,7 +290,7 @@ class CustomerProfileView(View):
         sql = "SELECT PASSWORD FROM CUSTOMER WHERE CUSTOMER_ID=%s"
         cursor.execute(sql, [customer_id])
         result = cursor.fetchall()
-        cursor.close()        
+        cursor.close()
 
         old_password = request.POST.get('old_password')
         new_password = request.POST.get('new_password')
@@ -298,7 +302,7 @@ class CustomerProfileView(View):
         old_password_from_db = result[0][0]
 
         if old_password == "" and new_password == "" and new_password_confirm == "":
-            
+
             if len(request.FILES) != 0:
                 cursor = connection.cursor()
                 sql = "SELECT CUSTOMER_PHONE FROM CUSTOMER WHERE CUSTOMER_ID=%s"
@@ -313,32 +317,32 @@ class CustomerProfileView(View):
                 cursor.execute(sql, [new_photo_path, customer_id])
                 connection.commit()
                 cursor.close()
-            
+
             cursor = connection.cursor()
             sql = "UPDATE CUSTOMER SET CUSTOMER_PHONE = %s WHERE CUSTOMER_ID = %s"
             cursor.execute(sql, [customer_new_phone, customer_id])
             connection.commit()
             cursor.close()
-            
+
             messages.success(request, 'Profile updated !')
 
         else:
             if new_password == new_password_confirm:
-                
-                if old_password == old_password_from_db:        
+
+                if old_password == old_password_from_db:
                     cursor = connection.cursor()
                     sql = "UPDATE CUSTOMER SET PASSWORD = %s WHERE CUSTOMER_ID = %s"
                     cursor.execute(sql, [new_password, customer_id])
                     connection.commit()
                     cursor.close()
                     messages.success(request, 'Password updated !')
-            
+
                 else:
                     messages.error('Enter current password correctly!')
 
             else:
                 messages.error('The new passwords do not match! Type carefully.')
-    
+
         return redirect('customer-profile-view')
 
 
@@ -349,8 +353,8 @@ class TripFeedbackView(View):
 
         cursor = connection.cursor()
         sql = "SELECT * FROM TRIP_DETAILS WHERE TRIP_ID = %s"
-        cursor.execute(sql, [ trip_id ])
-        resutl = cursor.fetchall()
+        cursor.execute(sql, [trip_id])
+        result = cursor.fetchall()
         connection.commit()
         cursor.close()
 
@@ -358,12 +362,11 @@ class TripFeedbackView(View):
             'trip_id': trip_id,
         }
 
-        return render(request, 'trip_feedback_view.html',context)
-
+        return render(request, 'trip_feedback_view.html', context)
 
     def post(self, request, trip_id):
         customer_id = request.session.get('customer_id')
-        
+
         print(" ======================================== ")
         print(request.POST)
 
@@ -371,27 +374,24 @@ class TripFeedbackView(View):
         cycle_comment = request.POST.get('cycle_comment')
         owner_rating = request.POST.get('owner_rating')
         owner_comment = request.POST.get('owner_comment')
-        
-        cursor = connection.cursor()
-        sql =   """
-                @Purbasha
-                # INSERTING INTO PEER_REVIEW
-                """
-        cursor.execute(sql, [ trip_id ])
-        connection.commit()
-        cursor.close()
-        
-        ###################################
-        ###################################
 
         cursor = connection.cursor()
-        sql =   """
-                @Purbasha
-                # INSERTING INTO cycle_REVIEW
+        sql = """
+                SELECT TD.CYCLE_ID, C.OWNER_ID
+                FROM TRIP_DETAILS TD, CYCLE C
+                WHERE TD.TRIP_ID = %s AND TD.CYCLE_ID = C.CYCLE_ID
                 """
-        cursor.execute(sql, [ trip_id ])
-        connection.commit()
+        cursor.execute(sql, [trip_id])
+        result = cursor.fetchall()
         cursor.close()
-        
+
+        cycle_id = result[0][0]
+        owner_id = result[0][1]
+
+        cursor = connection.cursor()
+        cursor.callproc("REVIEW_INSERT",
+                        [customer_id, cycle_id, cycle_rating, cycle_comment, owner_id, owner_rating, owner_comment,
+                         trip_id])
+        cursor.close()
+
         pass
-
