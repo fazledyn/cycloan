@@ -360,9 +360,11 @@ class TripFeedbackView(View):
 
         context = {
             'trip_id': trip_id,
+            'trip': result[0]
         }
 
-        return render(request, 'trip_feedback_view.html', context)
+        return render(request, 'trip_feedback.html', context)
+
 
     def post(self, request, trip_id):
         customer_id = request.session.get('customer_id')

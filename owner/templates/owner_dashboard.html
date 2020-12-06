@@ -65,4 +65,11 @@
         <span><a href="{% url 'cycle-delete-view' cycle_id=cycle.0 %}">Remove this cycle</a></span>
     </div>
     {% endfor %}
+
+    {% for trip in ongoing_trip_list %}
+        TRIP ID: <div>{{ trip.0 }}</div>
+        CUSTOMER ID: <div>{{ trip.1 }}</div>
+        CYCLE ID: <div>{{ trip.2 }}</div>
+    {% endfor %}
+
 {% endblock %}

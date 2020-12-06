@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.db import connection
 from django.views import View
+from django.http import HttpResponse
 
 from core.utils import check_owner, check_customer
 from core.utils import verify_auth_token
@@ -275,7 +276,12 @@ class ReceiveCycleView(View):
         owner_id = request.session.get('owner_id')
 
         cursor = connection.cursor()
-        sql = "SELECT OWNER_ID FROM RESERVES WHERE TRIP_ID = %s"
+        sql =   """
+                SELECT C.OWNER_ID
+                FROM CYCLE C, RESERVES R
+                WHERE R.CYCLE_ID = C.CYCLE_ID
+                AND R.TRIP_ID = %s
+                """
         cursor.execute(sql, [ trip_id ])
         result = cursor.fetchall()
         connection.commit()
@@ -296,7 +302,13 @@ class ReceiveCycleView(View):
             ##  now make the cycle available
 
             cursor = connection.cursor()
-            sql = "UPDATE CYCLE SET STATUS = %s WHERE TRIP_DETAILS.TRIP_ID = %s AND CYCLE.CYCLE_ID = TRIP_DETAILS.CYCLE_ID"
+            sql =   """
+                        UPDATE CYCLE
+                        SET STATUS = %s
+                        WHERE CYCLE_ID = (SELECT CYCLE_ID
+                                        FROM TRIP_DETAILS 
+                                        WHERE TRIP_ID = %s)
+                    """
             cursor.execute(sql, [ CYCLE_AVAILABLE, trip_id ])
             connection.commit()
             cursor.close()
@@ -306,5 +318,5 @@ class ReceiveCycleView(View):
         else:
             ## not his trip
             ## send to FORBIDDEN 403
-            pass
+            return HttpResponse(content="404 Not found")
 

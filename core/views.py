@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.views import View
 from django.db import connection
 from django.contrib import messages
+from django.http import HttpResponseForbidden
 
 from datetime import datetime
 
@@ -118,3 +119,13 @@ class EmailVerificationView(View):
         except:
             messages.error(request, 'Invalid verification token')
             return redirect('login-view')
+
+
+class Http403View(View):
+    def get(self, request):
+        return render(request, '403.html')
+
+
+class Http404View(View):
+    def get(self, request):
+        return render(request, '404.html')

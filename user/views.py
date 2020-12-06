@@ -105,3 +105,18 @@ class CustomerPublicView(View):
 
         return render(request, 'public_customer.html', context)
 
+
+class TripDetailsView(View):
+
+    def get(self, request, trip_id):
+        cursor = connection.cursor()
+        sql = "SELECT * FROM TRIP_DETAILS WHERE TRIP_ID = %s"
+        cursor.execute(sql, [trip_id])
+        result = cursor.fetchall()
+        connection.commit()
+        cursor.close()
+
+        context = { 'trip_detail': result[0] }
+        return render(request, 'trip_details.html', context)
+
+

@@ -178,11 +178,25 @@ class OwnerDashboardView(View):
         cycle_request_list = cursor.fetchall()
         connection.commit()
         cursor.close()
-        
+
+        cursor = connection.cursor()
+        sql =   """
+                SELECT TD.TRIP_ID, TD.CUSTOMER_ID, TD.CYCLE_ID
+                FROM TRIP_DETAILS TD, CYCLE C
+                WHERE TD.CYCLE_ID = C.CYCLE_ID
+                AND C.OWNER_ID = %s
+                AND TD.STATUS = %s
+                """
+        cursor.execute(sql, [ owner_id, TRIP_ONGOING ])
+        ongoing_trip_list = cursor.fetchall()
+        connection.commit()
+        cursor.close()
+
         context = {
             'owner_name': owner_name[0][0],
             'cycle_list': cycle_list,
-            'cycle_request_list': cycle_request_list
+            'cycle_request_list': cycle_request_list,
+            'ongoing_trip_list': ongoing_trip_list
         }
         return render(request, 'owner_dashboard.html', context)
 
