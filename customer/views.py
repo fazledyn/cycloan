@@ -221,48 +221,57 @@ class CustomerDashboardView(View):
         customer_lat = float(customer_lat)
         customer_long = float(customer_long)
 
+        customer_id = request.session.get('customer_id')
         cursor = connection.cursor()
+        sql = "SELECT COUNT(*) FROM TRIP_DETAILS WHERE (STATUS=%s OR STATUS=%s) AND CUSTOMER_ID=%s"
+        cursor.execute(sql, [TRIP_ONGOING, TRIP_REQUESTED, customer_id])
+        result = cursor.fetchall()
+        count = int(result[0][0])
 
-        if preference == "1":
-            sql = """
+        if count == 0:
+            cursor = connection.cursor()
+            if preference == "1":
+                sql = """
+                            SELECT C.CYCLE_ID, O.LATITUDE, O.LONGTITUDE
+                            FROM CYCLE C, OWNER O
+                            WHERE C.OWNER_ID = O.OWNER_ID
+                            AND ABS(O.LATITUDE - %s) <= %s
+                            AND ABS(O.LONGTITUDE - %s) <= %s
+                            AND C.STATUS = %s
+                        """
+                cursor.execute(sql, [customer_lat, DLAT, customer_long, DLONG, 0])
+            else:
+                sql = """
                         SELECT C.CYCLE_ID, O.LATITUDE, O.LONGTITUDE
                         FROM CYCLE C, OWNER O
                         WHERE C.OWNER_ID = O.OWNER_ID
-                        AND ABS(O.LATITUDE - %s) <= %s
-                        AND ABS(O.LONGTITUDE - %s) <= %s
                         AND C.STATUS = %s
-                    """
-            cursor.execute(sql, [customer_lat, DLAT, customer_long, DLONG, 0])
+                        """
+                cursor.execute(sql, [0])
+
+            result = cursor.fetchall()
+
+            if len(result) == 0:
+                print("There are no cycles to show")
+                messages.info(request, "There are no cycles to show")
+                context = {}
+
+            else:
+                print("There are cycles to show")
+                context = {
+                    'cycle_list': result
+                }
+
+                for item in result:
+                    print("--------------------------------")
+                    dist = calculate_distance(customer_lat, customer_long, float(item[0]), float(item[1]))
+                    print("distance between: ", dist, "km")
+                    print("--------------------------------")
+
+            return render(request, 'customer_dashboard.html', context)
         else:
-            sql = """
-                    SELECT C.CYCLE_ID, O.LATITUDE, O.LONGTITUDE
-                    FROM CYCLE C, OWNER O
-                    WHERE C.OWNER_ID = O.OWNER_ID
-                    AND C.STATUS = %s
-                    """
-            cursor.execute(sql, [0])
-
-        result = cursor.fetchall()
-
-        if len(result) == 0:
-            print("There are no cycles to show")
-            messages.info(request, "There are no cycles to show")
-            context = {}
-
-        else:
-            print("There are cycles to show")
-            context = {
-                'cycle_list': result
-            }
-
-            for item in result:
-                print("--------------------------------")
-                dist = calculate_distance(customer_lat, customer_long, float(item[0]), float(item[1]))
-                print("distance between: ", dist, "km")
-                print("--------------------------------")
-
-        return render(request, 'customer_dashboard.html', context)
-
+            messages.info(request, "You are not allowed to find cycle while a trip is ongoing or a request is being processed.")
+            return redirect('customer-dashboard-view')
 
 class CustomerProfileView(View):
 
