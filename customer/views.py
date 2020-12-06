@@ -376,22 +376,7 @@ class TripFeedbackView(View):
         owner_comment = request.POST.get('owner_comment')
 
         cursor = connection.cursor()
-        sql = """
-                SELECT TD.CYCLE_ID, C.OWNER_ID
-                FROM TRIP_DETAILS TD, CYCLE C
-                WHERE TD.TRIP_ID = %s AND TD.CYCLE_ID = C.CYCLE_ID
-                """
-        cursor.execute(sql, [trip_id])
-        result = cursor.fetchall()
-        cursor.close()
-
-        cycle_id = result[0][0]
-        owner_id = result[0][1]
-
-        cursor = connection.cursor()
-        cursor.callproc("REVIEW_INSERT",
-                        [customer_id, cycle_id, cycle_rating, cycle_comment, owner_id, owner_rating, owner_comment,
-                         trip_id])
+        cursor.callproc("REVIEW_INSERT", [cycle_rating, cycle_comment, owner_rating, owner_comment, trip_id])
         cursor.close()
 
         pass
