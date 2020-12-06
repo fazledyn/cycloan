@@ -69,6 +69,7 @@ EXCEPTION
 END;
 /
 
+-----------------------------OWNS TRIGGER TO DELETE--------------------
 
 CREATE OR REPLACE TRIGGER DELETE_OWNS
 BEFORE DELETE
