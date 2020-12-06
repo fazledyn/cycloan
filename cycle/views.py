@@ -100,13 +100,26 @@ class CycleDeleteView(View):
     def get(self, request, cycle_id):
 
         cursor = connection.cursor()
-        sql = "DELETE FROM CYCLE WHERE CYCLE_ID = %s"
-        cursor.execute(sql, [cycle_id])
-        connection.commit()
+        sql = "SELECT COUNT(*) FROM TRIP_DETAILS WHERE STATUS = %s AND CYCLE_ID = %s"
+        cursor.execute(sql, [1, cycle_id])
+        result = cursor.fetchall()
         cursor.close()
 
-        messages.info(request, "The cycle has been deleted.")
-        return redirect('owner-dashboard-view')
+        count = int(result[0][0])
+
+        if count == 0:
+            cursor = connection.cursor()
+            sql = "DELETE FROM CYCLE WHERE CYCLE_ID = %s"
+            cursor.execute(sql, [cycle_id])
+            connection.commit()
+            cursor.close()
+
+            messages.info(request, "The cycle has been deleted.")
+            return redirect('owner-dashboard-view')
+        else:
+            messages.info(request, "A trip is ongoing with this cycle. You can not delete this cycle.")
+            return redirect('owner-dashboard-view')
+
 
 
 class RequestCycleView(View):
