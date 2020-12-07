@@ -1,13 +1,13 @@
-from django.shortcuts import render, redirect from django.db import
-connection from django.views import View from django.contrib import
-messages
+from django.shortcuts import render, redirect
+from django.db import connection
+from django.views import View
+from django.contrib import messages
 
-from .utils import save_customer_doc, save_customer_photo,
-calculate_distance from core.utils import create_auth_token,
-send_verification_email, create_verification_token from cycloan.settings
-import SECRET_KEY from cycloan.settings import TRIP_COMPLETED,
-TRIP_ONGOING, TRIP_REJECTED, TRIP_REQUESTED, TRIP_REVIEWED from
-cycloan.settings import CYCLE_AVAILABLE, CYCLE_BOOKED
+from .utils import save_customer_doc, save_customer_photo, calculate_distance
+from core.utils import create_auth_token, send_verification_email, create_verification_token
+from cycloan.settings import SECRET_KEY
+from cycloan.settings import TRIP_COMPLETED, TRIP_ONGOING, TRIP_REJECTED, TRIP_REQUESTED, TRIP_REVIEWED
+from cycloan.settings import CYCLE_AVAILABLE, CYCLE_BOOKED
 
 from datetime import datetime, timedelta
 import jwt
