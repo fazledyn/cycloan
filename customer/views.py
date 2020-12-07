@@ -1,13 +1,13 @@
-from django.shortcuts import render, redirect
-from django.db import connection
-from django.views import View
-from django.contrib import messages
+from django.shortcuts import render, redirect from django.db import
+connection from django.views import View from django.contrib import
+messages
 
-from .utils import save_customer_doc, save_customer_photo, calculate_distance
-from core.utils import create_auth_token, send_verification_email, create_verification_token
-from cycloan.settings import SECRET_KEY
-from cycloan.settings import TRIP_COMPLETED, TRIP_ONGOING, TRIP_REJECTED, TRIP_REQUESTED, TRIP_REVIEWED
-from cycloan.settings import CYCLE_AVAILABLE, CYCLE_BOOKED
+from .utils import save_customer_doc, save_customer_photo,
+calculate_distance from core.utils import create_auth_token,
+send_verification_email, create_verification_token from cycloan.settings
+import SECRET_KEY from cycloan.settings import TRIP_COMPLETED,
+TRIP_ONGOING, TRIP_REJECTED, TRIP_REQUESTED, TRIP_REVIEWED from
+cycloan.settings import CYCLE_AVAILABLE, CYCLE_BOOKED
 
 from datetime import datetime, timedelta
 import jwt
@@ -242,7 +242,7 @@ class CustomerDashboardView(View):
                         FROM CYCLE C, OWNER O
                         WHERE C.OWNER_ID = O.OWNER_ID
                         AND C.STATUS = %s
-                        """
+                    """
 
                 cursor = connection.cursor()
                 cursor.execute(sql, [CYCLE_AVAILABLE])
@@ -322,14 +322,13 @@ class CustomerProfileView(View):
 
             if len(request.FILES) != 0:
                 cursor = connection.cursor()
-                sql = "SELECT CUSTOMER_PHONE FROM CUSTOMER WHERE CUSTOMER_ID=%s"
+                sql = "SELECT CUSTOMER_PHONE FROM CUSTOMER WHERE CUSTOMER_ID = %s"
                 cursor.execute(sql, [customer_id])
                 result = cursor.fetchall()
                 cursor.close()
-                contact = result[0][0]
 
-                new_photo_path = save_customer_photo(
-                    customer_new_photo, customer_id, contact)
+                contact = result[0][0]
+                new_photo_path = save_customer_photo(customer_new_photo, customer_id, contact)
                 cursor = connection.cursor()
                 sql = "UPDATE CUSTOMER SET PHOTO_PATH = %s WHERE CUSTOMER_ID = %s"
                 cursor.execute(sql, [new_photo_path, customer_id])
