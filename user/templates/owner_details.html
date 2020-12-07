@@ -1,0 +1,66 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}
+    Owner | {{ owner.0 }}
+{% endblock %}
+
+{% block label %}
+{{ owner.1 }}
+{% endblock %}
+
+{% block content %}
+
+<h2>Owner Details</h2>
+<div class="segment">
+    <div class="segment-item">
+        <div>
+            <img src="{% static owner.2 %}" class="cycle-photo">
+        </div>
+        <br>
+        <div>
+            <h5>Phone Number: {{ owner.3 }}</h5>
+            <h5>Email Address: {{ owner.4 }}</h5>
+            <h5>Rating: {{ owner.5 }}/5</h5>
+        </div>
+    </div>
+</div>
+
+<div class="segment">
+    {% if cycle_list %}
+        <h3>Cycles</h3>
+        {% for cycle in cycle_list %}
+            <div class="segment-item">
+                <h5>
+                    <a href="{% url 'cycle-details-view' cycle_id=cycle.0 %}" target="_blank">{{ cycle.1 }}</a>
+                </h5>
+            </div>
+        {% endfor %}
+    {% else %}
+        <h3>This person hasn't added any cycle yet.</h3>
+    {% endif %}
+</div>
+
+<div class="segment">
+{% if review_list %}
+<h3>Reviews</h3>
+{% for review in review_list %}
+    <div class="segment-item">
+        <div>
+            <h5>Rating: {{ review.2 }}/5</h5>
+        </div>
+        <p class="info-text">
+            {{ review.3 }}
+        </p>
+        <div>
+            Posted by <a href="{% url 'customer-details-view' customer_id=review.0 %}" target="_blank">{{ review.1 }}</a>
+        </div>
+    </div>
+{% endfor %}
+
+{% else %}
+<h3>This person doesn't have any review.</h3>
+{% endif %}
+</div>
+
+{% endblock %}

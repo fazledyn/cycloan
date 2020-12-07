@@ -198,3 +198,9 @@ TRIP_REJECTED = 2
 TRIP_COMPLETED = 3
 
 TRIP_REVIEWED = 4
+
+# Map Distance Constants
+
+DLONG = 0.00079
+
+DLAT = 0.00079

@@ -1,0 +1,39 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}
+    Customer | {{ customer.0 }}
+{% endblock %}
+
+{% block label %}
+{{ customer.1 }}
+{% endblock %}
+
+{% block content %}
+
+<h2>Customer Details</h2>
+<div class="segment">
+    <div class="segment-item">
+        <div>
+            <img src="{% static customer.2 %}" class="cycle-photo">
+        </div>
+        <br>
+        <div>
+            <h5>Phone Number: {{ customer.3 }}</h5>
+            <h5>Email Address: {{ customer.4 }}</h5>
+        </div>
+    </div>
+</div>
+
+{% if request.session.user_type == 'admin' %}
+<div class="segment">
+    <div class="segment-item">
+        <div>
+            <h5>Document Type: {{ doc.0 }}</h5>
+            <h5><a href="{% static doc.1 %}">Document File</a></h5>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
