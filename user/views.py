@@ -21,7 +21,7 @@ class OwnerPublicView(View):
 
         else:
             cursor = connection.cursor()
-            sql = "SELECT OWNER_NAME,PHOTO_PATH,OWNER_PHONE,LOCATION,EMAIL_ADDRESS, OWNER_RATING(OWNER_ID) FROM OWNER WHERE OWNER_ID=%s"
+            sql = "SELECT OWNER_NAME,PHOTO_PATH,OWNER_PHONE,EMAIL_ADDRESS, OWNER_RATING(OWNER_ID) FROM OWNER WHERE OWNER_ID=%s"
             cursor.execute(sql, [ owner_id ])
             result = cursor.fetchall()
             cursor.close()
@@ -56,9 +56,8 @@ class OwnerPublicView(View):
                 'owner_name' : result[0][0],
                 'owner_photo' : result[0][1],
                 'owner_phone' : result[0][2],
-                'owner_location' : result[0][3],
-                'owner_email' : result[0][4],
-                'owner_rating' : result[0][5]
+                'owner_email' : result[0][3],
+                'owner_rating' : result[0][4]
             }
 
         return render(request, 'public_owner.html', context)
@@ -87,14 +86,13 @@ class CustomerPublicView(View):
             cursor.close()
 
             cursor = connection.cursor()
-            sql = "SELECT TYPE_NAME, FILE_PATH, DESCRIPTION FROM DOCUMENT WHERE CUSTOMER_ID=%s"
+            sql = "SELECT TYPE_NAME, FILE_PATH FROM DOCUMENT WHERE CUSTOMER_ID=%s"
             cursor.execute(sql, [ customer_id ])
             info = cursor.fetchall()
             cursor.close()
 
             doctype = info[0][0]
             doc_path = info[0][1]
-            description = info[0][2]
 
             context = {
                 'customer_name': result[0][0],
