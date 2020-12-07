@@ -221,6 +221,8 @@ class CustomerDashboardView(View):
         customer_lat = float(customer_lat)
         customer_long = float(customer_long)
 
+        # "Can't search cycle while having ongoing or requested trip" handled here
+
         customer_id = request.session.get('customer_id')
         cursor = connection.cursor()
         sql = "SELECT COUNT(*) FROM TRIP_DETAILS WHERE (STATUS=%s OR STATUS=%s) AND CUSTOMER_ID=%s"
