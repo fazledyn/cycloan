@@ -10,11 +10,11 @@ from cycloan.settings import TRIP_COMPLETED, TRIP_ONGOING, TRIP_REJECTED, TRIP_R
 from cycloan.settings import CYCLE_AVAILABLE, CYCLE_BOOKED
 
 from datetime import datetime, timedelta
-import jwt, threading
+import jwt
+import threading
 
-## decorators
+# decorators
 from core.utils import verify_auth_token, check_customer
-
 
 
 class CustomerLandingView(View):
@@ -52,21 +52,25 @@ class CustomerLoginView(View):
                 v = int(verify[0][0])
 
                 if v == 0:
-                    messages.error(request, 'Email has not been verified yet. Please check your email and verify.')
+                    messages.error(
+                        request, 'Email has not been verified yet. Please check your email and verify.')
                     return redirect('customer-landing-view')
                 else:
                     request.session['customer_id'] = customer_id
-                    request.session['auth_token'] = create_auth_token(customer_id)
+                    request.session['auth_token'] = create_auth_token(
+                        customer_id)
                     request.session['user_type'] = 'customer'
                     request.session['user_name'] = customer_name
                     request.session['user_photo'] = customer_photo
                     request.session['user_email'] = customer_email
                     return redirect('customer-dashboard-view')
             else:
-                messages.error(request, 'Password mismatched. Enter correctly!')
+                messages.error(
+                    request, 'Password mismatched. Enter correctly!')
                 return redirect('customer-landing-view')
         except:
-            messages.error(request, 'Your email was not found in database. Enter correctly!')
+            messages.error(
+                request, 'Your email was not found in database. Enter correctly!')
             return redirect('customer-landing-view')
 
 
@@ -119,12 +123,14 @@ class CustomerRegisterView(View):
 
                 count = int(result[0][0])
                 customer_count = 50001 + count
-                photo_path = save_customer_photo(photo, customer_count, contact)
+                photo_path = save_customer_photo(
+                    photo, customer_count, contact)
                 doc_path = save_customer_doc(document, customer_count, contact)
 
                 token_created = datetime.now()
                 token_expiry = token_created + timedelta(days=1)
-                verification_token = create_verification_token("customer", email, token_expiry)
+                verification_token = create_verification_token(
+                    "customer", email, token_expiry)
 
                 cursor = connection.cursor()
                 cursor.callproc("INSERT_CUSTOMER",
@@ -141,7 +147,8 @@ class CustomerRegisterView(View):
                 return redirect('customer-landing-view')
 
             else:
-                messages.warning(request, 'Account exists with similar email. Please provide different email')
+                messages.warning(
+                    request, 'Account exists with similar email. Please provide different email')
                 return redirect('customer-landing-view')
 
 
@@ -165,7 +172,7 @@ class CustomerDashboardView(View):
         ongoing_trip = cursor.fetchall()
         connection.commit()
         cursor.close()
-        
+
         # The part for cycle request put
         cursor = connection.cursor()
         sql = """
@@ -219,41 +226,45 @@ class CustomerDashboardView(View):
         customer_lat = float(customer_lat)
         customer_long = float(customer_long)
 
-        cursor = connection.cursor()
+        # "Can't search cycle while having ongoing or requested trip" handled here
 
-        if preference == "1":
-            sql = """
+        customer_id = request.session.get('customer_id')
+        cursor = connection.cursor()
+        sql = "SELECT COUNT(*) FROM TRIP_DETAILS WHERE (STATUS=%s OR STATUS=%s) AND CUSTOMER_ID=%s"
+        cursor.execute(sql, [TRIP_ONGOING, TRIP_REQUESTED, customer_id])
+        result = cursor.fetchall()
+        count = int(result[0][0])
+
+        if count == 0:
+            if preference == "1":
+                sql = """
                         SELECT C.CYCLE_ID, O.LATITUDE, O.LONGTITUDE, O.OWNER_NAME, O.OWNER_ID, C.FARE_PER_DAY, O.OWNER_PHONE, C.PHOTO_PATH
                         FROM CYCLE C, OWNER O
                         WHERE C.OWNER_ID = O.OWNER_ID
-                        AND ABS(O.LATITUDE - %s) <= %s
-                        AND ABS(O.LONGTITUDE - %s) <= %s
                         AND C.STATUS = %s
-                    """
-            cursor.execute(sql, [customer_lat, DLAT, customer_long, DLONG, 0])
+                        """
+
+                cursor = connection.cursor()
+                cursor.execute(sql, [CYCLE_AVAILABLE])
+                result = cursor.fetchall()
+
+                if len(result) == 0:
+                    print("There are no cycles to show")
+                    messages.info(request, "There are no cycles to show")
+                    context = {}
+
+                else:
+                    print("There are cycles to show")
+                    context = {
+                        'cycle_list': result
+                    }
+
+                return render(request, 'customer_dashboard.html', context)
+
         else:
-            sql = """
-                    SELECT C.CYCLE_ID, O.LATITUDE, O.LONGTITUDE, O.OWNER_NAME, O.OWNER_ID, C.FARE_PER_DAY, O.OWNER_PHONE, C.PHOTO_PATH
-                    FROM CYCLE C, OWNER O
-                    WHERE C.OWNER_ID = O.OWNER_ID
-                    AND C.STATUS = %s
-                    """
-            cursor.execute(sql, [0])
-
-        result = cursor.fetchall()
-
-        if len(result) == 0:
-            print("There are no cycles to show")
-            messages.info(request, "There are no cycles to show")
-            context = {}
-
-        else:
-            print("There are cycles to show")
-            context = {
-                'cycle_list': result
-            }
-
-        return render(request, 'customer_dashboard.html', context)
+            messages.info(
+                request, "You are not allowed to find cycle while a trip is ongoing or a request is being processed.")
+            return redirect('customer-dashboard-view')
 
 
 class CustomerProfileView(View):
@@ -310,7 +321,6 @@ class CustomerProfileView(View):
         if old_password == "" and new_password == "" and new_password_confirm == "":
 
             if len(request.FILES) != 0:
-                print("THISSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSssss")
                 cursor = connection.cursor()
                 sql = "SELECT CUSTOMER_PHONE FROM CUSTOMER WHERE CUSTOMER_ID=%s"
                 cursor.execute(sql, [customer_id])
@@ -318,15 +328,14 @@ class CustomerProfileView(View):
                 cursor.close()
                 contact = result[0][0]
 
-                new_photo_path = save_customer_photo(customer_new_photo, customer_id, contact)
+                new_photo_path = save_customer_photo(
+                    customer_new_photo, customer_id, contact)
                 cursor = connection.cursor()
                 sql = "UPDATE CUSTOMER SET PHOTO_PATH = %s WHERE CUSTOMER_ID = %s"
                 cursor.execute(sql, [new_photo_path, customer_id])
                 connection.commit()
                 cursor.close()
 
-                print(new_photo_path)
-                print(request.session['user_photo'])
                 request.session['user_photo'] = new_photo_path
 
             cursor = connection.cursor()
@@ -334,7 +343,7 @@ class CustomerProfileView(View):
             cursor.execute(sql, [customer_new_phone, customer_id])
             connection.commit()
             cursor.close()
-            
+
             messages.success(request, 'Profile updated !')
 
         else:
@@ -351,7 +360,8 @@ class CustomerProfileView(View):
                 else:
                     messages.error('Enter current password correctly!')
             else:
-                messages.error('The new passwords do not match! Type carefully.')
+                messages.error(
+                    'The new passwords do not match! Type carefully.')
 
         return redirect('customer-profile-view')
 
@@ -362,7 +372,7 @@ class CustomerTripHistoryView(View):
         customer_id = request.session.get('customer_id')
 
         cursor = connection.cursor()
-        sql =   """
+        sql = """
                     SELECT TD.TRIP_ID, TD.STATUS, O.OWNER_ID, C.CYCLE_ID, FARE_CALCULATION(TD.TRIP_ID), TD.START_DATE_TIME, TD.END_DATE_TIME
                     FROM TRIP_DETAILS TD, OWNER O, CYCLE C
                     WHERE TD.CYCLE_ID = C.CYCLE_ID
@@ -370,11 +380,11 @@ class CustomerTripHistoryView(View):
                     AND TD.CUSTOMER_ID = %s
                     AND (TD.STATUS = %s OR TD.STATUS = %s OR TD.STATUS = %s)
                 """
-        cursor.execute(sql, [customer_id, TRIP_COMPLETED, TRIP_REJECTED, TRIP_REVIEWED])
+        cursor.execute(sql, [customer_id, TRIP_COMPLETED,
+                             TRIP_REJECTED, TRIP_REVIEWED])
         trips = cursor.fetchall()
         connection.commit()
         cursor.close()
 
-        context = { 'trip_list': trips }
+        context = {'trip_list': trips}
         return render(request, 'customer_trip_history.html', context)
-
