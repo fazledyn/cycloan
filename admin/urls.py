@@ -8,4 +8,5 @@ urlpatterns = [
     path('owner_list/',     views.ShowOwnerListView.as_view(),      name='admin-owner-list-view'),
     path('customer_list/',  views.ShowCustomerListView.as_view(),   name='admin-customer-list-view'),
     path('register/',       views.AdminRegisterView.as_view(),      name='admin-register-view'),
+    path('trip_list/',      views.ShowTripListView.as_view(),       name='admin-trip-list-view'),
 ]

@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.views import View
 from core.utils import create_auth_token
-
+from cycloan.settings import TRIP_REQUESTED, TRIP_ONGOING, TRIP_REJECTED, TRIP_COMPLETED, TRIP_REVIEWED
 
 class AdminLoginView(View):
     def get(self, request):
@@ -155,3 +155,46 @@ class AdminRegisterView(View):
             else:
                 messages.warning(request, 'Account exists with similar email. Please provide different email')
                 return redirect('admin-register-view')
+
+
+class ShowTripListView(View):
+    def get(self, request):
+        cursor = connection.cursor()
+        sql = "SELECT * FROM TRIP_DETAILS WHERE STATUS = %s"
+        cursor.execute(sql, [TRIP_REQUESTED])
+        requested_trip = cursor.fetchall()
+        cursor.close()
+
+        cursor = connection.cursor()
+        sql = "SELECT * FROM TRIP_DETAILS WHERE STATUS = %s"
+        cursor.execute(sql, [TRIP_ONGOING])
+        ongoing_trip = cursor.fetchall()
+        cursor.close()
+
+        cursor = connection.cursor()
+        sql = "SELECT * FROM TRIP_DETAILS WHERE STATUS = %s"
+        cursor.execute(sql, [TRIP_COMPLETED])
+        completed_trip = cursor.fetchall()
+        cursor.close()
+
+        cursor = connection.cursor()
+        sql = "SELECT * FROM TRIP_DETAILS WHERE STATUS = %s"
+        cursor.execute(sql, [TRIP_REJECTED])
+        rejected_trip = cursor.fetchall()
+        cursor.close()
+
+        cursor = connection.cursor()
+        sql = "SELECT * FROM TRIP_DETAILS WHERE STATUS = %s"
+        cursor.execute(sql, [TRIP_REVIEWED])
+        reviewed_trip = cursor.fetchall()
+        cursor.close()
+
+        context = {
+            'requested_trip': requested_trip,
+            'ongoing_trip': ongoing_trip,
+            'completed_trip': completed_trip,
+            'rejected_trip': rejected_trip,
+            'reviewed_trip': reviewed_trip,
+        }
+
+        return render(request, 'trip_list.html', context)

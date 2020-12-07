@@ -1,0 +1,86 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% block title %}
+    Admin | Trip List
+{% endblock %}
+
+{% block content %}
+    {% for reject in rejected_trip %}
+        <div>
+            <b>Trip ID: </b>{{ reject.0 }} <br>
+            <b>Start Time: </b>{{ reject.1 }} <br>
+            <b>End Time: </b>{{ reject.2 }} <br>
+            <b>Status: </b>{{ reject.3 }} <br>
+            <b>Payment Type: </b>{{ reject.4 }} <br>
+            <b>Customer ID: </b>{{ reject.5 }} <br>
+            <b>Cycle ID: </b>{{ reject.6 }} <br>
+            <br>
+        </div>
+
+    {% endfor %}
+    <br>
+    <br>
+    {% for ongoing in ongoing_trip %}
+        <div>
+            <b>Trip ID: </b>{{ ongoing.0 }} <br>
+            <b>Start Time: </b>{{ ongoing.1 }} <br>
+            <b>End Time: </b>{{ ongoing.2 }} <br>
+            <b>Status: </b>{{ ongoing.3 }} <br>
+            <b>Payment Type: </b>{{ ongoing.4 }} <br>
+            <b>Customer ID: </b>{{ ongoing.5 }} <br>
+            <b>Cycle ID: </b>{{ ongoing.6 }} <br>
+            <br>
+            <br>
+        </div>
+
+    {% endfor %}
+    <br>
+    <br>
+    {% for request in requested_trip %}
+        <div>
+            <b>Trip ID: </b>{{ request.0 }} <br>
+            <b>Start Time: </b>{{ request.1 }} <br>
+            <b>End Time: </b>{{ request.2 }} <br>
+            <b>Status: </b>{{ request.3 }} <br>
+            <b>Payment Type: </b>{{ request.4 }} <br>
+            <b>Customer ID: </b>{{ request.5 }} <br>
+            <b>Cycle ID: </b>{{ request.6 }} <br>
+            <br>
+            <br>
+        </div>
+
+    {% endfor %}
+    <br>
+    <br>
+    {% for complete in completed_trip %}
+        <div>
+            <b>Trip ID: </b>{{ complete.0 }} <br>
+            <b>Start Time: </b>{{ complete.1 }} <br>
+            <b>End Time: </b>{{ complete.2 }} <br>
+            <b>Status: </b>{{ complete.3 }} <br>
+            <b>Payment Type: </b>{{ complete.4 }} <br>
+            <b>Customer ID: </b>{{ complete.5 }} <br>
+            <b>Cycle ID: </b>{{ complete.6 }} <br>
+            <br>
+            <br>
+        </div>
+
+    {% endfor %}
+    <br>
+    <br>
+    {% for review in reviewed_trip %}
+        <div>
+            <b>Trip ID: </b>{{ review.0 }} <br>
+            <b>Start Time: </b>{{ review.1 }} <br>
+            <b>End Time: </b>{{ review.2 }} <br>
+            <b>Status: </b>{{ review.3 }} <br>
+            <b>Payment Type: </b>{{ review.4 }} <br>
+            <b>Customer ID: </b>{{ review.5 }} <br>
+            <b>Cycle ID: </b>{{ review.6 }} <br>
+            <br>
+            <br>
+        </div>
+
+    {% endfor %}
+
+{% endblock %}
