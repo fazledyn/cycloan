@@ -1,0 +1,158 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Owner | Login or Create an account</title>
+</head>
+
+
+<link rel="stylesheet"
+    href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en">
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+<link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.min.css">
+<link rel="stylesheet" href="../static/css/android.css">
+<link rel="stylesheet" href="../static/css/main.css">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+    integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
+    crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"
+    integrity="sha384-LtrjvnR4Twt/qOuYxE721u19sVFLVSA4hf/rRt6PrZTmiPltdZcI7q7PXQBYTKyf"
+    crossorigin="anonymous"></script>
+<script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
+
+
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js"></script>
+<script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
+<script src="{% static './js/map.js' %}"></script>
+<script src="{% static './js/main.js' %}"></script>
+
+
+<script src="../static/js/map.js"></script>
+<script src="../static/js/main.js"></script>
+
+
+<script>
+    function loadImage(event) {
+        document.getElementById('preview2').src = window.URL.createObjectURL(event.files[0]);
+    }
+</script>
+
+
+<body>
+
+    <div style="display: inline-flex; width: 100%;">
+
+        <div class="login-left">
+            <div style="width: 60%; margin: auto; margin-top: 80px;">
+                <h2 style="color: brown;">Login as Owner</h2>
+                <form class="form-signin" method="POST" action="{% url 'owner-login-view' %}">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="owner-email">Email address</label>
+
+                        <input type="email" class="form-control" id="owner-email" aria-describedby="emailHelp"
+                            name="owner-email">
+                        <p id="emailHelp" class="form-text text-muted">We'll never share your email with anyone
+                            else.</p>
+                    </div>
+                    <div class="form-group">
+                        <label for="owner-password">Password</label>
+                        <input type="password" class="form-control" id="owner-password" name="owner-password">
+                    </div>
+                    <button type="submit" class="btn btn-danger">Login</button>
+                    <div class='form-text'>
+                        <a href="{% url 'customer-landing-view' %}">Switch to customer</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="login-right">
+            <div style="width: 80%; margin: auto; margin-top: 20px;">
+                
+                <h1>Create an account</h1>
+                {% if messages %} {% for message in messages %}
+                <div class="message-box-{{ message.tags }}">{{ message }}</div>
+                {% endfor %} {% endif %}
+
+                <form action="{% url 'owner-register-view' %}" method="POST" enctype="multipart/form-data"
+                    onsubmit="return checkPhotoSelected();">
+                    {% csrf_token %}
+                    <div class="form-row">
+                        <div class="photo-box">
+                            <img src="{% static profile_picture %} " id="preview2 " style="object-fit: fill;">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="doctype">Upload Photo</label>
+                            <div class="custom-file">
+                                <input type="file" class="custom-file-input" id="photo"
+                                    aria-describedby="inputGroupFileAddon01" name="photo" onchange="loadImage(this)">
+                                <label class="custom-file-label" for="photo">Choose photo</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" class="form-control" id="email" name="email">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="password">Password</label>
+                            <input type="password" class="form-control" id="password" name="password">
+                        </div>
+
+                        <div class="form-group col-md-6">
+                            <label for="password_confirm">Confirm Password</label>
+                            <input type="password" class="form-control" id="password_confirm" name="password_confirm">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="fullname">Full Name</label>
+                            <input type="text" class="form-control" id="fullname" name="fullname">
+                        </div>
+
+                        <div class="form-group col-md-6">
+                            <label for="contact">Contact No.</label>
+                            <input type="text" class="form-control" id="contact" name="contact">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="map">Choose your location</label>
+                        <div id="map" class="form-control"></div>
+                        <input type="hidden" id="lng" readonly="yes" name="longtitude">
+                        <input type="hidden" id="lat" readonly="yes" name="latitude">
+                    </div>
+
+                    <div class="form-group"></div>
+
+                    <button type="submit" class="btn btn-warning">Sign up</button>
+                </form>
+
+                <div style="height: 50px;">
+                </div>
+
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

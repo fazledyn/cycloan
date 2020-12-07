@@ -2,70 +2,65 @@
 {% load static %}
 
 {% block title %}
-    Profile | Owner
+Profile | Ownerr
+{% endblock %}
+
+{% block label %}
+Profile
 {% endblock %}
 
 {% block content %}
 
-    <div class="flex-container" style="margin-top: 30px; margin-bottom: 10px;">
-        <div class="flex-item" style="margin-bottom: 20px;">
-            <img class="profile-picture" src="{% static owner_photo %}" alt="owner-profile-picture">
-        </div>
-        <div class="flex-item">
-            <div class="form-group">
-                <h5>{{ owner_name }} (#{{ owner_id }})</h5>
-                <span>{{ owner_email }}</span>
-            </div>
-        </div>
+<div style="padding-right: 40px; margin-left: 20px;">
+    <div
+        style="border-radius: 50%; height: 200px; width: 200px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+        <img src="{% static owner_photo %}" id="preview" style="object-fit: fill;">
     </div>
+</div>
 
-    <div style="margin-bottom: 80px; margin-top: 40px;">
-            
-        <form action="/owner/profile/" method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-            
-            <div class="form-row">
-                <div class="form-group col-md-6">
-                    <label for="doctype">Update Profile Picture</label>
-                    <div class="custom-file">
-                        <input type="file" class="custom-file-input" id="inputGroupFile01" aria-describedby="inputGroupFileAddon01" name="owner_new_photo">
-                        <label class="custom-file-label" for="inputGroupFile01">Select new photo</label>
-                    </div>
+
+<div style="min-width: 600px;">
+    <form action="{% url 'owner-profile-view' %}" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label for="doctype">Update Profile Picture</label>
+                <div class="custom-file">
+                    <input type="file" class="custom-file-input" id="inputGroupFile01"
+                        aria-describedby="inputGroupFileAddon01" name="owner_new_photo"
+                        onchange="document.getElementById('preview').src = window.URL.createObjectURL(this.files[0])">
+                    <label class="custom-file-label" for="inputGroupFile01">Select new photo</label>
                 </div>
             </div>
+        </div>
 
-            <!--
-            -->
+        <div class="form-group">
+            <label for="contact">Contact No.</label>
+            <input type="text" class="form-control" id="contact" name="owner_new_phone" value="{{ owner_phone }}">
+        </div>
 
-            <div class="form-group">
-                <label for="contact">Contact No.</label>
-                <input type="text" class="form-control" id="contact" name="owner_new_phone" value="{{ owner_phone }}">
-            </div>
+        <div class="form-group">
+        </div>
 
-            <div class="form-group">
-            </div>
-            
-            <!--
-            -->
+        <div class="form-group">
+            <label for="old_password">Current Password</label>
+            <input type="password" class="form-control" id="old_password" name="old_password">
+        </div>
 
-            <div class="form-group">
-                <label for="old_password">Current Password</label>
-                <input type="password" class="form-control" id="old_password" name="old_password">
-            </div>
+        <div class="form-group">
+            <label for="new_password">New Password</label>
+            <input type="password" class="form-control" id="new_password" name="new_password">
+        </div>
 
-            <div class="form-group">
-                <label for="new_password">New Password</label>
-                <input type="password" class="form-control" id="new_password" name="new_password">
-            </div>
+        <div class="form-group">
+            <label for="password_confirm">Confirm New Password</label>
+            <input type="password" class="form-control" id="password_confirm" name="new_password_confirm">
+        </div>
 
-            <div class="form-group">
-                <label for="password_confirm">Confirm New Password</label>
-                <input type="password" class="form-control" id="password_confirm" name="new_password_confirm">
-            </div>
+        <button type="submit" class="btn btn-warning">Save</button>
 
-            <button type="submit" class="btn btn-warning">Save</button>
-
-        </form>
-    </div>
+    </form>
+</div>
 
 {% endblock %}

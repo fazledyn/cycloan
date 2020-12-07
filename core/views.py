@@ -11,7 +11,7 @@ from cycloan.settings import SECRET_KEY
 import jwt
 
 
-class LoginView(View):
+class IndexView(View):
     def get(self, request):
         user_type = request.session.get('user_type')
 
@@ -21,6 +21,7 @@ class LoginView(View):
             return redirect('customer-dashboard-view')
         else:
             return render(request, 'core/index.html')
+
 
 class LoginViewForAdmin(View):
     def get(self, request):
@@ -41,9 +42,6 @@ class EmailVerificationView(View):
             user_type = json['user_type']
             user_email = json['user_email']
             token_expiry = datetime.fromisoformat(json['token_expiry'])
-
-            print(json)
-            
 
             if user_type == 'owner':
                 # Owner Table Verification
@@ -79,7 +77,7 @@ class EmailVerificationView(View):
                             print("Token Expired")
                             messages.error(request, "Sorry. The token is expired.")
 
-                return redirect('login-view')
+                return redirect('owner-landing-view')
 
             elif user_type == 'customer':
 
@@ -114,11 +112,11 @@ class EmailVerificationView(View):
                         else:
                             messages.error(request, "Sorry. The token is expired.")
                         
-                return redirect('login-view')
+                return redirect('customer-landing-view')
 
         except:
             messages.error(request, 'Invalid verification token')
-            return redirect('login-view')
+            return redirect('http-404-view')
 
 
 

@@ -10,12 +10,18 @@
     </title>
 </head>
 
-{% block assets %}
+<link rel="stylesheet"
+    href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en">
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+<link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.min.css">
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
     integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-<link rel="stylesheet" href="{% static './css/main.css' %}">
-<!-- JavaScript -->
+<link rel="stylesheet" href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="https://code.getmdl.io/1.3.0/material.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
     integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
     crossorigin="anonymous"></script>
@@ -23,145 +29,131 @@
     integrity="sha384-LtrjvnR4Twt/qOuYxE721u19sVFLVSA4hf/rRt6PrZTmiPltdZcI7q7PXQBYTKyf"
     crossorigin="anonymous"></script>
 <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js"></script>
+<script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
 
-{% endblock %}
 
-<script>
-    var map; //Will contain map object.
-    var marker = false; ////Has the user plotted their location marker? 
+<!-- JavaScript -->
+<!-- Map.JS -->
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+    integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
+    crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"
+    integrity="sha384-LtrjvnR4Twt/qOuYxE721u19sVFLVSA4hf/rRt6PrZTmiPltdZcI7q7PXQBYTKyf"
+    crossorigin="anonymous"></script>
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js"></script>
+<script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
 
-    //Function called to initialize / create the map.
-    //This is called when the page has loaded.
-    function initMap() {
+<script src="{% static './js/map.js' %}"></script>
+<script src="{% static './js/main.js' %}"></script>
+<link rel="stylesheet" href="{% static './css/android.css' %}">
+<link rel="stylesheet" href="{% static './css/main.css' %}">
 
-        //The center location of our map.
-        var centerOfMap = new google.maps.LatLng(23.722064, 90.405298);
 
-        //Map options.
-        var options = {
-            center: centerOfMap, //Set center.
-            zoom: 7 //The zoom value.
-        };
+<script src="../static/js/map.js"></script>
+<script src="../static/js/main.js"></script>
+<link rel="stylesheet" href="../static/css/android.css">
+<link rel="stylesheet" href="../static/css/main.css">
 
-        //Create the map object.
-        map = new google.maps.Map(document.getElementById('map'), options);
-
-        //Listen for any clicks on the map.
-        google.maps.event.addListener(map, 'click', function (event) {
-            //Get the location that the user clicked.
-            var clickedLocation = event.latLng;
-            //If the marker hasn't been added.
-            if (marker === false) {
-                //Create the marker.
-                marker = new google.maps.Marker({
-                    position: clickedLocation,
-                    map: map,
-                    draggable: true //make it draggable
-                });
-                //Listen for drag events!
-                google.maps.event.addListener(marker, 'dragend', function (event) {
-                    markerLocation();
-                });
-            } else {
-                //Marker has already been added, so just change its location.
-                marker.setPosition(clickedLocation);
-            }
-            //Get the marker's location.
-            markerLocation();
-        });
-    }
-
-    //This function will get the marker's current location and then add the lat/long
-    //values to our textfields so that we can save the location.
-    function markerLocation() {
-        //Get location.
-        var currentLocation = marker.getPosition();
-        //Add lat and lng values to a field that we can save.
-        document.getElementById('lat').value = currentLocation.lat(); //latitude
-        document.getElementById('lng').value = currentLocation.lng(); //longitude
-    }
-
-    //Load the map when the page has finished loading.
-    google.maps.event.addDomListener(window, 'load', initMap);
-
-</script>
 
 <body>
-    {% block navbar %}
+    <div style="display: inline-block;">
+        <div class="sidenav">
+            <aside class="mdc-drawer" style="background-color: whitesmoke;">
+                <a class="mdc-list-item mdc-list-item--graphic" href="#" aria-current="page"
+                    style="font-size: 20px; margin-bottom: 20px;">
+                    <span class="mdc-list-item__ripple"></span>
+                    <i class="material-icons mdc-list-item__graphic" aria-hidden="true">pedal_bike</i>
+                    <span class="mdc-list-item__text" style="font-family: Product Sans;">Cycloan</span>
+                </a>
 
-    {% if request.session.user_type == 'customer' %}
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="#">Cycloan</a>
-            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'customer-dashboard-view' %}">Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'customer-profile-view' %}">Profile</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'customer-logout-view' %}">Logout</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-    {% elif request.session.user_type == 'owner' %}
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="#">Cycloan</a>
-            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'owner-dashboard-view' %}">Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'owner-profile-view' %}">Profile</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'owner-logout-view' %}">Logout</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-    {% else %}
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="#">Cycloan</a>
-            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'login-view' %}">Login</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'customer-register-view' %}">Register as customer</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'owner-register-view' %}">Register as owner</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-    {% endif %}
+                <div class="mdc-drawer__header">
+                    <div class="photo-box">
+                        <img src="{% static request.session.user_photo %}" style="object-fit: fill;">
+                    </div>
+                    <h3 class="mdc-drawer__title">{{ request.session.user_name }}</h3>
+                    <h6 class="mdc-drawer__subtitle">{{ request.session.user_email }}</h6>
+                </div>
 
-    {% endblock %}
-    <div class="container" style="width: 600px;">
-        {% if messages %}
-        {% for message in messages %}
-        <div class="message-box">{{ message }}</div>
-        {% endfor %}
-        {% endif %}
+                <div class="mdc-drawer__content">
+                    <nav class="mdc-list">
+                        {% if request.session.user_type == 'customer' %}
+                            <a class="mdc-list-item" href="{% url 'customer-dashboard-view' %}" aria-current="page">
+                                <span class="mdc-list-item__ripple"></span>
+                                <i class="material-icons mdc-list-item__graphic" aria-hidden="true">dashboard</i>
+                                <span class="mdc-list-item__text">Dashboard</span>
+                            </a>
+                            <a class="mdc-list-item" href="{% url 'customer-trip-history-view' %}">
+                                <span class="mdc-list-item__ripple"></span>
+                                <i class="material-icons mdc-list-item__graphic" aria-hidden="true">history</i>
+                                <span class="mdc-list-item__text">Trip History</span>
+                            </a>
+                            <a class="mdc-list-item" href="{% url 'customer-profile-view' %}">
+                                <span class="mdc-list-item__ripple"></span>
+                                <i class="material-icons mdc-list-item__graphic" aria-hidden="true">person</i>
+                                <span class="mdc-list-item__text">Profile</span>
+                            </a>
+                            <a class="mdc-list-item" href="{% url 'customer-logout-view' %}">
+                                <span class="mdc-list-item__ripple"></span>
+                                <i class="material-icons mdc-list-item__graphic" aria-hidden="true">exit_to_app</i>
+                                <span class="mdc-list-item__text">Logout</span>
+                            </a>
+                        {% elif request.session.user_type == 'owner' %}
+                            <a class="mdc-list-item" href="{% url 'owner-dashboard-view' %}" aria-current="page">
+                                <span class="mdc-list-item__ripple"></span>
+                                <i class="material-icons mdc-list-item__graphic" aria-hidden="true">dashboard</i>
+                                <span class="mdc-list-item__text">Dashboard</span>
+                            </a>
+                            <a class="mdc-list-item" href="{% url 'owner-cycle-view' %}">
+                                <span class="mdc-list-item__ripple"></span>
+                                <i class="material-icons mdc-list-item__graphic" aria-hidden="true">pedal_bike</i>
+                                <span class="mdc-list-item__text">Cycles</span>
+                            </a>
+                            <a class="mdc-list-item" href="{% url 'owner-trip-history-view' %}">
+                                <span class="mdc-list-item__ripple"></span>
+                                <i class="material-icons mdc-list-item__graphic" aria-hidden="true">history</i>
+                                <span class="mdc-list-item__text">Trip History</span>
+                            </a>
+                            <a class="mdc-list-item" href="{% url 'owner-profile-view' %}">
+                                <span class="mdc-list-item__ripple"></span>
+                                <i class="material-icons mdc-list-item__graphic" aria-hidden="true">person</i>
+                                <span class="mdc-list-item__text">Profile</span>
+                            </a>
+                            <a class="mdc-list-item" href="{% url 'owner-logout-view' %}">
+                                <span class="mdc-list-item__ripple"></span>
+                                <i class="material-icons mdc-list-item__graphic" aria-hidden="true">exit_to_app</i>
+                                <span class="mdc-list-item__text">Logout</span>
+                            </a>
+                        {% endif %}
+                    </nav>
+                </div>
+            </aside>
+        </div>
+
+        <div style="display: inline-flex; flex-direction: row;" class="main">
+
+            <div class="main-label">
+                {% block label %}
+                {% endblock %}
+            </div>
+
+            <div class="main-content">
+                {% if messages %} {% for message in messages %}
+                <div class="message-box-{{ message.tags }}">{{ message }}</div>
+                {% endfor %} {% endif %}
+
+                {% block content %}
+                {% endblock %}
+
+                <div style="height: 100px;">
+                </div>
+            </div>
+            
+        </div>
     </div>
 
-    <div class="container" style="width: 750px;">
-        {% block content %}
-        {% endblock %}
-    </div>
 
 </body>
+
+
 
 </html>

@@ -13,25 +13,27 @@ import jwt, threading
 
 from cycloan.settings import SECRET_KEY
 from cycloan.settings import CYCLE_BOOKED, CYCLE_AVAILABLE
-from cycloan.settings import TRIP_REQUESTED, TRIP_ONGOING, TRIP_REJECTED, TRIP_COMPLETED
+from cycloan.settings import TRIP_REQUESTED, TRIP_ONGOING, TRIP_REJECTED, TRIP_COMPLETED, TRIP_REVIEWED
 
 ## decorators
 from core.utils import verify_auth_token, check_owner
 
 
-class OwnerLoginView(View):
-
+class OwnerLandingView(View):
     def get(self, request):
         if request.session.get('auth_token'):
             return redirect('owner-dashboard-view')
-        return redirect('login-view')
+        return render(request, 'owner_landing.html')
+
+
+class OwnerLoginView(View):
 
     def post(self, request):
         owner_email = request.POST.get('owner-email')
         owner_pass = request.POST.get('owner-password')
 
         cursor = connection.cursor()
-        sql = "SELECT PASSWORD, OWNER_ID FROM OWNER WHERE EMAIL_ADDRESS=%s"
+        sql = "SELECT PASSWORD, OWNER_ID, PHOTO_PATH, OWNER_NAME FROM OWNER WHERE EMAIL_ADDRESS=%s"
         cursor.execute(sql, [owner_email])
         result = cursor.fetchall()
         cursor.close()
@@ -40,6 +42,8 @@ class OwnerLoginView(View):
             fetched_pass = result[0][0]
             if fetched_pass == owner_pass:
                 owner_id = result[0][1]
+                owner_photo = result[0][2]
+                owner_name = result[0][3]
 
                 cursor = connection.cursor()
                 sql = "SELECT IS_VERIFIED FROM OWNER_EMAIL_VERIFICATION WHERE EMAIL_ADDRESS=%s"
@@ -50,19 +54,22 @@ class OwnerLoginView(View):
 
                 if v == 0:
                     messages.error(request, 'Email has not been verified yet. Please check your email and verify.')
-                    return redirect('login-view')
+                    return redirect('owner-landing-view')
                 else:
                     request.session['owner_id'] = owner_id
                     request.session['auth_token'] = create_auth_token(owner_id)
                     request.session['user_type'] = 'owner'
+                    request.session['user_name'] = owner_name
+                    request.session['user_email'] = owner_email
+                    request.session['user_photo'] = owner_photo
                     return redirect('owner-dashboard-view')
 
             else:
                 messages.error(request, 'Password did not match. Enter correctly!')
-                return redirect('login-view')
+                return redirect('owner-landing-view')
         except:
             messages.error(request, 'Your email address is not found in our database. Enter it correctly!')
-            return redirect('login-view')
+            return redirect('owner-landing-view')
 
 
 class OwnerLogoutView(View):
@@ -73,21 +80,17 @@ class OwnerLogoutView(View):
         request.session.pop('owner_id', None)
         request.session.pop('user_type', None)
         request.session.pop('auth_token', None)
-        messages.info(request, 'You are logged out.')
-        return redirect('login-view')
+        request.session.pop('user_email', None)
+        request.session.pop('auth_photo', None)
+        request.session.pop('user_name', None)
+        
+        messages.info(request, "You are logged out.")
+        return redirect('owner-landing-view')
 
 
 class OwnerRegisterView(View):
-    def get(self, request):
-        if request.session.get('auth_token'):
-            return redirect('owner-dashboard-view')
-        return render(request, 'owner_register.html')
 
     def post(self, request):
-
-        print()
-        print(request.POST)
-        print()
 
         photo = request.FILES.get('photo')
         email = request.POST.get('email')
@@ -138,7 +141,7 @@ class OwnerRegisterView(View):
                 email_thread.start()
 
                 messages.success(request, 'Successfully created account. Now you must verify your email and then you can log in.')
-                return redirect('login-view')
+                return redirect('owner-landing-view')
 
             else:
                 messages.warning(request, 'Account exists with similar email. Please provide different email')
@@ -158,19 +161,13 @@ class OwnerDashboardView(View):
         owner_name = cursor.fetchall()
         connection.commit()
         cursor.close()
-
-        cursor = connection.cursor()
-        sql = "SELECT CYCLE_ID, MODEL, STATUS, CYCLE_RATING(CYCLE_ID), FARE_PER_DAY FROM CYCLE WHERE OWNER_ID = %s"
-        cursor.execute(sql, [ owner_id ])
-        cycle_list = cursor.fetchall()
-        connection.commit()
-        cursor.close()
         
         cursor = connection.cursor()
         sql =   """
-                SELECT TD.TRIP_ID, TD.CUSTOMER_ID, TD.CYCLE_ID
-                FROM TRIP_DETAILS TD, CYCLE C
+                SELECT TD.TRIP_ID, TD.CUSTOMER_ID, CS.CUSTOMER_NAME, C.PHOTO_PATH, TD.START_DATE_TIME, TD.END_DATE_TIME, TD.PAYMENT_TYPE, FARE_CALCULATION(TD.TRIP_ID)
+                FROM TRIP_DETAILS TD, CYCLE C, CUSTOMER CS
                 WHERE TD.CYCLE_ID = C.CYCLE_ID
+                AND CS.CUSTOMER_ID = TD.CUSTOMER_ID
                 AND C.OWNER_ID = %s
                 AND TD.STATUS = %s
                 """
@@ -194,11 +191,26 @@ class OwnerDashboardView(View):
 
         context = {
             'owner_name': owner_name[0][0],
-            'cycle_list': cycle_list,
             'cycle_request_list': cycle_request_list,
             'ongoing_trip_list': ongoing_trip_list
         }
         return render(request, 'owner_dashboard.html', context)
+
+
+class OwnerCycleView(View):
+
+    def get(self, request):
+        owner_id = request.session.get('owner_id')
+
+        cursor = connection.cursor()
+        sql = "SELECT * FROM CYCLE WHERE OWNER_ID = %s"
+        cursor.execute(sql, [ owner_id ])
+        cycle_list = cursor.fetchall()
+        connection.commit()
+        cursor.close()
+
+        context = { 'cycle_list': cycle_list }
+        return render(request, 'owner_cycle.html', context)
 
 
 class OwnerProfileView(View):
@@ -267,6 +279,8 @@ class OwnerProfileView(View):
                 connection.commit()
                 cursor.close()
 
+                request.session['user_photo'] = new_photo_path
+
             cursor = connection.cursor()
             sql = "UPDATE OWNER SET OWNER_PHONE = %s WHERE OWNER_ID = %s"
             cursor.execute(sql, [owner_new_phone, owner_id])
@@ -285,11 +299,32 @@ class OwnerProfileView(View):
                     connection.commit()
                     cursor.close()
                     messages.success(request, 'Password updated !')
-
                 else:
                     messages.error('Enter current password correctly!')
-
             else:
                 messages.error('The new passwords do not match! Type carefully.')
 
         return redirect('owner-profile-view')
+
+
+class OwnerTripHistoryView(View):
+
+    def get(self, request):
+        owner_id = request.session.get('owner_id')
+
+        cursor = connection.cursor()
+        sql =   """
+                    SELECT TD.TRIP_ID, TD.STATUS, C.OWNER_ID, C.CYCLE_ID, FARE_CALCULATION(TD.TRIP_ID), TD.START_DATE_TIME, TD.END_DATE_TIME
+                    FROM TRIP_DETAILS TD, CYCLE C
+                    WHERE TD.CYCLE_ID = C.CYCLE_ID
+                    AND C.OWNER_ID = %s
+                    AND (TD.STATUS = %s OR TD.STATUS = %s)
+                """
+        cursor.execute(sql, [owner_id, TRIP_COMPLETED, TRIP_REVIEWED])
+        trips = cursor.fetchall()
+        connection.commit()
+        cursor.close()
+
+        context = { 'trip_list': trips }
+        return render(request, 'owner_trip_history.html', context)
+

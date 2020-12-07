@@ -1,85 +1,163 @@
 {% extends 'core/base.html' %}
+{% load static %}
 
 {% block title %}
-Customer | Dashboard
+Dashboard | Customer
+{% endblock %}
+
+{% block label %}
+Dashboard
 {% endblock %}
 
 {% block content %}
-Welcome, {{ customer_name }}
 
-<form action="{% url 'customer-dashboard-view' %}" method="POST">
-    {% csrf_token %}
+<h3>Search Cycle</h3>
+<div class="segment">
+    <form action="{% url 'customer-dashboard-view' %}" method="POST">
+        {% csrf_token %}
 
-    <input type="checkbox" name="preference" value="1" id="preference">
-    <label for="preference">Show nearby cycles</label>
+        <div class="form-row">
+            <div id="map"></div>
+        </div>
 
-    <div id="map"></div>
-    <input type="hidden" id="lng" readonly="yes" name="longtitude">
-    <input type="hidden" id="lat" readonly="yes" name="latitude">
+        <div class="form-group">
+        </div>
 
-    <button type="submit" class="btn btn-success">Find Cycle</button>
+        <div class="form-row">
+            <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" id="exampleCheck1" name="preference" value="1">
+                <label class="form-check-label" for="exampleCheck1">Show Nearby Cycles</label>
+            </div>
+        </div>
 
-</form>
+        <input type="hidden" id="lng" readonly="yes" name="longtitude">
+        <input type="hidden" id="lat" readonly="yes" name="latitude">
 
-<div>
+        <button type="submit" class="btn btn-success">Find Cycle</button>
+    </form>
+</div>
+
+
+{% if cycle_list %}
+<h3>Search Results</h3>
+<div class="segment">
     {% for cycle in cycle_list %}
-    <br>
-    <div>{{ cycle.0 }}</div>
-    <div>{{ cycle.1 }}</div>
-    <div>{{ cycle.2 }}</div>
-    <div>{{ cycle.3 }}</div>
-    <div><a href="{% url 'request-cycle-view' cycle_id=cycle.0 %}">Request this cycle</a></div>
-    <br>
+    <div class="segment-item">
+        <div class="id">
+            #{{ cycle.0 }}
+        </div>
+        <div>
+            <a href="{% url 'owner-details-view' owner_id=cycle.4 %}" target="_blank"><h4>{{ cycle.3 }}</h4></a>
+        </div>
+        <h6>
+            BDT {{ cycle.5 }}/day
+        </h6>
+        <div>
+            Contact No: {{ cycle.6 }}
+        </div>
+        <div class="form-row">
+            <img src="{% static cycle.7 %}" class="cycle-photo">
+        </div>
+        <div style="margin-top: 10px;">
+            <a href="{% url 'request-cycle-view' cycle_id=cycle.0 %}"><button class="btn btn-warning">Request this cycle</button></a>
+        </div>
+    </div>
     {% endfor %}
+</div>
+{% endif %}
 
-    <br><br>
 
-    <h3>Requested trip: </h3>
-    {% for trip in requested_trip %}
-        <div>{{ trip.0 }}</div>
-        <div>{{ trip.1 }}</div>
-        <div>{{ trip.2 }}</div>
-        <div>{{ trip.3 }}</div>
-        <div>{{ trip.4 }}</div>
-        <div>{{ trip.5 }}</div> 
-    {% endfor %}
+{% if requested_cycle_list %}
+<h3>Requested Cycles</h3>
+<div class="segment">
+    {% for cycle in requested_cycle_list %}
+    <div class="segment-item">
 
-    <br><br>
+        <div class="id">
+            <a href="{% url 'cycle-details-view' cycle_id=cycle.6 %}" target="_blank">#{{ cycle.6 }}</a>
+        </div>
 
-    <h3>Ongoing trip: </h3>
-    {% for trip in ongoing_trip %}
-        <div>{{ trip.0 }}</div>
-        <div>{{ trip.1 }}</div>
-        <div>{{ trip.2 }}</div>
-        <div>{{ trip.3 }}</div>
-        <div>{{ trip.4 }}</div>
-        <div>{{ trip.5 }}</div> 
-    {% endfor %}
+        <h4>Cycle Model: {{ cycle.5 }}</h4>
+
+        <div>
+            <h5>Start Datetime: {{ cycle.2 }}</h5>
+            <h5>End Datetime: {{ cycle.3 }}</h5>
+        </div>
+        
+        <h5>
+            Rate: BDT {{ cycle.4 }}/day
+        </h5>
+
+        <div class="form-row">
+            <img src="{% static cycle.1 %}" class="cycle-photo">
+        </div>
+
+        <div style="margin-top: 10px;">
+            <a href="{% url 'cancel-cycle-view' trip_id=cycle.0 %}"><button class="btn btn-warning">Cancel Cycle</button></a>
+        </div>
     
-    <h3>Completed trip: </h3>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+
+{% if ongoing_trip %}
+<h3>Current Trip</h3>
+<div class="segment">
+    {% for trip in ongoing_trip %}
+    <div class="segment-item">
+        <div>
+            
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+
+{% if completed_trip %}
+<h3>How was your recent trip?</h3>
+<div class="segment">
     {% for trip in completed_trip %}
-        <div>{{ trip.0 }}</div>
-        <div>{{ trip.1 }}</div>
-        <div>{{ trip.2 }}</div>
-        <div>{{ trip.3 }}</div>
+    <div class="segment-item">
+        
+        <div>
+            <span class="id">#{{ trip.0 }}</span>
+        </div>
+
+        <div style="height: 20px;">
+        </div>
+
         <form action="{% url 'trip-feedback-view' trip_id=trip.0 %}" method="POST">
             {% csrf_token %}
-            <div>
-                Cycle Comment: <br>
-                <textarea name="cycle_comment">
-                </textarea><br>
-                Owner Comment: <br>
-                <textarea name="owner_comment">
-                </textarea><br>
-                Owner Rating: <br>
-                <input type="range" max="5" min="1" name="owner_rating"><br>
-                Cycle Rating: <br>
-                <input type="range" max="5" min="1" name="cycle_rating"><br>
-            </div>  
-            <button type="submit">Submit Review</button>
-        </form> 
-    {% endfor %}
-    
 
+            <div class="form-group">
+                <label for="cycle_comment">Rate this cycle</label>
+                <input type="range" min="1" max="5" name="cycle_rating" id="cycle_rating">
+            </div>
+
+            <div class="form-group">
+                <label for="cycle_comment">How was the cycle?</label>
+                <textarea class="form-control" id="cycle_comment" name="cycle_comment">
+            </div>
+                
+            <div class="form-group">
+                <label for="owner_comment">Rate the owner</label>
+                <input type="range" min="1" max="5" name="owner_rating" id="owner_rating">
+            </div>
+
+            <div class="form-group">
+                <label for="owner_comment">How was the owner?</label>
+                <textarea class="form-control" id="owner_comment" name="owner_comment">
+            </div>
+
+            <button type="submit" class="btn btn-success">Submit Review</button>
+        </form>
+
+    </div>
+    {% endfor %}
 </div>
+{% endif %}
+
 {% endblock %}

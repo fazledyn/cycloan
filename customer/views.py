@@ -6,7 +6,7 @@ from django.contrib import messages
 from .utils import save_customer_doc, save_customer_photo, calculate_distance
 from core.utils import create_auth_token, send_verification_email, create_verification_token
 from cycloan.settings import SECRET_KEY
-from cycloan.settings import TRIP_COMPLETED, TRIP_ONGOING, TRIP_REJECTED, TRIP_REQUESTED
+from cycloan.settings import TRIP_COMPLETED, TRIP_ONGOING, TRIP_REJECTED, TRIP_REQUESTED, TRIP_REVIEWED
 from cycloan.settings import CYCLE_AVAILABLE, CYCLE_BOOKED
 
 from datetime import datetime, timedelta
@@ -16,19 +16,22 @@ import jwt, threading
 from core.utils import verify_auth_token, check_customer
 
 
-class CustomerLoginView(View):
 
+class CustomerLandingView(View):
     def get(self, request):
         if request.session.get('auth_token'):
-            return redirect('owner-dashboard-view')
-        return redirect('login-view')
+            return redirect('customer-dashboard-view')
+        return render(request, 'customer_landing.html')
+
+
+class CustomerLoginView(View):
 
     def post(self, request):
         customer_email = request.POST.get('customer-email')
         customer_pass = request.POST.get('customer-password')
 
         cursor = connection.cursor()
-        sql = "SELECT PASSWORD, CUSTOMER_ID FROM CUSTOMER WHERE EMAIL_ADDRESS=%s"
+        sql = "SELECT PASSWORD, CUSTOMER_ID, PHOTO_PATH, CUSTOMER_NAME FROM CUSTOMER WHERE EMAIL_ADDRESS=%s"
         cursor.execute(sql, [customer_email])
         result = cursor.fetchall()
         cursor.close()
@@ -38,6 +41,8 @@ class CustomerLoginView(View):
 
             if fetched_pass == customer_pass:
                 customer_id = result[0][1]
+                customer_photo = result[0][2]
+                customer_name = result[0][3]
 
                 cursor = connection.cursor()
                 sql = "SELECT IS_VERIFIED FROM CUSTOMER_EMAIL_VERIFICATION WHERE EMAIL_ADDRESS=%s"
@@ -48,18 +53,21 @@ class CustomerLoginView(View):
 
                 if v == 0:
                     messages.error(request, 'Email has not been verified yet. Please check your email and verify.')
-                    return redirect('login-view')
+                    return redirect('customer-landing-view')
                 else:
                     request.session['customer_id'] = customer_id
                     request.session['auth_token'] = create_auth_token(customer_id)
                     request.session['user_type'] = 'customer'
+                    request.session['user_name'] = customer_name
+                    request.session['user_photo'] = customer_photo
+                    request.session['user_email'] = customer_email
                     return redirect('customer-dashboard-view')
             else:
                 messages.error(request, 'Password mismatched. Enter correctly!')
-                return redirect('login-view')
+                return redirect('customer-landing-view')
         except:
             messages.error(request, 'Your email was not found in database. Enter correctly!')
-            return redirect('login-view')
+            return redirect('customer-landing-view')
 
 
 class CustomerLogoutView(View):
@@ -69,16 +77,15 @@ class CustomerLogoutView(View):
         request.session.pop('customer_id', None)
         request.session.pop('user_type', None)
         request.session.pop('auth_token', None)
+        request.session.pop('user_photo', None)
+        request.session.pop('user_name', None)
+        request.session.pop('user_email', None)
+
         messages.info(request, 'You are logged out.')
-        return redirect('login-view')
+        return redirect('customer-landing-view')
 
 
 class CustomerRegisterView(View):
-
-    def get(self, request):
-        if request.session.get('auth_token'):
-            return redirect('owner-dashboard-view')
-        return render(request, 'customer_register.html')
 
     def post(self, request):
 
@@ -93,7 +100,7 @@ class CustomerRegisterView(View):
 
         if password != password_confirm:
             messages.warning(request, 'Passwords do not match. Check again')
-            return redirect('customer-register-view')
+            return redirect('customer-landing-view')
 
         else:
             cursor = connection.cursor()
@@ -131,11 +138,11 @@ class CustomerRegisterView(View):
 
                 messages.success(request,
                                  'Successfully created account. Now you must verify your email and then you can log in.')
-                return redirect('login-view')
+                return redirect('customer-landing-view')
 
             else:
                 messages.warning(request, 'Account exists with similar email. Please provide different email')
-                return redirect('customer-register-view')
+                return redirect('customer-landing-view')
 
 
 class CustomerDashboardView(View):
@@ -144,15 +151,6 @@ class CustomerDashboardView(View):
     @check_customer
     def get(self, request):
         customer_id = request.session.get('customer_id')
-
-        cursor = connection.cursor()
-        sql = "SELECT CUSTOMER_NAME FROM CUSTOMER WHERE CUSTOMER_ID=%s"
-        cursor.execute(sql, [customer_id])
-        result = cursor.fetchall()
-        connection.commit()
-        cursor.close()
-
-        customer_name = result[0][0]
 
         # This section is for ongoing trips where the owner has given approval to use their cycle.
         cursor = connection.cursor()
@@ -171,14 +169,15 @@ class CustomerDashboardView(View):
         # The part for cycle request put
         cursor = connection.cursor()
         sql = """
-                SELECT *
+                SELECT TD.TRIP_ID, C.PHOTO_PATH, TD.START_DATE_TIME, TD.END_DATE_TIME, C.FARE_PER_DAY, C.MODEL, C.CYCLE_ID
                 FROM TRIP_DETAILS TD, CYCLE C
                 WHERE TD.CYCLE_ID = C.CYCLE_ID
                 AND TD.CUSTOMER_ID = %s
                 AND TD.STATUS = %s
                 """
         cursor.execute(sql, [customer_id, TRIP_REQUESTED])
-        requested_trip = cursor.fetchall()
+        requested_cycle_list = cursor.fetchall()
+        print(requested_cycle_list)
         connection.commit()
         cursor.close()
 
@@ -196,9 +195,8 @@ class CustomerDashboardView(View):
         cursor.close()
 
         context = {
-            'customer_name': customer_name,
             'ongoing_trip': ongoing_trip,
-            'requested_trip': requested_trip,
+            'requested_cycle_list': requested_cycle_list,
             'completed_trip': completed_trip,
         }
 
@@ -225,7 +223,7 @@ class CustomerDashboardView(View):
 
         if preference == "1":
             sql = """
-                        SELECT C.CYCLE_ID, O.LATITUDE, O.LONGTITUDE
+                        SELECT C.CYCLE_ID, O.LATITUDE, O.LONGTITUDE, O.OWNER_NAME, O.OWNER_ID, C.FARE_PER_DAY, O.OWNER_PHONE, C.PHOTO_PATH
                         FROM CYCLE C, OWNER O
                         WHERE C.OWNER_ID = O.OWNER_ID
                         AND ABS(O.LATITUDE - %s) <= %s
@@ -235,7 +233,7 @@ class CustomerDashboardView(View):
             cursor.execute(sql, [customer_lat, DLAT, customer_long, DLONG, 0])
         else:
             sql = """
-                    SELECT C.CYCLE_ID, O.LATITUDE, O.LONGTITUDE
+                    SELECT C.CYCLE_ID, O.LATITUDE, O.LONGTITUDE, O.OWNER_NAME, O.OWNER_ID, C.FARE_PER_DAY, O.OWNER_PHONE, C.PHOTO_PATH
                     FROM CYCLE C, OWNER O
                     WHERE C.OWNER_ID = O.OWNER_ID
                     AND C.STATUS = %s
@@ -254,12 +252,6 @@ class CustomerDashboardView(View):
             context = {
                 'cycle_list': result
             }
-
-            for item in result:
-                print("--------------------------------")
-                dist = calculate_distance(customer_lat, customer_long, float(item[0]), float(item[1]))
-                print("distance between: ", dist, "km")
-                print("--------------------------------")
 
         return render(request, 'customer_dashboard.html', context)
 
@@ -318,6 +310,7 @@ class CustomerProfileView(View):
         if old_password == "" and new_password == "" and new_password_confirm == "":
 
             if len(request.FILES) != 0:
+                print("THISSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSssss")
                 cursor = connection.cursor()
                 sql = "SELECT CUSTOMER_PHONE FROM CUSTOMER WHERE CUSTOMER_ID=%s"
                 cursor.execute(sql, [customer_id])
@@ -332,15 +325,20 @@ class CustomerProfileView(View):
                 connection.commit()
                 cursor.close()
 
+                print(new_photo_path)
+                print(request.session['user_photo'])
+                request.session['user_photo'] = new_photo_path
+
             cursor = connection.cursor()
             sql = "UPDATE CUSTOMER SET CUSTOMER_PHONE = %s WHERE CUSTOMER_ID = %s"
             cursor.execute(sql, [customer_new_phone, customer_id])
             connection.commit()
             cursor.close()
-
+            
             messages.success(request, 'Profile updated !')
 
         else:
+            print("THATTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT")
             if new_password == new_password_confirm:
 
                 if old_password == old_password_from_db:
@@ -350,13 +348,33 @@ class CustomerProfileView(View):
                     connection.commit()
                     cursor.close()
                     messages.success(request, 'Password updated !')
-
                 else:
                     messages.error('Enter current password correctly!')
-
             else:
                 messages.error('The new passwords do not match! Type carefully.')
 
         return redirect('customer-profile-view')
 
+
+class CustomerTripHistoryView(View):
+
+    def get(self, request):
+        customer_id = request.session.get('customer_id')
+
+        cursor = connection.cursor()
+        sql =   """
+                    SELECT TD.TRIP_ID, TD.STATUS, O.OWNER_ID, C.CYCLE_ID, FARE_CALCULATION(TD.TRIP_ID), TD.START_DATE_TIME, TD.END_DATE_TIME
+                    FROM TRIP_DETAILS TD, OWNER O, CYCLE C
+                    WHERE TD.CYCLE_ID = C.CYCLE_ID
+                    AND C.OWNER_ID = O.OWNER_ID
+                    AND TD.CUSTOMER_ID = %s
+                    AND (TD.STATUS = %s OR TD.STATUS = %s OR TD.STATUS = %s)
+                """
+        cursor.execute(sql, [customer_id, TRIP_COMPLETED, TRIP_REJECTED, TRIP_REVIEWED])
+        trips = cursor.fetchall()
+        connection.commit()
+        cursor.close()
+
+        context = { 'trip_list': trips }
+        return render(request, 'customer_trip_history.html', context)
 

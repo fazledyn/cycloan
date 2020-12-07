@@ -1,0 +1,91 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}
+Cycles | Cycloan
+{% endblock %}
+
+{% block label %}
+Cycles
+{% endblock %}
+
+
+{% block content %}
+
+<div class="segment">
+
+    <h3>Add New Cycle</h3>
+    <form action="{% url 'cycle-add-view' %}" method="POST" , enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="form-row">
+            <div class="form-group">
+                <img src="" id="cycle-photo" class="cycle-photo">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label for="doctype">Photo</label>
+                <div class="custom-file">
+                    <input type="file" class="custom-file-input" id="inputGroupFile01"
+                        aria-describedby="inputGroupFileAddon01" name="cycle_photo" onchange="document.getElementById('cycle-photo').src = window.URL.createObjectURL(this.files[0])">
+                    <label class="custom-file-label" for="inputGroupFile01">Select photo</label>
+                </div>
+            </div>
+
+            <div class="form-group col-md-6">
+                <label for="cycle_fare">Per day fare</label>
+                <input type="number" class="form-control" id="cycle_fare" name="cycle_fare">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="cycle_model">Cycle Model</label>
+            <input type="text" class="form-control" id="cycle_model" name="cycle_model">
+        </div>
+
+        <button type="submit" class="btn btn-success">Add Cycle</button>
+    </form>
+</div>
+
+<div class="segment">
+    {% if cycle_list %}
+
+    <h3>My Cycles</h3>
+    {% for cycle in cycle_list %}
+    <div class="segment-item">
+
+        <div style="width: inherit;">
+            <img src="{% static cycle.3 %}" style="width: 100%; height: auto;">
+        </div>
+
+        <div>
+            <a href="{% url 'cycle-details-view' cycle_id=cycle.0 %}" class="id" target="_blank">#{{ cycle.0 }}</a>
+        </div>
+
+        <h4>
+            <b>{{ cycle.1 }}</b> 
+        </h4>
+
+        <h5>
+            {% if cycle.2 == 0 %}
+                <div class="chip-green"><span>Free</span></div>
+            {% elif cycle.2 == 1 %}
+                <div class="chip-red"><span>Reserved</span></div>
+            {% elif cycle.2 == 2 %}
+                <div class="chip-yellow">Maintenance Mode</div>
+            {% endif %}
+        </h5>
+
+        <h5 class="green">BDT {{ cycle.4 }}/day</h5>
+        <a href="{% url 'cycle-delete-view' cycle_id=cycle.0 %}"><button class="btn btn-danger">Delete Cycle</button></a>
+    </div>
+    {% endfor %}
+    
+    {% else %}
+    <h3>You have not added any cycle yet.</h3>
+    {% endif %}
+</div>
+
+{% endblock %}

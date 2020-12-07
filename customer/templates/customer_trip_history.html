@@ -1,0 +1,56 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}
+Trip History | Customer
+{% endblock %}
+
+{% block label %}
+Trip History
+{% endblock %}
+
+{% block content %}
+
+{% if trip_list %}
+
+<div class="segment">
+    {% for trip in trip_list %}
+        <div class="segment-item">
+
+            {% if trip.1 == 2 %}
+                <div class="chip-red">
+                    Rejected
+                </div>
+            {% else %}
+                <div class="chip-green">
+                    Completed
+                </div>
+            {% endif %}
+
+            <div>
+                <h4>Trip <a href="{% url 'trip-details-view' trip_id=trip.0 %}">#{{ trip.0 }}</a></h4>
+            </div>
+            <div>
+                <h4>Owner <a href="{% url 'owner-details-view' owner_id=trip.2 %}">#{{ trip.2 }}</a></h4>
+            </div>
+
+            <div class="info-text">
+                <b>Trip Schedule: </b>{{ trip.5 }} - {{ trip.6 }}
+            </div>
+
+            <div class="info-text">
+                <b>Trip Fare: </b>BDT {{ trip.4 }}
+            </div>
+
+        </div>
+    {% endfor %}
+</div>
+
+{% else %}
+    <div class="segment">
+        <h3>You have no trips yet.</h3>
+    </div>
+{% endif %}
+
+
+{% endblock %}

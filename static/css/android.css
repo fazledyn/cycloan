@@ -1,0 +1,104 @@
+/**
+ * Copyright 2015 Google Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+body {
+    margin: 0;
+}
+
+
+/* Disable ugly boxes around images in IE10 */
+
+a img {
+    border: 0px;
+}
+
+ ::selection {
+    background-color: #1b1b1b;
+    color: #df2121;
+}
+
+.android-header .mdl-menu__container {
+    z-index: 50;
+    margin: 0 !important;
+}
+
+.android-mobile-title {
+    display: none !important;
+}
+
+.android-logo-image {
+    height: 28px;
+    width: 140px;
+}
+
+.android-header {
+    overflow: visible;
+    background-color: rgb(0, 0, 0);
+}
+
+.android-header .material-icons {
+    color: #df2121 !important;
+}
+
+.android-header .mdl-navigation__link {
+    color: whitesmoke;
+    font-size: 16px;
+    font-family: "Product Sans", sans-serif;
+}
+
+.android-navigation-container {
+    /* Simple hack to make the overflow happen to the left instead... */
+    direction: rtl;
+    -webkit-order: 1;
+    -ms-flex-order: 1;
+    order: 1;
+    width: 500px;
+    transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1), width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.android-navigation {
+    /* ... and now make sure the content is actually LTR */
+    direction: ltr;
+    -webkit-justify-content: flex-end;
+    -ms-flex-pack: end;
+    justify-content: flex-end;
+    width: 800px;
+}
+
+.android-search-box.is-focused+.android-navigation-container {
+    opacity: 0;
+    width: 100px;
+}
+
+.android-navigation .mdl-navigation__link {
+    display: inline-block;
+    height: 60px;
+    line-height: 68px;
+    background-color: transparent !important;
+    border-bottom: 4px solid transparent;
+}
+
+.logo-font {
+    font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+    line-height: 1;
+    color: #1b1b1b;
+    font-weight: 500;
+}
+
+.android-footer {
+    background-color: #0f0f0f;
+    color: #dddddd;
+}

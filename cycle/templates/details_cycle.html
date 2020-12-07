@@ -13,7 +13,7 @@
 
 <div>
     ID: {{ cycle_id }} <br>
-    Owner: <a href="{% url 'owner-public-view' owner_id=cycle_owner %}">{{ cycle_owner }}</a><br>
+    Owner: <a href="{% url 'owner-details-view' owner_id=cycle_owner %}">{{ cycle_owner }}</a><br>
     Model: {{ cycle_model }} <br>
     Status: {{ cycle_status }} <br>
     Rating: {{ cycle_rating }} <br>

@@ -1,24 +1,24 @@
 {% extends 'core/base.html' %}
 {% load static %}
 
+
 {% block title %}
-    Profile | Customer
+Profile | Customer
+{% endblock %}
+
+{% block label %}
+Profile
 {% endblock %}
 
 {% block content %}
 
-    <div class="flex-container" style="flex-direction: row; display: inline-block;">
-        <div class="flex-item">
-            <img class="profile-picture" src="{% static customer_photo %}" alt="customer-profile-picture">
-        </div>
-        <div class="flex-item">
-            <div class="form-group">
-                <h5>{{ customer_name }} (#{{ customer_id }})</h5>
-                <span>{{ customer_email }}</span>
-            </div>
-        </div>
+<div style="padding-right: 40px; margin-left: 20px;">
+    <div style="border-radius: 50%; height: 200px; width: 200px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+        <img src="{% static customer_photo %}" id="preview" style="object-fit: fill;">
     </div>
+</div>
 
+<div style="min-width: 600px;">
     <form action="/customer/profile/" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
         
@@ -26,25 +26,28 @@
             <div class="form-group col-md-6">
                 <label for="doctype">Upload Photo</label>
                 <div class="custom-file">
-                    <input type="file" class="custom-file-input" id="inputGroupFile01" aria-describedby="inputGroupFileAddon01" name="customer_new_photo">
+                    <input type="file" class="custom-file-input" id="inputGroupFile01"
+                        aria-describedby="inputGroupFileAddon01" name="customer_new_photo"
+                        onchange="document.getElementById('preview').src = window.URL.createObjectURL(this.files[0])">
                     <label class="custom-file-label" for="inputGroupFile01">Change photo</label>
                 </div>
             </div>
         </div>
 
         <!--
-        -->
+    -->
 
         <div class="form-group">
             <label for="contact">Contact No.</label>
-            <input type="text" class="form-control" id="contact" name="customer_new_phone" value="{{ customer_phone }}">
+            <input type="text" class="form-control" id="contact" name="customer_new_phone"
+                value="{{ customer_phone }}">
         </div>
 
         <div class="form-group">
         </div>
-        
+
         <!--
-        -->
+    -->
 
         <div class="form-group">
             <label for="old_password">Current Password</label>
@@ -64,6 +67,6 @@
         <button type="submit" class="btn btn-warning">Save</button>
 
     </form>
-
+</div>
 
 {% endblock %}

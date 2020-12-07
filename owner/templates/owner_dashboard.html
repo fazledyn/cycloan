@@ -1,77 +1,68 @@
 {% extends 'core/base.html' %}
+{% load static %}
 
 {% block title %}
-    Owner | Dashboard
+Owner | Dashboard
 {% endblock %}
+
+{% block label %}
+Dashboard
+{% endblock %}
+
 
 {% block content %}
 
-<div style="margin-top: 20px;">
-    <h4 style="font-weight: 600; text-align: center; padding: 5px;"> Add cycle</h4>
-    <form action="{% url 'cycle-add-view' %}" method="POST", enctype="multipart/form-data">
-        {% csrf_token %}
+<div class="segment">    
+{% if cycle_request_list %}
+<h3>Cycle Requests:</h3>
+{% for cycle in cycle_request_list %}   
+    <div class="segment-item">
 
-        <div class="form-row">            
-            <div class="form-group col-md-6">
-                <label for="doctype">Photo</label>
-                <div class="custom-file">
-                    <input type="file" class="custom-file-input" id="inputGroupFile01" aria-describedby="inputGroupFileAddon01" name="cycle_photo">
-                    <label class="custom-file-label" for="inputGroupFile01">Select cycle photo</label>
-                </div>
-            </div>
-
-            <div class="form-group col-md-6">
-                <label for="cycle_fare">Per day fare</label>
-                <input type="number" class="form-control" id="cycle_fare" name="cycle_fare">
-            </div>
+        <div>
+            <h4>Trip #{{ cycle.0 }}</h4>
         </div>
         
-        <div class="form-group">
-            <label for="cycle_model">Cycle Model</label>
-            <input type="text" class="form-control" id="cycle_model" name="cycle_model">
+        <div>
+            <h4>Customer Name: <a href="{% url 'customer-details-view' customer_id=cycle.1 %}">{{ cycle.2 }}</a></h4>
         </div>
 
-        <button type="submit" class="btn btn-success">Add</button>
-    </form>
+        <div class="info-text">
+            Schedule: {{ cycle.4 }} - {{ cycle.5 }}
+        </div>
+
+        <div class="info-text">
+            Payment Type: {{ cycle.6 }}
+        </div>
+
+        <div class="info-text">
+            Expected Fare: BDT {{ cycle.7 }}
+        </div>
+        
+        <div>
+            <img src="{% static cycle.3 %}" class="cycle-photo">
+        </div>
+        
+    </div>
+{% endfor %}
+{% else %}
+<h3>You do not have any new requests at this moment.</h3>
+{% endif %}
 </div>
 
-    <br>
 
-    <h3>Cycle Requests:</h3>
-    <div>
-        {% for cycle in cycle_request_list %}
-            {{ cycle.0 }}<br>
-            {{ cycle.1 }}<br>
-            {{ cycle.2 }}<br>
-            <a href="{% url 'approve-cycle-view' trip_id=cycle.0 %}">Approve this cycle</a>
-        {% endfor %}
-    </div>
+{% if ongoing_trip_list %}
 
-    <h2>Your Cycles: </h2>
-    {% for cycle in cycle_list %}
-    <div style="border-radius: 10px; padding: 10px; background-color: whitesmoke;">
-        <h3>ID: <a href="{% url 'cycle-single-view' cycle_id=cycle.0 %}" target="_blank">{{ cycle.0 }}</a></h3><br>
-        <h5>Model: {{ cycle.1 }}</h5><br>
-        <h5>Status: 
-            {% if cycle.2 == 0 %}
-                Free
-            {% elif cycle.2 == 1 %}
-                Reserved
-            {% endif %}
-        </h5>
-        <br>
-        <h5>Rating: {{ cycle.3 }}</h5><br>
-        <h5>Fare per day: {{ cycle.4 }}</h5><br>
-        <span><a href="{% url 'cycle-delete-view' cycle_id=cycle.0 %}">Remove this cycle</a></span>
-    </div>
-    {% endfor %}
+    <h3>Ongoing Trips</h3>
 
-    <h3>Ongoing Trips:</h3>
     {% for trip in ongoing_trip_list %}
-        TRIP ID: <div>{{ trip.0 }}</div>
-        CUSTOMER ID: <div>{{ trip.1 }}</div>
-        CYCLE ID: <div>{{ trip.2 }}</div>
-        <a href="{% url 'receive-cycle-view' trip_id=trip.0 %}"><button>End trip</button></a>
+    
+    TRIP ID: <div>{{ trip.0 }}</div>
+    CUSTOMER ID: <div>{{ trip.1 }}</div>
+    CYCLE ID: <div>{{ trip.2 }}</div>
+    <a href="{% url 'receive-cycle-view' trip_id=trip.0 %}"><button>End trip</button></a>
+    
     {% endfor %}
+
+{% endif %}
 
 {% endblock %}

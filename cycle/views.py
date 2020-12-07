@@ -13,13 +13,10 @@ from cycloan.settings import CYCLE_AVAILABLE, CYCLE_BOOKED
 from cycloan.settings import TRIP_REQUESTED, TRIP_ONGOING, TRIP_REJECTED, TRIP_COMPLETED, TRIP_REVIEWED
 from datetime import datetime
 
-# GET   /cycle/<id>
 
-
-class CycleSingleView(View):
+class CycleDetailsView(View):
 
     def get(self, request, cycle_id):
-
         cursor = connection.cursor()
         sql = "SELECT COUNT(*) FROM CYCLE WHERE CYCLE_ID = %s"
         cursor.execute(sql, [cycle_id])
@@ -64,7 +61,7 @@ class CycleSingleView(View):
                 'cycle_review_list': cycle_review_list
             }
 
-        return render(request, 'public_cycle.html', context)
+        return render(request, 'details_cycle.html', context)
 
 
 # POST  /cycle/add/
@@ -89,7 +86,7 @@ class CycleAddView(View):
         cursor.close()
 
         messages.success(request, "Cycle has been added !")
-        return redirect('owner-dashboard-view')
+        return redirect('owner-cycle-view')
 
 # GET /cycle/delete/<id>
 
@@ -116,10 +113,10 @@ class CycleDeleteView(View):
             cursor.close()
 
             messages.info(request, "The cycle has been deleted.")
-            return redirect('owner-dashboard-view')
+            return redirect('owner-cycle-view')
         else:
             messages.info(request, "A trip is ongoing with this cycle. You can not delete this cycle.")
-            return redirect('owner-dashboard-view')
+            return redirect('owner-cycle-view')
 
 
 
@@ -145,7 +142,7 @@ class RequestCycleView(View):
         print(cycle)
         print("-------------------------------------")
         return render(request, 'request_cycle.html', context)
-
+        
     @verify_auth_token
     @check_customer
     def post(self, request, cycle_id):
@@ -334,3 +331,5 @@ class ReceiveCycleView(View):
             ## send to FORBIDDEN 403
             return HttpResponse(content="404 Not found")
 
+class CancelCycleView(View):
+    pass
