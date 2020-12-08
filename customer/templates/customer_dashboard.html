@@ -108,7 +108,16 @@ Dashboard
     {% for trip in ongoing_trip %}
     <div class="segment-item">
         <div>
-            
+            <h4>Trip #{{ trip.0 }}</h4>
+        </div>
+        <div class="info-text">
+            Start Datetime: {{ trip.1 }}<br>
+            End Datetime: {{ trip.2 }}<br>
+            Fare: BDT {{ trip.6 }}<br>
+            Owner: <a href="{% url 'owner-details-view' owner_id=trip.3 %}" target="_blank">{{ trip.4 }}</a>
+        </div>
+        <div>
+            <img class="cycle-photo" src="{% static trip.5 %}">
         </div>
     </div>
     {% endfor %}
@@ -133,23 +142,23 @@ Dashboard
             {% csrf_token %}
 
             <div class="form-group">
-                <label for="cycle_comment">Rate this cycle</label>
-                <input type="range" min="1" max="5" name="cycle_rating" id="cycle_rating">
+                <label for="cycle_comment">Rate the cycle</label>
+                <input type="range" min="1" max="5" name="cycle_rating" id="cycle_rating" class="form-control">
             </div>
 
             <div class="form-group">
                 <label for="cycle_comment">How was the cycle?</label>
-                <textarea class="form-control" id="cycle_comment" name="cycle_comment">
+                <textarea class="form-control" id="cycle_comment" name="cycle_comment"></textarea>
             </div>
                 
             <div class="form-group">
                 <label for="owner_comment">Rate the owner</label>
-                <input type="range" min="1" max="5" name="owner_rating" id="owner_rating">
+                <input type="range" min="1" max="5" name="owner_rating" id="owner_rating" class="form-control">
             </div>
 
             <div class="form-group">
                 <label for="owner_comment">How was the owner?</label>
-                <textarea class="form-control" id="owner_comment" name="owner_comment">
+                <textarea class="form-control" id="owner_comment" name="owner_comment"></textarea>
             </div>
 
             <button type="submit" class="btn btn-success">Submit Review</button>

@@ -18,12 +18,12 @@ Request Cycle
 
     <div class="form-row">
         <label for="start_datetime">Start Datetime</label>
-        <input type="datetime-local" name="start_datetime" id="start_datetime" class="form-control">
+        <input type="datetime-local" name="start_datetime" id="start_datetime" class="form-control" onchange="checkDate();">
     </div>
 
     <div class="form-row">
         <label for="end_datetime">End Datetime</label>
-        <input type="datetime-local" name="end_datetime" id="end_datetime" class="form-control">
+        <input type="datetime-local" name="end_datetime" id="end_datetime" class="form-control" onchange="checkDate()">
     </div>
     
     <div class="form-row">            
@@ -41,7 +41,7 @@ Request Cycle
     </div>
 
     <div class="form-row">
-        <button class="btn btn-success" type="submit">Send request</button>
+        <button class="btn btn-success" type="submit" onclick="checkDate()">Send request</button>
     </div>
 
 </form>

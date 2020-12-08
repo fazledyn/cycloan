@@ -308,7 +308,7 @@ class ReceiveCycleView(View):
         except:
             return redirect('http-404-view')
 
-
+## customer
 class CancelCycleView(View):
     
     def get(self, request, trip_id):
@@ -322,3 +322,24 @@ class CancelCycleView(View):
 
         messages.info(request, "The cycle request has been cancelled.")
         return redirect('customer-dashboard-view')
+
+## owner
+class RejectCycleView(View):
+
+    @check_owner
+    def get(self, request, trip_id):
+        owner_id = request.session.get('owner_id')
+        
+        cursor = connection.cursor()
+        sql =   """
+                UPDATE TRIP_DETAILS
+                SET STATUS = %s
+                WHERE TRIP_ID = %s
+                """
+        cursor.execute(sql, [TRIP_REJECTED, trip_id])
+        connection.commit()
+        cursor.close()
+
+        messages.success(request, "Cycle request has been rejected.")
+        return redirect('owner-dashboard-view')
+

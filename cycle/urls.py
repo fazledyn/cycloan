@@ -10,4 +10,5 @@ urlpatterns = [
     path('cancel/<int:trip_id>',       views.CancelCycleView.as_view(),     name='cancel-cycle-view'),
     path('approve/<int:trip_id>',   views.ApproveCycleView.as_view(),   name="approve-cycle-view"),
     path('receive/<int:trip_id>',   views.ReceiveCycleView.as_view(),       name='receive-cycle-view'),
+    path('reject/<int:trip_id>',        views.RejectCycleView.as_view(),    name='reject-cycle-view'),
 ]

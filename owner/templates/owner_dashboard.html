@@ -41,6 +41,11 @@ Dashboard
         <div>
             <img src="{% static cycle.3 %}" class="cycle-photo">
         </div>
+
+        <div>
+            <a href="{% url 'approve-cycle-view' trip_id=cycle.0 %}"><button class="btn btn-primary">Approve Request</button></a>
+            <a href="{% url 'reject-cycle-view' trip_id=cycle.0 %}"><button class="btn btn-primary">Reject Request</button></a>
+        </div>
         
     </div>
 {% endfor %}

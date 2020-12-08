@@ -8,6 +8,7 @@ from core.utils import create_auth_token, send_verification_email, create_verifi
 from cycloan.settings import SECRET_KEY
 from cycloan.settings import TRIP_COMPLETED, TRIP_ONGOING, TRIP_REJECTED, TRIP_REQUESTED, TRIP_REVIEWED
 from cycloan.settings import CYCLE_AVAILABLE, CYCLE_BOOKED
+from cycloan.settings import DLAT, DLONG
 
 from datetime import datetime, timedelta
 import jwt
@@ -162,12 +163,12 @@ class CustomerDashboardView(View):
         # This section is for ongoing trips where the owner has given approval to use their cycle.
         cursor = connection.cursor()
         sql = """
-                SELECT *
-                FROM TRIP_DETAILS TD, CYCLE C
+                SELECT TD.TRIP_ID, TD.START_DATE_TIME, TD.END_DATE_TIME, O.OWNER_ID, O.OWNER_NAME, C.PHOTO_PATH, FARE_CALCULATION(TD.TRIP_ID)
+                FROM TRIP_DETAILS TD, CYCLE C, OWNER O
                 WHERE TD.CYCLE_ID = C.CYCLE_ID
                 AND TD.CUSTOMER_ID = %s
                 AND TD.STATUS = %s
-                """
+            """
         cursor.execute(sql, [customer_id, TRIP_ONGOING])
         ongoing_trip = cursor.fetchall()
         connection.commit()
@@ -181,10 +182,9 @@ class CustomerDashboardView(View):
                 WHERE TD.CYCLE_ID = C.CYCLE_ID
                 AND TD.CUSTOMER_ID = %s
                 AND TD.STATUS = %s
-                """
+            """
         cursor.execute(sql, [customer_id, TRIP_REQUESTED])
         requested_cycle_list = cursor.fetchall()
-        print(requested_cycle_list)
         connection.commit()
         cursor.close()
 
@@ -212,13 +212,7 @@ class CustomerDashboardView(View):
     @verify_auth_token
     @check_customer
     def post(self, request):
-        # CONSTANT
-        DLONG = 0.09
-        DLAT = 0.09
-
-        print(" = ====================")
-        print(request.POST)
-
+        
         customer_lat = request.POST.get('latitude')
         customer_long = request.POST.get('longtitude')
         preference = request.POST.get('preference')
