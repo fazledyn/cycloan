@@ -226,8 +226,6 @@ class CustomerDashboardView(View):
         customer_lat = float(customer_lat)
         customer_long = float(customer_long)
 
-        # "Can't search cycle while having ongoing or requested trip" handled here
-
         customer_id = request.session.get('customer_id')
         cursor = connection.cursor()
         sql = "SELECT COUNT(*) FROM TRIP_DETAILS WHERE (STATUS=%s OR STATUS=%s) AND CUSTOMER_ID=%s"
@@ -236,30 +234,40 @@ class CustomerDashboardView(View):
         count = int(result[0][0])
 
         if count == 0:
+            cursor = connection.cursor()
+
             if preference == "1":
+                sql = """
+                        SELECT C.CYCLE_ID, O.LATITUDE, O.LONGTITUDE, O.OWNER_NAME, O.OWNER_ID, C.FARE_PER_DAY, O.OWNER_PHONE, C.PHOTO_PATH
+                        FROM CYCLE C, OWNER O
+                        WHERE C.OWNER_ID = O.OWNER_ID
+                        AND ABS(O.LATITUDE - %s) <= %s
+                        AND ABS(O.LONGTITUDE - %s) <= %s
+                        AND C.STATUS = %s
+                    """
+                cursor.execute(sql, [customer_lat, DLAT, customer_long, DLONG, 0])
+
+            else:
                 sql = """
                         SELECT C.CYCLE_ID, O.LATITUDE, O.LONGTITUDE, O.OWNER_NAME, O.OWNER_ID, C.FARE_PER_DAY, O.OWNER_PHONE, C.PHOTO_PATH
                         FROM CYCLE C, OWNER O
                         WHERE C.OWNER_ID = O.OWNER_ID
                         AND C.STATUS = %s
                     """
-
-                cursor = connection.cursor()
                 cursor.execute(sql, [CYCLE_AVAILABLE])
-                result = cursor.fetchall()
+            
+            result = cursor.fetchall()
 
-                if len(result) == 0:
-                    print("There are no cycles to show")
-                    messages.info(request, "There are no cycles to show")
-                    context = {}
+            if len(result) == 0:
+                print("There are no cycles to show")
+                messages.info(request, "There are no cycles to show")
+                context = {}
 
-                else:
-                    print("There are cycles to show")
-                    context = {
-                        'cycle_list': result
-                    }
+            else:
+                print("There are cycles to show")
+                context = { 'cycle_list': result }
 
-                return render(request, 'customer_dashboard.html', context)
+            return render(request, 'customer_dashboard.html', context)
 
         else:
             messages.info(
