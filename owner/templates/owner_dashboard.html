@@ -42,14 +42,17 @@ Dashboard
             <img src="{% static cycle.3 %}" class="cycle-photo">
         </div>
 
-        <div>
-            <a href="{% url 'approve-cycle-view' trip_id=cycle.0 %}"><button class="btn btn-success">Approve Request</button></a>
+        <div style="display:inline-flex; margin-top: 10px; flex:auto;">
+            
+            <div style="margin-right: 10px;">
+                <a href="{% url 'approve-cycle-view' trip_id=cycle.0 %}"><button class="btn btn-success">Approve Request</button></a>
+            </div>
+            
+            <div>
+                <a href="{% url 'reject-cycle-view' trip_id=cycle.0 %}"><button class="btn btn-danger">Reject Request</button></a>
+            </div>
         </div>
 
-        <div>
-            <a href="{% url 'reject-cycle-view' trip_id=cycle.0 %}"><button class="btn btn-danger">Reject Request</button></a>
-        </div>
-        
     </div>
 {% endfor %}
 {% else %}
@@ -71,6 +74,9 @@ Dashboard
             End Datetime: {{ trip.2 }}<br>
             Fare: BDT {{ trip.6 }}<br>
             Customer: <a href="{% url 'customer-details-view' customer_id=trip.3 %}" target="_blank">{{ trip.4 }}</a>
+        </div>
+        <div style="margin-top: 10px;">
+            <a href="{% url 'receive-cycle-view' trip_id=trip.0 %}"><button class="btn btn-warning">End Trip</button></a>
         </div>
     </div>
     {% endfor %}
