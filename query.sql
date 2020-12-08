@@ -222,7 +222,7 @@ EXCEPTION
 		DBMS_OUTPUT.PUT_LINE('DO NOT KNOW');
 END;
 /
-------------------------------------------------
+
 -------------------------------------------FUNCTION FOR FARE_CALCULATION----------------------------------------
 
 CREATE OR REPLACE FUNCTION FARE_CALCULATION ( TRP_ID IN NUMBER)
@@ -245,4 +245,3 @@ EXCEPTION
 		RETURN -1;
 END;
 /
-----------------------------------------------------------------------------------

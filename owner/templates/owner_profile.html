@@ -12,9 +12,8 @@ Profile
 {% block content %}
 
 <div style="padding-right: 40px; margin-left: 20px;">
-    <div
-        style="border-radius: 50%; height: 200px; width: 200px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
-        <img src="{% static owner_photo %}" id="preview" style="object-fit: fill;">
+    <div class="photo-box">
+        <img src="{% static owner_photo %}" id="preview">
     </div>
 </div>
 

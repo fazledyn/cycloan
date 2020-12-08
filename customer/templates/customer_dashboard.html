@@ -33,7 +33,7 @@ Dashboard
         <input type="hidden" id="lng" readonly="yes" name="longtitude">
         <input type="hidden" id="lat" readonly="yes" name="latitude">
 
-        <button type="submit" class="btn btn-success">Find Cycle</button>
+        <button type="submit" class="btn btn-success" onclick="checkMapLocation()">Find Cycle</button>
     </form>
 </div>
 
@@ -73,20 +73,16 @@ Dashboard
     {% for cycle in requested_cycle_list %}
     <div class="segment-item">
 
-        <div class="id">
-            <a href="{% url 'cycle-details-view' cycle_id=cycle.6 %}" target="_blank">#{{ cycle.6 }}</a>
-        </div>
-
-        <h4>Cycle Model: {{ cycle.5 }}</h4>
-
         <div>
-            <h5>Start Datetime: {{ cycle.2 }}</h5>
-            <h5>End Datetime: {{ cycle.3 }}</h5>
+            <a href="{% url 'cycle-details-view' cycle_id=cycle.6 %}" target="_blank"><h5>#{{ cycle.6 }}</h5></a>
         </div>
         
-        <h5>
-            Rate: BDT {{ cycle.4 }}/day
-        </h5>
+        <div class="info-text">
+            Cycle Model: {{ cycle.5 }}<br>
+            Start Datetime: {{ cycle.2 }}<br>
+            End Datetime: {{ cycle.3 }}<br>
+            Rate: BDT {{ cycle.4 }}/day<br>
+        </div>
 
         <div class="form-row">
             <img src="{% static cycle.1 %}" class="cycle-photo">
@@ -132,11 +128,8 @@ Dashboard
     <div class="segment-item">
         
         <div>
-            <span class="id">#{{ trip.0 }}</span>
-        </div>
-
-        <div style="height: 20px;">
-        </div>
+            <h5 class="id">#{{ trip.0 }}</h5>
+        </div><br>
 
         <form action="{% url 'trip-feedback-view' trip_id=trip.0 %}" method="POST">
             {% csrf_token %}

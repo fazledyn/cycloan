@@ -160,7 +160,12 @@ h6 {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 15px;
+}
+
+.photo-box img {
+    object-fit: cover;
+    height: 100%;
+    width: auto;
 }
 
 .segment {

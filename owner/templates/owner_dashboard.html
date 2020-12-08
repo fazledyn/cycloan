@@ -43,8 +43,11 @@ Dashboard
         </div>
 
         <div>
-            <a href="{% url 'approve-cycle-view' trip_id=cycle.0 %}"><button class="btn btn-primary">Approve Request</button></a>
-            <a href="{% url 'reject-cycle-view' trip_id=cycle.0 %}"><button class="btn btn-primary">Reject Request</button></a>
+            <a href="{% url 'approve-cycle-view' trip_id=cycle.0 %}"><button class="btn btn-success">Approve Request</button></a>
+        </div>
+
+        <div>
+            <a href="{% url 'reject-cycle-view' trip_id=cycle.0 %}"><button class="btn btn-danger">Reject Request</button></a>
         </div>
         
     </div>
@@ -55,19 +58,24 @@ Dashboard
 </div>
 
 
-{% if ongoing_trip_list %}
-
-    <h3>Ongoing Trips</h3>
-
-    {% for trip in ongoing_trip_list %}
-    
-    TRIP ID: <div>{{ trip.0 }}</div>
-    CUSTOMER ID: <div>{{ trip.1 }}</div>
-    CYCLE ID: <div>{{ trip.2 }}</div>
-    <a href="{% url 'receive-cycle-view' trip_id=trip.0 %}"><button>End trip</button></a>
-    
+{% if ongoing_trip %}
+<h3>Current Trip</h3>
+<div class="segment">
+    {% for trip in ongoing_trip %}
+    <div class="segment-item">
+        <div>
+            <h4>Trip #{{ trip.0 }}</h4>
+        </div>
+        <div class="info-text">
+            Start Datetime: {{ trip.1 }}<br>
+            End Datetime: {{ trip.2 }}<br>
+            Fare: BDT {{ trip.6 }}<br>
+            Customer: <a href="{% url 'customer-details-view' customer_id=trip.3 %}" target="_blank">{{ trip.4 }}</a>
+        </div>
+    </div>
     {% endfor %}
-
+</div>
 {% endif %}
+
 
 {% endblock %}

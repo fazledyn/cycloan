@@ -41,7 +41,8 @@ class CustomerLoginView(View):
 
         try:
             fetched_pass = result[0][0]
-            hashed_customer_password = hashlib.sha256(customer_pass.encode()).hexdigest()
+            hashed_customer_password = hashlib.sha256(
+                customer_pass.encode()).hexdigest()
 
             if fetched_pass == hashed_customer_password:
                 customer_id = result[0][1]
@@ -217,7 +218,7 @@ class CustomerDashboardView(View):
     @verify_auth_token
     @check_customer
     def post(self, request):
-        
+
         customer_lat = request.POST.get('latitude')
         customer_long = request.POST.get('longtitude')
         preference = request.POST.get('preference')
@@ -327,7 +328,8 @@ class CustomerProfileView(View):
                 cursor.close()
 
                 contact = result[0][0]
-                new_photo_path = save_customer_photo(customer_new_photo, customer_id, contact)
+                new_photo_path = save_customer_photo(
+                    customer_new_photo, customer_id, contact)
                 cursor = connection.cursor()
                 sql = "UPDATE CUSTOMER SET PHOTO_PATH = %s WHERE CUSTOMER_ID = %s"
                 cursor.execute(sql, [new_photo_path, customer_id])
@@ -347,8 +349,10 @@ class CustomerProfileView(View):
         else:
             print("THATTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT")
             if new_password == new_password_confirm:
-                hashed_old_password = hashlib.sha256(old_password.encode()).hexdigest()
-                hashed_new_password = hashlib.sha256(new_password.encode()).hexdigest()
+                hashed_old_password = hashlib.sha256(
+                    old_password.encode()).hexdigest()
+                hashed_new_password = hashlib.sha256(
+                    new_password.encode()).hexdigest()
 
                 if hashed_old_password == old_password_from_db:
                     cursor = connection.cursor()

@@ -49,3 +49,15 @@ function checkPasswordLength() {
     }
     return true;
 }
+
+function checkMapLocation() {
+    var lat = document.getElementById('lat').value
+    var lng = document.getElementById('lng').value
+
+    if (( lat == "") || (lng == "")) {
+        alert("You must select location on the map")
+        return false;
+    }
+    return true;
+}
+

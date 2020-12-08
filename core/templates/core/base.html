@@ -39,19 +39,22 @@
     <div style="display: inline-block;">
         <div class="sidenav">
             <aside class="mdc-drawer" style="background-color: whitesmoke;">
-                <a class="mdc-list-item mdc-list-item--graphic" href="#" aria-current="page"
-                    style="font-size: 20px; margin-bottom: 20px;">
-                    <span class="mdc-list-item__ripple"></span>
+
+                <a class="mdc-list-item mdc-list-item--graphic" href="{% url 'index-view' %}" aria-current="page"
+                    style="font-size: 20px; margin: 15px;">
+                    <br>
                     <i class="material-icons mdc-list-item__graphic" aria-hidden="true">pedal_bike</i>
                     <span class="mdc-list-item__text" style="font-family: Product Sans;">Cycloan</span>
                 </a>
 
                 <div class="mdc-drawer__header">
+                    
                     <div class="photo-box">
-                        <img src="{% static request.session.user_photo %}" style="object-fit: fill;">
+                        <img src="{% static request.session.user_photo %}">
                     </div>
+
                     <h3 class="mdc-drawer__title">{{ request.session.user_name }}</h3>
-                    <h6 class="mdc-drawer__subtitle">{{ request.session.user_email }}</h6>
+                    <h5 class="mdc-drawer__subtitle">{{ request.session.user_email }}</h5>
                 </div>
 
                 <div class="mdc-drawer__content">

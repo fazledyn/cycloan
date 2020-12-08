@@ -42,7 +42,7 @@ class OwnerLoginView(View):
         try:
             fetched_pass = result[0][0]
             hashed_owner_password = hashlib.sha256(owner_pass.encode()).hexdigest()
-
+            
             if fetched_pass == hashed_owner_password:
                 owner_id = result[0][1]
                 owner_photo = result[0][2]
@@ -183,21 +183,22 @@ class OwnerDashboardView(View):
 
         cursor = connection.cursor()
         sql =   """
-                SELECT TD.TRIP_ID, TD.CUSTOMER_ID, TD.CYCLE_ID
-                FROM TRIP_DETAILS TD, CYCLE C
+                SELECT TD.TRIP_ID, TD.START_DATE_TIME, TD.END_DATE_TIME, CS.CUSTOMER_ID, CS.CUSTOMER_NAME, C.PHOTO_PATH, FARE_CALCULATION(TD.TRIP_ID) 
+                FROM TRIP_DETAILS TD, CYCLE C, CUSTOMER CS
                 WHERE TD.CYCLE_ID = C.CYCLE_ID
+                AND TD.CUSTOMER_ID = CS.CUSTOMER_ID
                 AND C.OWNER_ID = %s
                 AND TD.STATUS = %s
                 """
         cursor.execute(sql, [ owner_id, TRIP_ONGOING ])
-        ongoing_trip_list = cursor.fetchall()
+        ongoing_trip = cursor.fetchall()
         connection.commit()
         cursor.close()
 
         context = {
             'owner_name': owner_name[0][0],
             'cycle_request_list': cycle_request_list,
-            'ongoing_trip_list': ongoing_trip_list
+            'ongoing_trip': ongoing_trip
         }
         return render(request, 'owner_dashboard.html', context)
 
