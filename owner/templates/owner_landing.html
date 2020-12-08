@@ -75,8 +75,7 @@
                 <div class="message-box-{{ message.tags }}">{{ message }}</div>
                 {% endfor %} {% endif %}
 
-                <form action="{% url 'owner-register-view' %}" method="POST" enctype="multipart/form-data"
-                    onsubmit="return checkPhotoSelected();">
+                <form action="{% url 'owner-register-view' %}" method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="form-row">
                         
@@ -88,7 +87,7 @@
                             <label for="doctype">Upload Photo</label>
                             <div class="custom-file">
                                 <input type="file" class="custom-file-input" id="photo"
-                                    aria-describedby="inputGroupFileAddon01" name="photo" onchange="loadfile(event)">
+                                    aria-describedby="inputGroupFileAddon01" name="photo" onchange="loadfile(event)" accept="image/*">
                                 <label class="custom-file-label" for="photo">Choose photo</label>
                             </div>
                         </div>
@@ -135,7 +134,7 @@
 
                     <div class="form-group"></div>
 
-                    <button type="submit" class="btn btn-warning" onclick="return (checkPasswordLength() && checkMapLocation())">Sign up</button>
+                    <button type="submit" class="btn btn-warning" onclick="return checkOwnerSubmission();">Sign up</button>
                 </form>
 
                 <div style="height: 50px;">

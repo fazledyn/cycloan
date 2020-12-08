@@ -1,21 +1,45 @@
-function checkPhotoSelected() {
-    if (document.getElementById("photo").value == "") {
-        alert("No photo selected. You must select a photo.");
-        document.querySelector("#photo").value = "";
+function checkOwnerSubmission() {
+
+    if (document.getElementById('photo').value == "") {
+        alert("You must select a photo")
+        return false;
+    }
+    else if (document.getElementById('password').value.length < 8) {
+        alert("Password must be 8 characters long")
+        return false;
+    }
+    else if (document.getElementById('password_confirm').value != document.getElementById('password').value) {
+        alert("Passwords do not match")
+        return false;    
+    }
+    else if (document.getElementById('lat').value == "") {
+        alert("You must select location on map.")
         return false;
     }
     return true;
 }
 
-
-function checkDocumentSelected() {
-    if (document.getElementById("document").value == "") {
-        alert("No document uploaded. You must upload your document.");
-        document.querySelector("#document").value = "";
+function checkCustomerSubmission() {
+    if (document.getElementById('photo').value == "") {
+        alert("You must select a photo")
         return false;
     }
+    else if (document.getElementById('password').value.length < 8) {
+        alert("Password must be 8 characters long")
+        return false;
+    }
+    else if (document.getElementById('password_confirm').value != document.getElementById('password').value) {
+        alert("Passwords do not match")
+        return false;    
+    }
+    else if (document.getElementById('document').value == "") {
+        alert("No document selected. You must select a document")
+        return false;
+    }
+
     return true;
 }
+
 
 function checkDate() {
     var date_first = new Date(document.getElementById('start_datetime').value);
@@ -35,29 +59,5 @@ function checkDate() {
         return false;
     }
     return true;
-}
-
-function checkPasswordLength() {
-    var password = document.getElementById('password').value
-    var password2 = document.getElementById('password_confirm').value
-
-    if ( (password.length < 8) || (password2.length < 8) ) {
-        alert("Password length must be 8 characters or long.");
-        document.getElementById('password').value = ""
-        document.getElementById('password_confirm').value = ""
-        return false;
-    }
-    return true;
-}
-
-function checkMapLocation() {
-    var lat = document.getElementById('lat').value
-    var lng = document.getElementById('lng').value
-
-    if (( lat == "") || (lng == "")) {
-        alert("You must select location on the map")
-        return false;
-    }
-    return true;
-}
+};
 
