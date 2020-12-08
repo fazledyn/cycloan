@@ -1,3 +1,5 @@
+import hashlib
+
 from django.db import connection
 from django.contrib import messages
 from django.shortcuts import render, redirect
@@ -22,7 +24,8 @@ class AdminLoginView(View):
 
         try:
             fetched_pass = result[0][0]
-            if fetched_pass == admin_pass:
+            hashed_admin_password = hashlib.sha256(admin_pass.encode()).hexdigest()
+            if fetched_pass == hashed_admin_password:
                 admin_id = result[0][1]
                 request.session['admin_id'] = admin_id
                 request.session['auth_token'] = create_auth_token(admin_id)
@@ -143,9 +146,11 @@ class AdminRegisterView(View):
             cursor.close()
             count = int(result[0][0])
             if count == 0:
+                hashed_password = hashlib.sha256(password.encode()).hexdigest()
+
                 cursor = connection.cursor()
                 sql = "INSERT INTO ADMIN(ADMIN_ID,ADMIN_NAME,ADMIN_EMAIL,ADMIN_PASSWORD) VALUES(ADMIN_INCREMENT.NEXTVAL, %s, %s, %s)"
-                cursor.execute(sql, [fullname, email, password])
+                cursor.execute(sql, [fullname, email, hashed_password])
                 connection.commit()
                 cursor.close()
 
