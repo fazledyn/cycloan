@@ -44,6 +44,14 @@
 
         <div class="login-left">
             <div style="width: 60%; margin: auto; margin-top: 80px;">
+
+                <a class="mdc-list-item mdc-list-item--graphic" href="{% url 'index-view' %}" aria-current="page"
+                    style="font-size: 20px; margin: 15px; color: #df2121">
+                    <br>
+                    <i class="material-icons mdc-list-item__graphic" aria-hidden="true">pedal_bike</i>
+                    <span class="mdc-list-item__text" style="font-family: Product Sans;">Cycloan</span>
+                </a>
+
                 <h2 style="color: brown;">Login as Owner</h2>
                 <form class="form-signin" method="POST" action="{% url 'owner-login-view' %}">
                     {% csrf_token %}

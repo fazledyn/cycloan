@@ -19,6 +19,8 @@ class IndexView(View):
             return redirect('owner-dashboard-view')
         elif user_type == 'customer':
             return redirect('customer-dashboard-view')
+        elif user_type == 'admin':
+            return redirect('admin-dashboard-view')
         else:
             return render(request, 'core/index.html')
 
@@ -133,9 +135,6 @@ class TripFeedbackView(View):
 
     def post(self, request, trip_id):
         customer_id = request.session.get('customer_id')
-
-        print(" ======================================== ")
-        print(request.POST)
 
         cycle_rating = request.POST.get('cycle_rating')
         cycle_comment = request.POST.get('cycle_comment')

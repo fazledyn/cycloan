@@ -59,6 +59,10 @@ a img {
     font-family: "Product Sans", sans-serif;
 }
 
+.android-header .mdl-navigation__link:hover {
+    border-bottom: 3px solid #df2121;
+}
+
 .android-navigation-container {
     /* Simple hack to make the overflow happen to the left instead... */
     direction: rtl;

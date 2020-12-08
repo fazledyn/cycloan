@@ -49,6 +49,9 @@ Dashboard
         <div>
             <a href="{% url 'owner-details-view' owner_id=cycle.4 %}" target="_blank"><h4>{{ cycle.3 }}</h4></a>
         </div>
+        <div class="info-text">
+            Distance: {{ distance.{{ forloop.counter }} }} km
+        </div>
         <h6>
             BDT {{ cycle.5 }}/day
         </h6>

@@ -47,6 +47,9 @@ def check_customer(func):
         if request.session.get('user_type') == 'owner':
             messages.warning(request, 'You are not allowed to view that page.')
             return redirect('http-403-view')
+        elif request.session.get('user_type') == 'admin':
+            messages.warning(request, 'You are not allowed to view that page.')
+            return redirect('http-403-view')
 
         return func(self, request, *args, **kwargs)
     return wrapped
@@ -57,6 +60,9 @@ def check_owner(func):
     def wrapped(self, request, *args, **kwargs):
         
         if request.session.get('user_type') == 'customer':
+            messages.warning(request, 'You are not allowed to view that page.')
+            return redirect('http-403-view')
+        elif request.session.get('user_type') == 'admin':
             messages.warning(request, 'You are not allowed to view that page.')
             return redirect('http-403-view')
 
