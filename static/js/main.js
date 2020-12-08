@@ -61,3 +61,10 @@ function checkDate() {
     return true;
 };
 
+function checkMapLocation() {
+    if (document.getElementById('lat').value == "") {
+        alert("Select your location on map")
+        return false;
+    }
+    return true;
+}
