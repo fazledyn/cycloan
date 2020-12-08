@@ -266,12 +266,13 @@ class CustomerDashboardView(View):
             else:
                 print("There are cycles to show")
 
-                distance = []
-                for cycle in result:
-                    dist = calculate_distance(baseLat=customer_lat, baseLong=customer_long, pointLat=cycle[1], pointLong=cycle[2])
-                    distance.append(dist)
+                list_length = len(result)
+                for i in range(list_length):
+                    dist = calculate_distance(baseLat=customer_lat, baseLong=customer_long, pointLat=result[i][1], pointLong=result[i][2])
+                    dist = round(dist, 2)
+                    result[i] += (dist,)
 
-                context = { 'cycle_list': result, 'distance_list': distance }
+                context = { 'cycle_list': result}
 
             return render(request, 'customer_dashboard.html', context)
 

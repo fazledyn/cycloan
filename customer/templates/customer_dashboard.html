@@ -43,21 +43,18 @@ Dashboard
 <div class="segment">
     {% for cycle in cycle_list %}
     <div class="segment-item">
-        <div class="id">
+        <h3>
             #{{ cycle.0 }}
-        </div>
-        <div>
-            <a href="{% url 'owner-details-view' owner_id=cycle.4 %}" target="_blank"><h4>{{ cycle.3 }}</h4></a>
+        </h3>
+        <div class="chip-green">
+            {{ cycle.8 }} km away
         </div>
         <div class="info-text">
-            Distance: {{ distance.{{ forloop.counter }} }} km
+            Owner Name: <a href="{% url 'owner-details-view' owner_id=cycle.4 %}" target="_blank">{{ cycle.3 }}</a><br>
+            Fare Per Day: BDT {{ cycle.5 }}/day <br>
+            Contact No: {{ cycle.6 }} <br>
         </div>
-        <h6>
-            BDT {{ cycle.5 }}/day
-        </h6>
-        <div>
-            Contact No: {{ cycle.6 }}
-        </div>
+        <br>
         <div class="form-row">
             <img src="{% static cycle.7 %}" class="cycle-photo">
         </div>
