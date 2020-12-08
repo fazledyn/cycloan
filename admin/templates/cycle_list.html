@@ -1,26 +1,38 @@
 {% extends 'core/base.html' %}
-{% load static %}
 
 {% block title %}
-    Admin | Cycle List
+Cycle List | Admin
+{% endblock %}
+
+{% block label %}
+Cycles
 {% endblock %}
 
 {% block content %}
-    {% for cycle in cycle_list %}
-        <img src="{% static cycle.6 %}" class="profile-picture">
-        <div >
-            <b>ID:</b> {{ cycle.0 }}<br>
-            <b>Model:</b> {{ cycle.1 }}<br>
-            <b>Status:</b>
-                {% if cycle.2 == 0 %}
-                    Free
-                {% elif cycle.2 == 1 %}
-                    Reserved
-                {% endif %}
-            <br>
-            <b>Rating: </b>{{ cycle.3 }}<br>
-            <b>Fare per day: </b> {{ cycle.4 }}<br>
-            <b>Owner: </b>{{ cycle.5 }}<br>
-        </div>
-    {% endfor %}
+
+<table class="table table-hover table-dark">
+
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Cycle ID</th>
+            <th scope="col">Model</th>
+            <th scope="col">Fare/Day (BDT)</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in list %}
+
+        <tr>
+            <th scope="row">{{ loop.index }}</th>
+            <td><a href="{% url 'cycle-details-view' cycle_id=row.0 %}" target="_blank">{{ row.0 }}</a></td>
+            <td>{{ row.1 }}</td>
+            <td>{{ row.2 }}</td>
+        </tr>
+
+        {% endfor %}
+    </tbody>
+
+</table>
+
 {% endblock %}

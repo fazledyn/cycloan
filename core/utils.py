@@ -16,13 +16,13 @@ def verify_auth_token(func):
         auth_token = request.session.get('auth_token')
         if not auth_token:
             messages.warning(request, 'Session expired. Please log in again.')
-            return redirect('login-view')
+            return redirect('index-view')
         
         try:
             auth_data = jwt.decode(auth_token, SECRET_KEY, algorithms=['HS256'])
         except:
             messages.warning(request, 'Session expired. Please log in again.')
-            return redirect('login-view')
+            return redirect('index-view')
         return func(self, request, *args, **kwargs)
 
     return wrapped
@@ -44,7 +44,7 @@ def check_customer(func):
         
         if request.session.get('user_type') == 'owner':
             messages.warning(request, 'You are not allowed to view that page.')
-            return redirect('owner-dashboard-view')
+            return redirect('http-403-view')
 
         return func(self, request, *args, **kwargs)
     return wrapped
@@ -56,7 +56,7 @@ def check_owner(func):
         
         if request.session.get('user_type') == 'customer':
             messages.warning(request, 'You are not allowed to view that page.')
-            return redirect('customer-dashboard-view')
+            return redirect('http-403-view')
 
         return func(self, request, *args, **kwargs)
     return wrapped
