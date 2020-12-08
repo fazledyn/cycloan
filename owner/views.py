@@ -1,3 +1,4 @@
+import hashlib
 from typing import Dict, Any
 
 from django.db import connection
@@ -40,7 +41,9 @@ class OwnerLoginView(View):
 
         try:
             fetched_pass = result[0][0]
-            if fetched_pass == owner_pass:
+            hashed_owner_password = hashlib.sha256(owner_pass.encode()).hexdigest()
+
+            if fetched_pass == hashed_owner_password:
                 owner_id = result[0][1]
                 owner_photo = result[0][2]
                 owner_name = result[0][3]
@@ -132,8 +135,10 @@ class OwnerRegisterView(View):
                 token_expiry = token_created + timedelta(days=1)
                 verification_token = create_verification_token("owner", email, token_expiry)
 
+                hashed_password = hashlib.sha256(password.encode()).hexdigest()
+
                 cursor = connection.cursor()
-                cursor.callproc("INSERT_OWNER", [fullname, email, password, contact, photo_path, longtitude, latitude, token_created, token_expiry, verification_token])
+                cursor.callproc("INSERT_OWNER", [fullname, email, hashed_password, contact, photo_path, longtitude, latitude, token_created, token_expiry, verification_token])
                 cursor.close()
 
                 email_thread = threading.Thread(target=send_verification_email,
@@ -291,11 +296,13 @@ class OwnerProfileView(View):
 
         else:
             if new_password == new_password_confirm:
+                hashed_old_password = hashlib.sha256(old_password.encode()).hexdigest()
+                hashed_new_password = hashlib.sha256(new_password.encode()).hexdigest()
 
-                if old_password == old_password_from_db:
+                if hashed_old_password == old_password_from_db:
                     cursor = connection.cursor()
                     sql = "UPDATE OWNER SET PASSWORD = %s WHERE OWNER_ID = %s"
-                    cursor.execute(sql, [new_password, owner_id])
+                    cursor.execute(sql, [hashed_new_password, owner_id])
                     connection.commit()
                     cursor.close()
                     messages.success(request, 'Password updated !')

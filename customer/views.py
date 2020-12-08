@@ -1,3 +1,5 @@
+
+import hashlib
 from django.shortcuts import render, redirect
 from django.db import connection
 from django.views import View
@@ -38,8 +40,9 @@ class CustomerLoginView(View):
 
         try:
             fetched_pass = result[0][0]
+            hashed_customer_password = hashlib.sha256(customer_pass.encode()).hexdigest()
 
-            if fetched_pass == customer_pass:
+            if fetched_pass == hashed_customer_password:
                 customer_id = result[0][1]
                 customer_photo = result[0][2]
                 customer_name = result[0][3]
@@ -132,9 +135,11 @@ class CustomerRegisterView(View):
                 verification_token = create_verification_token(
                     "customer", email, token_expiry)
 
+                hashed_password = hashlib.sha256(password.encode()).hexdigest()
+
                 cursor = connection.cursor()
                 cursor.callproc("INSERT_CUSTOMER",
-                                [fullname, email, password, contact, photo_path, doc_path, doctype, token_created,
+                                [fullname, email, hashed_password, contact, photo_path, doc_path, doctype, token_created,
                                  token_expiry, verification_token])
                 cursor.close()
 
@@ -348,11 +353,13 @@ class CustomerProfileView(View):
         else:
             print("THATTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT")
             if new_password == new_password_confirm:
+                hashed_old_password = hashlib.sha256(old_password.encode()).hexdigest()
+                hashed_new_password = hashlib.sha256(new_password.encode()).hexdigest()
 
-                if old_password == old_password_from_db:
+                if hashed_old_password == old_password_from_db:
                     cursor = connection.cursor()
                     sql = "UPDATE CUSTOMER SET PASSWORD = %s WHERE CUSTOMER_ID = %s"
-                    cursor.execute(sql, [new_password, customer_id])
+                    cursor.execute(sql, [hashed_new_password, customer_id])
                     connection.commit()
                     cursor.close()
                     messages.success(request, 'Password updated !')
