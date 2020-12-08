@@ -36,23 +36,22 @@ Cycle #{{ cycle.0 }}
 
 <div class="segment">
 {% if review_list %}
-<h3>Review about this cycle</h3>
-{% for review in review_list %}
-    <div class="segment-item">
-        <div>
-            <h4>Rating: {{ review.1 }}/5</h4>
+    <h3>Review about this cycle</h3>
+    {% for review in review_list %}
+        <div class="segment-item">
+            <div>
+                <h4>Rating: {{ review.2 }}/5</h4>
+            </div>
+            <div class="info-text">
+                Comment: <p>{{ review.3 }}</p>
+            </div>
+            <div>
+                Posted by <a href="{% url 'customer-details-view' customer_id=review.0 %}" target="_blank">{{ review.1 }}</a>
+            </div>
         </div>
-        <div class="info-text">
-            Comment: <p>{{ review.2 }}</p>
-        </div>
-        <div>
-            Posted by <a href="{% url 'customer-details-view' customer_id=review.3 %}" target="_blank">{{ review.3 }}</a>
-        </div>
-    </div>
-{% endfor %}
-
+    {% endfor %}
 {% else %}
-<h3>This cycle doesn't have any review.</h3>
+    <h3>This cycle doesn't have any review.</h3>
 {% endif %}
 </div>
 

@@ -39,13 +39,13 @@
 </script>
 
 
-<body>
-
-    <div style="display: inline-flex; width: 100%;">
+<body style="height: 100%;">
+    
+    <div style="display:inline-flex; width: 100%; height: 100%;">
 
         <div class="login-left">
             <div style="width: 60%; margin: auto; margin-top: 80px;">
-                
+
                 <a class="mdc-list-item mdc-list-item--graphic" href="{% url 'index-view' %}" aria-current="page"
                     style="font-size: 20px; margin: 15px; color: #df2121">
                     <br>
@@ -79,14 +79,14 @@
             <div style="width: 80%; margin: auto; margin-top: 20px;">
                 <h1>Create an account</h1>
                 {% if messages %} {% for message in messages %}
-                    <div class="message-box-{{ message.tags }}">{{ message }}</div>
+                <div class="message-box-{{ message.tags }}">{{ message }}</div>
                 {% endfor %} {% endif %}
 
                 <form action="{% url 'customer-register-view' %}" method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
 
                     <div class="form-row">
-                        
+
                         <div class="photo-box">
                             <img id="preview2">
                         </div>
@@ -95,8 +95,8 @@
                             <label for="doctype">Upload Photo</label>
                             <div class="custom-file">
                                 <input type="image" class="custom-file-input" id="photo"
-                                    aria-describedby="inputGroupFileAddon01" name="photo"
-                                    onchange="loadfile(event)" accept="image/*">
+                                    aria-describedby="inputGroupFileAddon01" name="photo" onchange="loadfile(event)"
+                                    accept="image/*">
                                 <label class="custom-file-label" for="photo">Choose photo</label>
                             </div>
 
@@ -117,8 +117,7 @@
 
                         <div class="form-group col-md-6 ">
                             <label for="password_confirm">Confirm Password</label>
-                            <input type="password" class="form-control" id="password_confirm"
-                                name="password_confirm">
+                            <input type="password" class="form-control" id="password_confirm" name="password_confirm">
                         </div>
                     </div>
 
@@ -156,11 +155,13 @@
                             </div>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-warning" onclick="checkCustomerSubmission();">Sign up</button>
+                    <button type="submit" class="btn btn-warning" onclick="checkCustomerSubmission();">Sign
+                        up</button>
                 </form>
-                <div style="height: 50px;">
 
+                <div style="height: 50px;">
                 </div>
+
             </div>
         </div>
     </div>

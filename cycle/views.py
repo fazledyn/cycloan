@@ -41,13 +41,20 @@ class CycleDetailsView(View):
 
             cursor = connection.cursor()
             sql = "SELECT * FROM CYCLE_REVIEW WHERE CYCLE_ID = %s"
+
+            sql = """
+                    SELECT C.CUSTOMER_ID, C.CUSTOMER_NAME, CR.RATING, CR.COMMENT_TEXT
+                    FROM CUSTOMER C, CYCLE_REVIEW CR
+                    WHERE CR.CUSTOMER_ID = C.CUSTOMER_ID
+                    AND CR.CYCLE_ID = %s
+                """
             cursor.execute(sql, [cycle_id])
             review_list = cursor.fetchall()
             cursor.close()
 
             context = {
                 'cycle': cycle[0],
-                'review': review_list 
+                'review_list': review_list 
             }
 
             return render(request, 'cycle_details.html', context)
