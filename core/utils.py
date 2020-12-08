@@ -14,6 +14,7 @@ def verify_auth_token(func):
     @wraps(func)
     def wrapped(self, request, *args, **kwargs):
         auth_token = request.session.get('auth_token')
+
         if not auth_token:
             messages.warning(request, 'Session expired. Please log in again.')
             return redirect('index-view')
@@ -23,8 +24,9 @@ def verify_auth_token(func):
         except:
             messages.warning(request, 'Session expired. Please log in again.')
             return redirect('index-view')
-        return func(self, request, *args, **kwargs)
 
+        return func(self, request, *args, **kwargs)
+    
     return wrapped
 
 

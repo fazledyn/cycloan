@@ -84,7 +84,7 @@ class OwnerLogoutView(View):
         request.session.pop('user_type', None)
         request.session.pop('auth_token', None)
         request.session.pop('user_email', None)
-        request.session.pop('auth_photo', None)
+        request.session.pop('user_photo', None)
         request.session.pop('user_name', None)
         
         messages.info(request, "You are logged out.")

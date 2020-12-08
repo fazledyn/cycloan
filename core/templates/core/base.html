@@ -106,6 +106,37 @@
                             <i class="material-icons mdc-list-item__graphic" aria-hidden="true">exit_to_app</i>
                             <span class="mdc-list-item__text">Logout</span>
                         </a>
+                        {% elif request.session.user_type == 'admin' %}
+                        <a class="mdc-list-item" href="{% url 'customer-list-view' %}" aria-current="page">
+                            <span class="mdc-list-item__ripple"></span>
+                            <i class="material-icons mdc-list-item__graphic" aria-hidden="true">person</i>
+                            <span class="mdc-list-item__text">Customer List</span>
+                        </a>
+                        <a class="mdc-list-item" href="{% url 'owner-list-view' %}">
+                            <span class="mdc-list-item__ripple"></span>
+                            <i class="material-icons mdc-list-item__graphic" aria-hidden="true">person_outline</i>
+                            <span class="mdc-list-item__text">Owner List</span>
+                        </a>
+                        <a class="mdc-list-item" href="{% url 'trip-list-view' %}">
+                            <span class="mdc-list-item__ripple"></span>
+                            <i class="material-icons mdc-list-item__graphic" aria-hidden="true">event_note</i>
+                            <span class="mdc-list-item__text">Trip List</span>
+                        </a>
+                        <a class="mdc-list-item" href="{% url 'cycle-list-view' %}">
+                            <span class="mdc-list-item__ripple"></span>
+                            <i class="material-icons mdc-list-item__graphic" aria-hidden="true">directions_bike</i>
+                            <span class="mdc-list-item__text">Cycle List</span>
+                        </a>
+                        <a class="mdc-list-item" href="{% url 'admin-register-view' %}">
+                            <span class="mdc-list-item__ripple"></span>
+                            <i class="material-icons mdc-list-item__graphic" aria-hidden="true">person_add</i>
+                            <span class="mdc-list-item__text">Add Admin</span>
+                        </a>
+                        <a class="mdc-list-item" href="{% url 'admin-logout-view' %}">
+                            <span class="mdc-list-item__ripple"></span>
+                            <i class="material-icons mdc-list-item__graphic" aria-hidden="true">exit_to_app</i>
+                            <span class="mdc-list-item__text">Logout</span>
+                        </a>
                         {% endif %}
                     </nav>
                 </div>

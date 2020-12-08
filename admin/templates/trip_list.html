@@ -10,7 +10,7 @@ Trips
 
 {% block content %}
 
-<table class="table table-hover table-dark">
+<table class="table table-hover table-dark" style="border-radius: 10px;">
 
     <thead>
         <tr>
@@ -24,13 +24,31 @@ Trips
     <tbody>
         {% for row in list %}
 
-        <tr>
-            <th scope="row">{{ loop.index }}</th>
-            <td><a href="{% url 'trip-details-view' trip_id=row.0 %}" target="_blank">{{ row.0 }}</a></td>
-            <td>{{ row.1 }}</td>
-            <td>{{ row.2 }}</td>
-            <td>{{ row.3 }}</td>
-        </tr>
+            {% if row.3 == 1 %}
+            <tr class="bg-warning">
+                <th scope="row">{{ forloop.counter }}</th>
+                <td><a href="{% url 'trip-details-view' trip_id=row.0 %}" target="_blank">{{ row.0 }}</a></td>
+                <td>{{ row.1 }}</td>
+                <td>{{ row.2 }}</td>
+                <td>{{ row.4 }}</td>
+            </tr>
+            {% elif row.3 == 2 %}
+            <tr class="bg-danger">
+                <th scope="row">{{ forloop.counter }}</th>
+                <td><a href="{% url 'trip-details-view' trip_id=row.0 %}" target="_blank">{{ row.0 }}</a></td>
+                <td>{{ row.1 }}</td>
+                <td>{{ row.2 }}</td>
+                <td>{{ row.4 }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <th scope="row">{{ forloop.counter }}</th>
+                <td><a href="{% url 'trip-details-view' trip_id=row.0 %}" target="_blank">{{ row.0 }}</a></td>
+                <td>{{ row.1 }}</td>
+                <td>{{ row.2 }}</td>
+                <td>{{ row.4 }}</td>
+            </tr>
+            {% endif %}
 
         {% endfor %}
     </tbody>

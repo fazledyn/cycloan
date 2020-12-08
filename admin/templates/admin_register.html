@@ -1,0 +1,38 @@
+{% extends 'core/base.html' %}
+
+{% block title %}
+Register | Admin
+{% endblock %}
+
+{% block label %}
+Add Admin
+{% endblock %}
+
+{% block content %}
+
+<form class="form-signin" method="POST" action="{% url 'admin-register-view' %}">
+    {% csrf_token %}
+    
+    <div class="form-group">
+        <label for="name">Admin Name</label>
+        <input type="text" class="form-control" id="name" name="name">
+    </div>
+    <div class="form-group">
+        <label for="email">Email address</label>
+        <input type="email" class="form-control" id="email" aria-describedby="emailHelp" name="email">
+    </div>
+    <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" class="form-control" id="password" name="password">
+    </div>
+    <div class="form-group">
+        <label for="password2">Password Confirm</label>
+        <input type="password" class="form-control" id="password2" name="password_confirm">
+    </div>
+
+    <button type="submit" class="btn btn-warning">Register New Admin</button>
+
+</form>
+
+
+{% endblock %}

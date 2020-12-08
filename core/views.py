@@ -23,15 +23,6 @@ class IndexView(View):
             return render(request, 'core/index.html')
 
 
-class LoginViewForAdmin(View):
-    def get(self, request):
-        user_type = request.session.get('user_type')
-
-        if user_type == 'admin':
-            return redirect('admin-dashboard-view')
-        else:
-            return render(request, 'core/admin_login.html')
-
 class EmailVerificationView(View):
 
     def get(self, request, verification_token):
@@ -162,9 +153,9 @@ class TripFeedbackView(View):
 
 class Http403View(View):
     def get(self, request):
-        return render(request, '403.html')
+        return render(request, 'core/403.html')
 
 
 class Http404View(View):
     def get(self, request):
-        return render(request, '404.html')
+        return render(request, 'core/404.html')
