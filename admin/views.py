@@ -7,6 +7,7 @@ from django.views import View
 from core.utils import create_auth_token
 from cycloan.settings import TRIP_REQUESTED, TRIP_ONGOING, TRIP_REJECTED, TRIP_COMPLETED, TRIP_REVIEWED
 
+
 class AdminLoginView(View):
     def get(self, request):
         print('hello')
@@ -72,7 +73,7 @@ class ShowCycleListView(View):
             return redirect('admin-dashboard-view')
         else:
             cursor = connection.cursor()
-            sql = "SELECT CYCLE_ID, MODEL, STATUS, CYCLE_RATING(CYCLE_ID), FARE_PER_DAY, OWNER_ID, PHOTO_PATH FROM CYCLE"
+            sql = "SELECT CYCLE_ID, MODEL, FARE_PER_DAY FROM CYCLE"
             cursor.execute(sql)
             cycle_list = cursor.fetchall()
             cursor.close()
@@ -94,7 +95,7 @@ class ShowOwnerListView(View):
             return redirect('admin-dashboard-view')
         else:
             cursor = connection.cursor()
-            sql = "SELECT PHOTO_PATH, OWNER_ID, OWNER_NAME, OWNER_PHONE, LOCATION, EMAIL_ADDRESS, OWNER_RATING(OWNER_ID) FROM OWNER "
+            sql = "SELECT OWNER_ID, OWNER_NAME, OWNER_PHONE, EMAIL_ADDRESS FROM OWNER "
             cursor.execute(sql)
             owner_list = cursor.fetchall()
             cursor.close()
@@ -116,7 +117,7 @@ class ShowCustomerListView(View):
             return redirect('admin-dashboard-view')
         else:
             cursor = connection.cursor()
-            sql = "SELECT PHOTO_PATH, CUSTOMER_ID, CUSTOMER_NAME, CUSTOMER_PHONE, EMAIL_ADDRESS FROM CUSTOMER "
+            sql = "SELECT CUSTOMER_ID, CUSTOMER_NAME, CUSTOMER_PHONE, EMAIL_ADDRESS FROM CUSTOMER "
             cursor.execute(sql)
             customer_list = cursor.fetchall()
             cursor.close()
@@ -165,41 +166,13 @@ class AdminRegisterView(View):
 class ShowTripListView(View):
     def get(self, request):
         cursor = connection.cursor()
-        sql = "SELECT * FROM TRIP_DETAILS WHERE STATUS = %s"
+        sql = "SELECT TRIP_ID, START_DATE_TIME, END_DATE_TIME, STATUS, FARE_CALCULATION(TRIP_ID)  FROM TRIP_DETAILS "
         cursor.execute(sql, [TRIP_REQUESTED])
-        requested_trip = cursor.fetchall()
-        cursor.close()
-
-        cursor = connection.cursor()
-        sql = "SELECT * FROM TRIP_DETAILS WHERE STATUS = %s"
-        cursor.execute(sql, [TRIP_ONGOING])
-        ongoing_trip = cursor.fetchall()
-        cursor.close()
-
-        cursor = connection.cursor()
-        sql = "SELECT * FROM TRIP_DETAILS WHERE STATUS = %s"
-        cursor.execute(sql, [TRIP_COMPLETED])
-        completed_trip = cursor.fetchall()
-        cursor.close()
-
-        cursor = connection.cursor()
-        sql = "SELECT * FROM TRIP_DETAILS WHERE STATUS = %s"
-        cursor.execute(sql, [TRIP_REJECTED])
-        rejected_trip = cursor.fetchall()
-        cursor.close()
-
-        cursor = connection.cursor()
-        sql = "SELECT * FROM TRIP_DETAILS WHERE STATUS = %s"
-        cursor.execute(sql, [TRIP_REVIEWED])
-        reviewed_trip = cursor.fetchall()
+        trip_list = cursor.fetchall()
         cursor.close()
 
         context = {
-            'requested_trip': requested_trip,
-            'ongoing_trip': ongoing_trip,
-            'completed_trip': completed_trip,
-            'rejected_trip': rejected_trip,
-            'reviewed_trip': reviewed_trip,
+            'trip_list': trip_list,
         }
 
         return render(request, 'trip_list.html', context)
