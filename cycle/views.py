@@ -292,6 +292,14 @@ class ReceiveCycleView(View):
                 ##  the trip has been completed
                 ##  now make the cycle available
 
+                end_time = datetime.now()
+
+                cursor = connection.cursor()
+                sql = """ UPDATE TRIP_DETAILS SET END_DATE_TIME = %s WHERE TRIP_ID = %s """
+                cursor.execute(sql, [end_time, trip_id])
+                connection.commit()
+                cursor.close()
+
                 cursor = connection.cursor()
                 sql =   """
                             UPDATE CYCLE
