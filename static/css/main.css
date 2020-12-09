@@ -7,6 +7,10 @@ h6 {
     font-family: "Product Sans", sans-serif;
 }
 
+a {
+    color: #ffffff6c;
+}
+
 .id {
     font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
     font-weight: 700;
@@ -170,7 +174,7 @@ h6 {
 
 .segment {
     border-radius: 10px;
-    background-color: whitesmoke;
+    background-color:#e4e4e4;
     padding: 20px;
     margin-bottom: 20px;
 }
@@ -178,7 +182,7 @@ h6 {
 .segment-item {
     border-radius: 5px;
     background-color: #fcfcfc;
-    padding: 5px;
+    padding: 10px;
     margin-top: 15px;
     margin-bottom: 15px;
 }
@@ -205,7 +209,7 @@ h6 {
     text-align: center;
     background-color: #970000ab;
     color: white;
-    max-width: 120px;
+    max-width: 200px;
     padding: 3px;
     border-bottom-left-radius: 10px;
     border-top-left-radius: 10px;
@@ -217,7 +221,7 @@ h6 {
     text-align: center;
     background-color: #006b39;
     color: white;
-    max-width: 120px;
+    max-width: 200px;
     padding: 3px;
     border-bottom-left-radius: 10px;
     border-top-left-radius: 10px;
@@ -227,9 +231,9 @@ h6 {
 
 .chip-yellow {
     text-align: center;
-    background-color: #ff7300;
-    color: white;
-    max-width: 120px;
+    background-color: #ffee00;
+    color: black;
+    max-width: 200px;
     padding: 3px;
     border-bottom-left-radius: 10px;
     border-top-left-radius: 10px;
@@ -237,6 +241,17 @@ h6 {
     border-top-right-radius: 10px;
 }
 
+.chip-cyan {
+    text-align: center;
+    background-color: #008643;
+    color: white;
+    max-width: 200px;
+    padding: 3px;
+    border-bottom-left-radius: 10px;
+    border-top-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-top-right-radius: 10px;
+}
 
 .info-text {
     font-size: 18px;

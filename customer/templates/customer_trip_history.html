@@ -21,24 +21,24 @@ Trip History
                 <div class="chip-red">
                     Rejected
                 </div>
-            {% else %}
-                <div class="chip-green">
+            {% elif trip.1 == 3 %}
+                <div class="chip-cyan">
                     Completed
+                </div>
+            {% elif trip.1 == 4 %}
+                <div class="chip-green">
+                    Completed & Reviewed
                 </div>
             {% endif %}
 
             <div>
-                <h4>Trip <a href="{% url 'trip-details-view' trip_id=trip.0 %}">#{{ trip.0 }}</a></h4>
-            </div>
-            <div>
-                <h4>Owner <a href="{% url 'owner-details-view' owner_id=trip.2 %}">#{{ trip.2 }}</a></h4>
-            </div>
-
-            <div class="info-text">
-                <b>Trip Schedule: </b>{{ trip.5 }} - {{ trip.6 }}
+                <br>
+                <h4>Trip ID: <a href="{% url 'trip-details-view' trip_id=trip.0 %}">#{{ trip.0 }}</a></h4>
+                <h4>Owner: <a href="{% url 'owner-details-view' owner_id=trip.2 %}">{{ trip.7 }}</a></h4>
             </div>
 
             <div class="info-text">
+                <b>Trip Schedule: </b>{{ trip.5 }} - {{ trip.6 }}<br>
                 <b>Trip Fare: </b>BDT {{ trip.4 }}
             </div>
 

@@ -18,17 +18,12 @@ Trip History
         <div class="segment-item">
             
             <div>
-                <h4>Trip <a href="{% url 'trip-details-view' trip_id=trip.0 %}">#{{ trip.0 }}</a></h4>
-            </div>
-            <div>
-                <h4>Customer <a href="{% url 'customer-details-view' customer_id=trip.2 %}">#{{ trip.2 }}</a></h4>
+                <h4>Trip ID: <a href="{% url 'trip-details-view' trip_id=trip.0 %}">#{{ trip.0 }}</a></h4><br>
+                <h4>Customer: <a href="{% url 'customer-details-view' customer_id=trip.2 %}">{{ trip.7 }}</a></h4>
             </div>
 
             <div class="info-text">
-                <b>Trip Schedule: </b>{{ trip.5 }} - {{ trip.6 }}
-            </div>
-
-            <div class="info-text">
+                <b>Trip Schedule: </b>{{ trip.5 }} - {{ trip.6 }}<br>
                 <b>Trip Fare: </b>BDT {{ trip.4 }}
             </div>
 

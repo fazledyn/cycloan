@@ -24,8 +24,16 @@ Trips
     <tbody>
         {% for row in list %}
 
-            {% if row.3 == 1 %}
+            {% if row.3 == 0 %}
             <tr class="bg-warning">
+                <th scope="row">{{ forloop.counter }}</th>
+                <td><a href="{% url 'trip-details-view' trip_id=row.0 %}" target="_blank">{{ row.0 }}</a></td>
+                <td>{{ row.1 }}</td>
+                <td>{{ row.2 }}</td>
+                <td>{{ row.4 }}</td>
+            </tr>
+            {% elif row.3 == 1 %}
+            <tr class="bg-primary">
                 <th scope="row">{{ forloop.counter }}</th>
                 <td><a href="{% url 'trip-details-view' trip_id=row.0 %}" target="_blank">{{ row.0 }}</a></td>
                 <td>{{ row.1 }}</td>
@@ -40,8 +48,16 @@ Trips
                 <td>{{ row.2 }}</td>
                 <td>{{ row.4 }}</td>
             </tr>
-            {% else %}
+            {% elif row.3 == 3 %}
             <tr>
+                <th scope="row">{{ forloop.counter }}</th>
+                <td><a href="{% url 'trip-details-view' trip_id=row.0 %}" target="_blank">{{ row.0 }}</a></td>
+                <td>{{ row.1 }}</td>
+                <td>{{ row.2 }}</td>
+                <td>{{ row.4 }}</td>
+            </tr>
+            {% else %}
+            <tr class="bg-success">
                 <th scope="row">{{ forloop.counter }}</th>
                 <td><a href="{% url 'trip-details-view' trip_id=row.0 %}" target="_blank">{{ row.0 }}</a></td>
                 <td>{{ row.1 }}</td>

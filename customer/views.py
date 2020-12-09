@@ -392,7 +392,7 @@ class CustomerTripHistoryView(View):
 
         cursor = connection.cursor()
         sql = """
-                    SELECT TD.TRIP_ID, TD.STATUS, O.OWNER_ID, C.CYCLE_ID, FARE_CALCULATION(TD.TRIP_ID), TD.START_DATE_TIME, TD.END_DATE_TIME
+                    SELECT TD.TRIP_ID, TD.STATUS, O.OWNER_ID, C.CYCLE_ID, FARE_CALCULATION(TD.TRIP_ID), TD.START_DATE_TIME, TD.END_DATE_TIME, O.OWNER_NAME
                     FROM TRIP_DETAILS TD, OWNER O, CYCLE C
                     WHERE TD.CYCLE_ID = C.CYCLE_ID
                     AND C.OWNER_ID = O.OWNER_ID

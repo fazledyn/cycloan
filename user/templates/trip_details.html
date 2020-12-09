@@ -15,15 +15,23 @@ Trip #{{ trip.0 }}
 
     <div class="segment-item">
 
-        <h4>
-            Cycle Model: <a href="{% url 'cycle-details-view' cycle_id=trip.1 %}">{{ trip.2 }}</a>
-        </h4>
+        {% if trip.11 == 2 %}
+            <div class="chip-red">
+                Rejected
+            </div>
+        {% elif trip.11 == 3 %}
+            <div class="chip-green">
+                Completed
+            </div>
+        {% elif trip.11 == 4 %}
+            <div class="chip-yellow">
+                Completed & Reviewed
+            </div>
+        {% endif %}
 
         <h4>
-            Owner Name: <a href="{% url 'owner-details-view' owner_id=trip.3 %}">{{ trip.4 }}</a>
-        </h4>
-
-        <h4>
+            Cycle Model: <a href="{% url 'cycle-details-view' cycle_id=trip.1 %}">{{ trip.2 }}</a><br>
+            Owner Name: <a href="{% url 'owner-details-view' owner_id=trip.3 %}">{{ trip.4 }}</a><br>
             Customer Name: <a href="{% url 'customer-details-view' customer_id=trip.5 %}">{{ trip.6 }}</a>
         </h4>
 
