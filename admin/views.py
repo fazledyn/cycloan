@@ -111,8 +111,8 @@ class AdminDashboardView(View):
         cursor.close()
 
         cursor = connection.cursor()
-        sql = "SELECT SUM( (END_DATE_TIME - START_DATE_TIME) * 24) FROM TRIP_DETAILS"
-        cursor.execute(sql, [])
+        sql = "SELECT SUM( (END_DATE_TIME - START_DATE_TIME) * 24) FROM TRIP_DETAILS WHERE (STATUS = %s OR STATUS = %s)"
+        cursor.execute(sql, [ TRIP_COMPLETED, TRIP_REVIEWED ])
         total_time = cursor.fetchall()[0][0]
         total_time = round(total_time, 2)
         connection.commit()
