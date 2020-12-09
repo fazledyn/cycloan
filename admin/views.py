@@ -74,8 +74,60 @@ class AdminDashboardView(View):
     @verify_auth_token
     @check_admin
     def get(self, request):
-        admin_id = request.session.get('admin_id')
-        return render(request, 'admin_dashboard.html')
+
+        cursor = connection.cursor()
+        sql = "SELECT SUM(FARE_CALCULATION(TRIP_ID)) FROM TRIP_DETAILS WHERE (STATUS = %s OR STATUS = %s)"
+        cursor.execute(sql, [ TRIP_COMPLETED, TRIP_REVIEWED ])
+        total_fare = cursor.fetchall()[0][0]
+        connection.commit()
+        cursor.close()
+
+        cursor = connection.cursor()
+        sql = "SELECT COUNT(*) FROM TRIP_DETAILS WHERE (STATUS = %s OR STATUS = %s)"
+        cursor.execute(sql, [ TRIP_COMPLETED, TRIP_REVIEWED ])
+        total_trip = cursor.fetchall()[0][0]
+        connection.commit()
+        cursor.close()
+
+        cursor = connection.cursor()
+        sql = "SELECT COUNT(*) FROM CUSTOMER"
+        cursor.execute(sql, [])
+        total_customer = cursor.fetchall()[0][0]
+        connection.commit()
+        cursor.close()
+
+        cursor = connection.cursor()
+        sql = "SELECT COUNT(*) FROM OWNER"
+        cursor.execute(sql, [])
+        total_owner = cursor.fetchall()[0][0]
+        connection.commit()
+        cursor.close()
+        
+        cursor = connection.cursor()
+        sql = "SELECT COUNT(*) FROM CYCLE"
+        cursor.execute(sql, [])
+        total_cycle = cursor.fetchall()[0][0]
+        connection.commit()
+        cursor.close()
+
+        cursor = connection.cursor()
+        sql = "SELECT SUM( (END_DATE_TIME - START_DATE_TIME) * 24) FROM TRIP_DETAILS"
+        cursor.execute(sql, [])
+        total_time = cursor.fetchall()[0][0]
+        total_time = round(total_time, 2)
+        connection.commit()
+        cursor.close()
+
+        context = {
+            'total_fare': total_fare,
+            'total_trip': total_trip,
+            'total_time': total_time,
+            'total_cycle':total_cycle,
+            'total_owner': total_owner,
+            'total_customer': total_customer
+        }
+
+        return render(request, 'admin_dashboard.html', context)
 
 
 class CycleListView(View):

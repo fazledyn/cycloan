@@ -12,4 +12,71 @@ Dashboard
 
 {% block content %}
 
+<div class="segment">
+
+    <div style="display:flex;">
+        <div class="card-holder">
+            <div class="card">
+                <h5>
+                    Total Number of Cycles
+                </h5>
+                <h1>
+                    {{ total_cycle }}
+                </h1>
+            </div>
+            <div class="card">
+                <h5>
+                    Total Number of Trips
+                </h5>
+                <h1>
+                    {{ total_trip }}
+                </h1>
+            </div>
+        </div>
+    </div>
+
+    <div style="display:flex;">
+        <div class="card-holder">
+            <div class="card">
+                <h5>
+                    Total Number of Customers
+                </h5>
+                <h1>
+                    {{ total_customer }}
+                </h1>
+            </div>
+            <div class="card">
+                <h5>
+                    Total Number of Owners
+                </h5>
+                <h1>
+                    {{ total_owner }}
+                </h1>
+            </div>
+        </div>
+    </div>
+
+    
+    <div style="display:flex;">
+        <div class="card-holder">
+            <div class="card">
+                <h5>
+                    Number of Ride Hours
+                </h5>
+                <h1>
+                    {{ total_time }}
+                </h1>
+            </div>
+            <div class="card">
+                <h5>
+                    Total Expense on Ride (BDT)
+                </h5>
+                <h1>
+                    {{ total_fare }}
+                </h1>
+            </div>
+        </div>
+    </div>
+
+</div>
 {% endblock %}
