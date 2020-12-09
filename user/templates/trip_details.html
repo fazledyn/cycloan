@@ -15,17 +15,25 @@ Trip #{{ trip.0 }}
 
     <div class="segment-item">
 
-        {% if trip.11 == 2 %}
+        {% if trip.11 == 1 %}
+        <div class="chip-yellow">
+            Ongoing
+        </div>
+        {% elif trip.11 == 2 %}
             <div class="chip-red">
                 Rejected
             </div>
         {% elif trip.11 == 3 %}
-            <div class="chip-green">
+            <div class="chip-cyan">
                 Completed
             </div>
         {% elif trip.11 == 4 %}
-            <div class="chip-yellow">
+            <div class="chip-green">
                 Completed & Reviewed
+            </div>
+        {% else %}
+            <div class="chip-black">
+                Requested
             </div>
         {% endif %}
 
