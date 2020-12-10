@@ -179,8 +179,6 @@ class CustomerDashboardView(View):
         connection.commit()
         cursor.close()
 
-        print(ongoing_trip)
-
         # The part for cycle request put
         cursor = connection.cursor()
         sql = """
@@ -237,29 +235,25 @@ class CustomerDashboardView(View):
         if count == 0:
             cursor = connection.cursor()
 
-            if preference == "1":
-                sql = """
-                        SELECT C.CYCLE_ID, O.LATITUDE, O.LONGTITUDE, O.OWNER_NAME, O.OWNER_ID, C.FARE_PER_DAY, O.OWNER_PHONE, C.PHOTO_PATH
-                        FROM CYCLE C, OWNER O
-                        WHERE C.OWNER_ID = O.OWNER_ID
-                        AND ABS(O.LATITUDE - %s) <= %s
-                        AND ABS(O.LONGTITUDE - %s) <= %s
-                        AND C.STATUS = %s
-                    """
-                cursor.execute(
-                    sql, [customer_lat, DLAT, customer_long, DLONG, 0])
-
-            else:
-                sql = """
-                        SELECT C.CYCLE_ID, O.LATITUDE, O.LONGTITUDE, O.OWNER_NAME, O.OWNER_ID, C.FARE_PER_DAY, O.OWNER_PHONE, C.PHOTO_PATH
-                        FROM CYCLE C, OWNER O
-                        WHERE C.OWNER_ID = O.OWNER_ID
-                        AND C.STATUS = %s
-                    """
-                cursor.execute(sql, [CYCLE_AVAILABLE])
-
+            sql = """
+                    SELECT C.CYCLE_ID, O.LATITUDE, O.LONGTITUDE, O.OWNER_NAME, O.OWNER_ID, C.FARE_PER_DAY, O.OWNER_PHONE, C.PHOTO_PATH
+                    FROM CYCLE C, OWNER O
+                    WHERE C.OWNER_ID = O.OWNER_ID
+                    AND C.STATUS = %s
+                """
+            cursor.execute(sql, [CYCLE_AVAILABLE])
             result = cursor.fetchall()
 
+            if preference == "1":
+                curated_result =[]
+
+                for position in result:
+                    dist = calculate_distance(customer_lat, customer_long, position[1], position[2])
+                    if (dist <= 5):
+                        curated_result.append(position)
+
+                result = curated_result
+            
             if len(result) == 0:
                 messages.info(request, "There are no cycles to show")
                 context = {}
