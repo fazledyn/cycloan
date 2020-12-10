@@ -248,10 +248,26 @@ class ReceiveCycleView(View):
                 end_time = datetime.now()
 
                 cursor = connection.cursor()
-                sql = """ UPDATE TRIP_DETAILS SET END_DATE_TIME = %s WHERE TRIP_ID = %s """
-                cursor.execute(sql, [end_time, trip_id])
-                connection.commit()
+                sql = """ SELECT START_DATE_TIME FROM TRIP_DETAILS WHERE TRIP_ID = %s"""
+                cursor.execute(sql, [trip_id])
+                result = cursor.fetchall()
                 cursor.close()
+
+                start_time = result[0][0]
+
+                if (end_time - start_time) <= 0:
+                    cursor = connection.cursor()
+                    sql = """ UPDATE TRIP_DETAILS SET END_DATE_TIME = %s WHERE TRIP_ID = %s """
+                    cursor.execute(sql, [start_time, trip_id])
+                    connection.commit()
+                    cursor.close()
+                    print("dhukseeeeeeeeeeeeeeeeeeeeeeeeeeeeeee")
+                else:
+                    cursor = connection.cursor()
+                    sql = """ UPDATE TRIP_DETAILS SET END_DATE_TIME = %s WHERE TRIP_ID = %s """
+                    cursor.execute(sql, [end_time, trip_id])
+                    connection.commit()
+                    cursor.close()
 
                 cursor = connection.cursor()
                 sql =   """
