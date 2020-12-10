@@ -167,9 +167,10 @@ class CustomerDashboardView(View):
         # This section is for ongoing trips where the owner has given approval to use their cycle.
         cursor = connection.cursor()
         sql = """
-                SELECT TD.TRIP_ID, TD.START_DATE_TIME, TD.END_DATE_TIME, O.OWNER_ID, O.OWNER_NAME, C.PHOTO_PATH, FARE_CALCULATION(TD.TRIP_ID)
+                SELECT TD.TRIP_ID, TD.START_DATE_TIME, TD.END_DATE_TIME, C.OWNER_ID, O.OWNER_NAME, C.PHOTO_PATH, FARE_CALCULATION(TD.TRIP_ID)
                 FROM TRIP_DETAILS TD, CYCLE C, OWNER O
                 WHERE TD.CYCLE_ID = C.CYCLE_ID
+                AND C.OWNER_ID = O.OWNER_ID
                 AND TD.CUSTOMER_ID = %s
                 AND TD.STATUS = %s
             """
@@ -177,6 +178,8 @@ class CustomerDashboardView(View):
         ongoing_trip = cursor.fetchall()
         connection.commit()
         cursor.close()
+
+        print(ongoing_trip)
 
         # The part for cycle request put
         cursor = connection.cursor()
