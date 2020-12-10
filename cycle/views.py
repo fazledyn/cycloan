@@ -261,7 +261,6 @@ class ReceiveCycleView(View):
                     cursor.execute(sql, [start_time, trip_id])
                     connection.commit()
                     cursor.close()
-                    print("dhukseeeeeeeeeeeeeeeeeeeeeeeeeeeeeee")
                 else:
                     cursor = connection.cursor()
                     sql = """ UPDATE TRIP_DETAILS SET END_DATE_TIME = %s WHERE TRIP_ID = %s """
