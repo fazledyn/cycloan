@@ -17,6 +17,7 @@ from datetime import datetime
 
 class CycleDetailsView(View):
 
+    @verify_auth_token
     def get(self, request, cycle_id):
         cursor = connection.cursor()
         sql = "SELECT COUNT(*) FROM CYCLE WHERE CYCLE_ID = %s"
@@ -31,11 +32,12 @@ class CycleDetailsView(View):
         else:
             cursor = connection.cursor()
             sql =   """
-                    SELECT CYCLE_ID, PHOTO_PATH, MODEL, OWNER_ID, FARE_PER_DAY, CYCLE_RATING(CYCLE_ID)
-                    FROM CYCLE
-                    WHERE CYCLE_ID = %s
+                    SELECT C.CYCLE_ID, C.PHOTO_PATH, C.MODEL, C.OWNER_ID, C.FARE_PER_DAY, CYCLE_RATING(C.CYCLE_ID), O.OWNER_NAME
+                    FROM CYCLE C, OWNER O
+                    WHERE C.OWNER_ID = O.OWNER_ID
+                    AND C.CYCLE_ID = %s
                     """
-            cursor.execute(sql, [cycle_id])
+            cursor.execute(sql, [ cycle_id ])
             cycle = cursor.fetchall()
             cursor.close()
 
@@ -76,7 +78,7 @@ class CycleAddView(View):
         cursor = connection.cursor()
         sql = "INSERT INTO CYCLE(CYCLE_ID, MODEL, STATUS, PHOTO_PATH, OWNER_ID, FARE_PER_DAY) VALUES(CYCLE_INCREMENT.NEXTVAL, %s, %s, %s, %s, %s)"
         cursor.execute(
-            sql, [cycle_model, 0, cycle_photo_path, owner_id, cycle_fare])
+            sql, [cycle_model, CYCLE_AVAILABLE, cycle_photo_path, owner_id, cycle_fare])
         connection.commit()
         cursor.close()
 
@@ -126,14 +128,11 @@ class RequestCycleView(View):
                 WHERE C.OWNER_ID = O.OWNER_ID
                 AND C.CYCLE_ID = %s
                 AND C.STATUS = %s
-                """
+            """
         cursor.execute(sql, [cycle_id, CYCLE_AVAILABLE])
         cycle = cursor.fetchall()
         context = {'cycle': cycle}
 
-        print("REQUEST CYCLE VIEW (GET) ")
-        print(cycle)
-        print("-------------------------------------")
         return render(request, 'request_cycle.html', context)
         
     @verify_auth_token
@@ -155,7 +154,6 @@ class RequestCycleView(View):
 
         start_datetime = datetime.fromisoformat(start_datetime)
         end_datetime = datetime.fromisoformat(end_datetime)
-
 
         if status[0][0] == CYCLE_AVAILABLE:
 
@@ -217,55 +215,10 @@ class ApproveCycleView(View):
         return redirect('owner-dashboard-view')
 
 
-class CycleSearchView(View):
-    def get(self, request):
-        return render(request, 'cycle_search.html')
-
-    def post(self, request):
-
-        # CONSTANT
-
-        customer_long = request.POST.get('customer_longtitude')
-        customer_lat = request.POST.get('customer_latitude')
-        preference = request.POST.get('preference')
-
-        if preference == "Show all cycles":
-            cursor = connection.cursor()
-            sql = """
-                        SELECT *
-                        FROM CYCLE C, OWNER O
-                        WHERE C.OWNER_ID = O.OWNER_ID
-                        AND C.STATUS = "AVAILABLE"
-                    """
-            cursor.execute(sql, [])
-
-        elif preference == "Show Nearby Cycles":
-            cursor = connection.cursor()
-            sql = """
-                        SELECT *
-                        FROM CYCLE C, OWNER O
-                        WHERE C.OWNER_ID = O.OWNER_ID
-                        AND ABS(O.LONGTITUDE - %s) <= %s
-                        AND ABS(O.LATITUDE - %s) <= %s
-                        AND C.STATUS = "AVAILABLE"
-                    """
-            cursor.execute(sql, [customer_long, DLONG, customer_lat, DLAT])
-            result = cursor.fetchall()
-
-            if len(result) == 0:
-                print("There are no cycles to show")
-                messages.info(request, "There are no cycles to show")
-
-            else:
-                print("There are cycles to show")
-                context = {
-                    'cycle_list': result,
-                }
-                return render(request, 'cycle_search.html', context)
-
-
 class ReceiveCycleView(View):
 
+    @verify_auth_token
+    @check_owner
     def get(self, request, trip_id):
         owner_id = request.session.get('owner_id')
 
@@ -316,8 +269,7 @@ class ReceiveCycleView(View):
                 return redirect('trip-details-view', trip_id=trip_id)
                 ## NOW made the cycle available
             else:
-                ## not his trip
-                ## send to FORBIDDEN 403
+                ## not his trip, send to FORBIDDEN 403
                 return redirect('http-403-view')
         
         except:
@@ -326,6 +278,8 @@ class ReceiveCycleView(View):
 ## customer
 class CancelCycleView(View):
     
+    @verify_auth_token
+    @check_customer
     def get(self, request, trip_id):
         customer_id = request.session.get('customer_id')
 
@@ -338,9 +292,10 @@ class CancelCycleView(View):
         messages.info(request, "The cycle request has been cancelled.")
         return redirect('customer-dashboard-view')
 
-## owner
+
 class RejectCycleView(View):
 
+    @verify_auth_token
     @check_owner
     def get(self, request, trip_id):
         owner_id = request.session.get('owner_id')

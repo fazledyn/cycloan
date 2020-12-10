@@ -20,16 +20,11 @@ class AdminLoginView(View):
         admin_email = request.POST.get('admin-email')
         admin_pass = request.POST.get('admin-password')
 
-        print(admin_email)
-        print(admin_pass)
-
         cursor = connection.cursor()
         sql = "SELECT ADMIN_PASSWORD, ADMIN_ID, ADMIN_NAME, ADMIN_EMAIL FROM ADMIN WHERE ADMIN_EMAIL=%s"
         cursor.execute(sql, [admin_email])
         result = cursor.fetchall()
         cursor.close()
-
-        print(result)
 
         try:
             fetched_pass = result[0][0]
@@ -192,11 +187,14 @@ class TripListView(View):
 
 class AdminRegisterView(View):
 
+    @verify_auth_token
+    @check_admin
     def get(self, request):
         return render(request, 'admin_register.html')
 
+    @verify_auth_token
+    @check_admin
     def post(self, request):
-    
         fullname = request.POST.get('name')
         email = request.POST.get('email')
         password = request.POST.get('password')

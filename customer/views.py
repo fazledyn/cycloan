@@ -1,23 +1,22 @@
-
+import jwt
 import hashlib
+import threading
+
+from datetime import datetime, timedelta
+
 from django.shortcuts import render, redirect
 from django.db import connection
 from django.views import View
 from django.contrib import messages
 
-from .utils import save_customer_doc, save_customer_photo, calculate_distance
-from core.utils import create_auth_token, send_verification_email, create_verification_token
 from cycloan.settings import SECRET_KEY
 from cycloan.settings import TRIP_COMPLETED, TRIP_ONGOING, TRIP_REJECTED, TRIP_REQUESTED, TRIP_REVIEWED
 from cycloan.settings import CYCLE_AVAILABLE, CYCLE_BOOKED
 from cycloan.settings import DLAT, DLONG
 
-from datetime import datetime, timedelta
-import jwt
-import threading
-
-# decorators
 from core.utils import verify_auth_token, check_customer
+from .utils import save_customer_doc, save_customer_photo, calculate_distance
+from core.utils import create_auth_token, send_verification_email, create_verification_token
 
 
 class CustomerLandingView(View):
@@ -97,7 +96,6 @@ class CustomerLogoutView(View):
 class CustomerRegisterView(View):
 
     def post(self, request):
-
         photo = request.FILES.get('photo')
         email = request.POST.get('email')
         password = request.POST.get('password')
@@ -245,7 +243,8 @@ class CustomerDashboardView(View):
                         AND ABS(O.LONGTITUDE - %s) <= %s
                         AND C.STATUS = %s
                     """
-                cursor.execute(sql, [customer_lat, DLAT, customer_long, DLONG, 0])
+                cursor.execute(
+                    sql, [customer_lat, DLAT, customer_long, DLONG, 0])
 
             else:
                 sql = """
@@ -255,24 +254,22 @@ class CustomerDashboardView(View):
                         AND C.STATUS = %s
                     """
                 cursor.execute(sql, [CYCLE_AVAILABLE])
-            
+
             result = cursor.fetchall()
 
             if len(result) == 0:
-                print("There are no cycles to show")
                 messages.info(request, "There are no cycles to show")
                 context = {}
 
             else:
-                print("There are cycles to show")
-
                 list_length = len(result)
                 for i in range(list_length):
-                    dist = calculate_distance(baseLat=customer_lat, baseLong=customer_long, pointLat=result[i][1], pointLong=result[i][2])
+                    dist = calculate_distance(
+                        baseLat=customer_lat, baseLong=customer_long, pointLat=result[i][1], pointLong=result[i][2])
                     dist = round(dist, 2)
                     result[i] += (dist,)
 
-                context = { 'cycle_list': result}
+                context = {'cycle_list': result}
 
             return render(request, 'customer_dashboard.html', context)
 
@@ -287,11 +284,9 @@ class CustomerProfileView(View):
     @verify_auth_token
     @check_customer
     def get(self, request):
-        print(request.session['auth_token'])
+        customer_id = request.session.get('customer_id')
 
         cursor = connection.cursor()
-
-        customer_id = request.session.get('customer_id')
         sql = "SELECT * FROM CUSTOMER WHERE CUSTOMER_ID=%s"
         cursor.execute(sql, [customer_id])
         result = cursor.fetchall()
@@ -310,7 +305,6 @@ class CustomerProfileView(View):
             'customer_phone': customer_phone,
             'customer_email': customer_email
         }
-
         return render(request, 'customer_profile.html', context)
 
     @verify_auth_token
@@ -362,7 +356,6 @@ class CustomerProfileView(View):
             messages.success(request, 'Profile updated !')
 
         else:
-            print("THATTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT")
             if new_password == new_password_confirm:
                 hashed_old_password = hashlib.sha256(
                     old_password.encode()).hexdigest()

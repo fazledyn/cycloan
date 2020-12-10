@@ -1,26 +1,26 @@
 import hashlib
-from typing import Dict, Any
+import jwt
+import threading
 
+from typing import Dict, Any
+from datetime import datetime, timedelta
+
+from django.views import View
 from django.db import connection
 from django.contrib import messages
 from django.shortcuts import render, redirect
-from django.views import View
-
-from .utils import save_owner_photo
-from core.utils import create_auth_token, send_verification_email, create_verification_token
-
-from datetime import datetime, timedelta
-import jwt, threading
 
 from cycloan.settings import SECRET_KEY
 from cycloan.settings import CYCLE_BOOKED, CYCLE_AVAILABLE
 from cycloan.settings import TRIP_REQUESTED, TRIP_ONGOING, TRIP_REJECTED, TRIP_COMPLETED, TRIP_REVIEWED
 
-## decorators
+from .utils import save_owner_photo
 from core.utils import verify_auth_token, check_owner
+from core.utils import create_auth_token, send_verification_email, create_verification_token
 
 
 class OwnerLandingView(View):
+
     def get(self, request):
         if request.session.get('auth_token'):
             return redirect('owner-dashboard-view')
@@ -41,8 +41,9 @@ class OwnerLoginView(View):
 
         try:
             fetched_pass = result[0][0]
-            hashed_owner_password = hashlib.sha256(owner_pass.encode()).hexdigest()
-            
+            hashed_owner_password = hashlib.sha256(
+                owner_pass.encode()).hexdigest()
+
             if fetched_pass == hashed_owner_password:
                 owner_id = result[0][1]
                 owner_photo = result[0][2]
@@ -56,7 +57,8 @@ class OwnerLoginView(View):
                 v = int(verify[0][0])
 
                 if v == 0:
-                    messages.error(request, 'Email has not been verified yet. Please check your email and verify.')
+                    messages.error(
+                        request, 'Email has not been verified yet. Please check your email and verify.')
                     return redirect('owner-landing-view')
                 else:
                     request.session['owner_id'] = owner_id
@@ -68,10 +70,12 @@ class OwnerLoginView(View):
                     return redirect('owner-dashboard-view')
 
             else:
-                messages.error(request, 'Password did not match. Enter correctly!')
+                messages.error(
+                    request, 'Password did not match. Enter correctly!')
                 return redirect('owner-landing-view')
         except:
-            messages.error(request, 'Your email address is not found in our database. Enter it correctly!')
+            messages.error(
+                request, 'Your email address is not found in our database. Enter it correctly!')
             return redirect('owner-landing-view')
 
 
@@ -86,7 +90,7 @@ class OwnerLogoutView(View):
         request.session.pop('user_email', None)
         request.session.pop('user_photo', None)
         request.session.pop('user_name', None)
-        
+
         messages.info(request, "You are logged out.")
         return redirect('owner-landing-view')
 
@@ -102,7 +106,7 @@ class OwnerRegisterView(View):
 
         fullname = request.POST.get('fullname')
         contact = request.POST.get('contact')
-        
+
         longtitude = request.POST.get('longtitude')
         latitude = request.POST.get('latitude')
 
@@ -133,23 +137,27 @@ class OwnerRegisterView(View):
 
                 token_created = datetime.now()
                 token_expiry = token_created + timedelta(days=1)
-                verification_token = create_verification_token("owner", email, token_expiry)
+                verification_token = create_verification_token(
+                    "owner", email, token_expiry)
 
                 hashed_password = hashlib.sha256(password.encode()).hexdigest()
 
                 cursor = connection.cursor()
-                cursor.callproc("INSERT_OWNER", [fullname, email, hashed_password, contact, photo_path, longtitude, latitude, token_created, token_expiry, verification_token])
+                cursor.callproc("INSERT_OWNER", [fullname, email, hashed_password, contact, photo_path,
+                                                 longtitude, latitude, token_created, token_expiry, verification_token])
                 cursor.close()
 
                 email_thread = threading.Thread(target=send_verification_email,
                                                 args=(email, fullname, 'owner', verification_token))
                 email_thread.start()
 
-                messages.success(request, 'Successfully created account. Now you must verify your email and then you can log in.')
+                messages.success(
+                    request, 'Successfully created account. Now you must verify your email and then you can log in.')
                 return redirect('owner-landing-view')
 
             else:
-                messages.warning(request, 'Account exists with similar email. Please provide different email')
+                messages.warning(
+                    request, 'Account exists with similar email. Please provide different email')
                 return redirect('owner-register-view')
 
 
@@ -159,16 +167,16 @@ class OwnerDashboardView(View):
     @check_owner
     def get(self, request):
         owner_id = request.session.get('owner_id')
-        
+
         cursor = connection.cursor()
         sql = "SELECT OWNER_NAME FROM OWNER WHERE OWNER_ID = %s"
-        cursor.execute(sql, [ owner_id ])
+        cursor.execute(sql, [owner_id])
         owner_name = cursor.fetchall()
         connection.commit()
         cursor.close()
-        
+
         cursor = connection.cursor()
-        sql =   """
+        sql = """
                 SELECT TD.TRIP_ID, TD.CUSTOMER_ID, CS.CUSTOMER_NAME, C.PHOTO_PATH, TD.START_DATE_TIME, TD.END_DATE_TIME, TD.PAYMENT_TYPE, FARE_CALCULATION(TD.TRIP_ID)
                 FROM TRIP_DETAILS TD, CYCLE C, CUSTOMER CS
                 WHERE TD.CYCLE_ID = C.CYCLE_ID
@@ -176,13 +184,13 @@ class OwnerDashboardView(View):
                 AND C.OWNER_ID = %s
                 AND TD.STATUS = %s
                 """
-        cursor.execute(sql, [ owner_id, TRIP_REQUESTED ])
+        cursor.execute(sql, [owner_id, TRIP_REQUESTED])
         cycle_request_list = cursor.fetchall()
         connection.commit()
         cursor.close()
 
         cursor = connection.cursor()
-        sql =   """
+        sql = """
                 SELECT TD.TRIP_ID, TD.START_DATE_TIME, TD.END_DATE_TIME, CS.CUSTOMER_ID, CS.CUSTOMER_NAME, C.PHOTO_PATH, FARE_CALCULATION(TD.TRIP_ID) 
                 FROM TRIP_DETAILS TD, CYCLE C, CUSTOMER CS
                 WHERE TD.CYCLE_ID = C.CYCLE_ID
@@ -190,7 +198,7 @@ class OwnerDashboardView(View):
                 AND C.OWNER_ID = %s
                 AND TD.STATUS = %s
                 """
-        cursor.execute(sql, [ owner_id, TRIP_ONGOING ])
+        cursor.execute(sql, [owner_id, TRIP_ONGOING])
         ongoing_trip = cursor.fetchall()
         connection.commit()
         cursor.close()
@@ -205,17 +213,19 @@ class OwnerDashboardView(View):
 
 class OwnerCycleView(View):
 
+    @verify_auth_token
+    @check_owner
     def get(self, request):
         owner_id = request.session.get('owner_id')
 
         cursor = connection.cursor()
         sql = "SELECT * FROM CYCLE WHERE OWNER_ID = %s"
-        cursor.execute(sql, [ owner_id ])
+        cursor.execute(sql, [owner_id])
         cycle_list = cursor.fetchall()
         connection.commit()
         cursor.close()
 
-        context = { 'cycle_list': cycle_list }
+        context = {'cycle_list': cycle_list}
         return render(request, 'owner_cycle.html', context)
 
 
@@ -278,7 +288,8 @@ class OwnerProfileView(View):
                 cursor.close()
                 contact = result[0][0]
 
-                new_photo_path = save_owner_photo(owner_new_photo, owner_id, contact)
+                new_photo_path = save_owner_photo(
+                    owner_new_photo, owner_id, contact)
                 cursor = connection.cursor()
                 sql = "UPDATE OWNER SET PHOTO_PATH = %s WHERE OWNER_ID = %s"
                 cursor.execute(sql, [new_photo_path, owner_id])
@@ -297,8 +308,10 @@ class OwnerProfileView(View):
 
         else:
             if new_password == new_password_confirm:
-                hashed_old_password = hashlib.sha256(old_password.encode()).hexdigest()
-                hashed_new_password = hashlib.sha256(new_password.encode()).hexdigest()
+                hashed_old_password = hashlib.sha256(
+                    old_password.encode()).hexdigest()
+                hashed_new_password = hashlib.sha256(
+                    new_password.encode()).hexdigest()
 
                 if hashed_old_password == old_password_from_db:
                     cursor = connection.cursor()
@@ -310,18 +323,21 @@ class OwnerProfileView(View):
                 else:
                     messages.error('Enter current password correctly!')
             else:
-                messages.error('The new passwords do not match! Type carefully.')
+                messages.error(
+                    'The new passwords do not match! Type carefully.')
 
         return redirect('owner-profile-view')
 
 
 class OwnerTripHistoryView(View):
 
+    @verify_auth_token
+    @check_owner
     def get(self, request):
         owner_id = request.session.get('owner_id')
 
         cursor = connection.cursor()
-        sql =   """
+        sql = """
                     SELECT TD.TRIP_ID, TD.STATUS, CS.CUSTOMER_ID, C.CYCLE_ID, FARE_CALCULATION(TD.TRIP_ID), TD.START_DATE_TIME, TD.END_DATE_TIME, CS.CUSTOMER_NAME
                     FROM TRIP_DETAILS TD, CYCLE C, CUSTOMER CS
                     WHERE TD.CYCLE_ID = C.CYCLE_ID
@@ -334,6 +350,5 @@ class OwnerTripHistoryView(View):
         connection.commit()
         cursor.close()
 
-        context = { 'trip_list': trips }
+        context = {'trip_list': trips}
         return render(request, 'owner_trip_history.html', context)
-

@@ -9,6 +9,7 @@
 </head>
 
 
+<link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}"/>
 <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.min.css">
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
@@ -94,7 +95,7 @@
                         <div class="form-group col-md-6">
                             <label for="doctype">Upload Photo</label>
                             <div class="custom-file">
-                                <input type="image" class="custom-file-input" id="photo"
+                                <input type="file" class="custom-file-input" id="photo"
                                     aria-describedby="inputGroupFileAddon01" name="photo" onchange="loadfile(event)"
                                     accept="image/*">
                                 <label class="custom-file-label" for="photo">Choose photo</label>

@@ -10,6 +10,7 @@
     </title>
 </head>
 
+<link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}"/>
 <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.min.css">
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
@@ -107,6 +108,11 @@
                             <span class="mdc-list-item__text">Logout</span>
                         </a>
                         {% elif request.session.user_type == 'admin' %}
+                        <a class="mdc-list-item" href="{% url 'admin-dashboard-view' %}" aria-current="page">
+                            <span class="mdc-list-item__ripple"></span>
+                            <i class="material-icons mdc-list-item__graphic" aria-hidden="true">dashboard</i>
+                            <span class="mdc-list-item__text">Dashboard</span>
+                        </a>
                         <a class="mdc-list-item" href="{% url 'customer-list-view' %}" aria-current="page">
                             <span class="mdc-list-item__ripple"></span>
                             <i class="material-icons mdc-list-item__graphic" aria-hidden="true">person</i>

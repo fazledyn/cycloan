@@ -1,14 +1,15 @@
+import jwt
+from datetime import datetime
+
 from django.shortcuts import render, redirect
 from django.views import View
 from django.db import connection
 from django.contrib import messages
 from django.http import HttpResponseForbidden
 
-from datetime import datetime
-
 from cycloan.settings import SECRET_KEY
 
-import jwt
+from .utils import check_customer, check_owner, verify_auth_token
 
 
 class IndexView(View):
@@ -28,9 +29,9 @@ class IndexView(View):
 class EmailVerificationView(View):
 
     def get(self, request, verification_token):
-
         try:
-            json = jwt.decode(verification_token, SECRET_KEY, algorithms=['HS256'])
+            json = jwt.decode(verification_token, SECRET_KEY,
+                              algorithms=['HS256'])
 
             user_type = json['user_type']
             user_email = json['user_email']
@@ -47,8 +48,9 @@ class EmailVerificationView(View):
                 user_count = int(result[0][0])
 
                 if user_count == 0:
-                    messages.warning(request, 'No such accounts exists for verification. Make sure you have completed registration.')
-           
+                    messages.warning(
+                        request, 'No such accounts exists for verification. Make sure you have completed registration.')
+
                 else:
                     sql = "SELECT * FROM OWNER_EMAIL_VERIFICATION WHERE TOKEN_VALUE = %s"
                     cursor = connection.cursor()
@@ -57,18 +59,20 @@ class EmailVerificationView(View):
 
                     if result[0][1] == 1:
                         messages.info(request, 'You are already verified')
-                    
+
                     else:
                         if datetime.now() < result[0][5]:
                             sql = "UPDATE OWNER_EMAIL_VERIFICATION SET IS_VERIFIED = %s WHERE TOKEN_VALUE = %s"
                             cursor = connection.cursor()
                             cursor.execute(sql, [1, verification_token])
                             cursor.close()
-                            messages.success(request, 'Hoorah ! Your account has been verified. Now you can log in.')
-                        
+                            messages.success(
+                                request, 'Hoorah ! Your account has been verified. Now you can log in.')
+
                         else:
                             print("Token Expired")
-                            messages.error(request, "Sorry. The token is expired.")
+                            messages.error(
+                                request, "Sorry. The token is expired.")
 
                 return redirect('owner-landing-view')
 
@@ -83,7 +87,8 @@ class EmailVerificationView(View):
                 user_count = int(result[0][0])
 
                 if user_count == 0:
-                    messages.warning(request, 'No such accounts exists for verification. Make sure you have completed registration.')
+                    messages.warning(
+                        request, 'No such accounts exists for verification. Make sure you have completed registration.')
 
                 else:
                     sql = "SELECT * FROM CUSTOMER_EMAIL_VERIFICATION WHERE TOKEN_VALUE = %s"
@@ -100,11 +105,13 @@ class EmailVerificationView(View):
                             cursor = connection.cursor()
                             cursor.execute(sql, [1, verification_token])
                             cursor.close()
-                            messages.success(request, 'Hoorah ! Your account has been verified. Now you can log in.')
-                        
+                            messages.success(
+                                request, 'Hoorah! Your account has been verified. Now you can log in.')
+
                         else:
-                            messages.error(request, "Sorry. The token is expired.")
-                        
+                            messages.error(
+                                request, "Sorry. The token is expired.")
+
                 return redirect('customer-landing-view')
 
         except:
@@ -112,9 +119,10 @@ class EmailVerificationView(View):
             return redirect('http-404-view')
 
 
-
 class TripFeedbackView(View):
 
+    @verify_auth_token
+    @check_customer
     def get(self, request, trip_id):
         customer_id = request.session.get('customer_id')
 
@@ -132,7 +140,8 @@ class TripFeedbackView(View):
 
         return render(request, 'core/trip_feedback.html', context)
 
-
+    @verify_auth_token
+    @check_customer
     def post(self, request, trip_id):
         customer_id = request.session.get('customer_id')
 
@@ -142,12 +151,12 @@ class TripFeedbackView(View):
         owner_comment = request.POST.get('owner_comment')
 
         cursor = connection.cursor()
-        cursor.callproc("REVIEW_INSERT", [cycle_rating, cycle_comment, owner_rating, owner_comment, trip_id])
+        cursor.callproc("REVIEW_INSERT", [
+                        cycle_rating, cycle_comment, owner_rating, owner_comment, trip_id])
         cursor.close()
 
         messages.success(request, 'Your review has been added')
         return redirect('customer-dashboard-view')
-
 
 
 class Http403View(View):
