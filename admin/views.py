@@ -109,7 +109,10 @@ class AdminDashboardView(View):
         sql = "SELECT SUM( (END_DATE_TIME - START_DATE_TIME) * 24) FROM TRIP_DETAILS WHERE (STATUS = %s OR STATUS = %s)"
         cursor.execute(sql, [ TRIP_COMPLETED, TRIP_REVIEWED ])
         total_time = cursor.fetchall()[0][0]
-        total_time = round(total_time, 2)
+        try:
+            total_time = round(total_time, 2)
+        except:
+            total_time = 0
         connection.commit()
         cursor.close()
 
@@ -131,7 +134,7 @@ class CycleListView(View):
     @check_admin
     def get(self, request):
         cursor = connection.cursor()
-        sql = "SELECT CYCLE_ID, MODEL, FARE_PER_DAY FROM CYCLE"
+        sql = "SELECT CYCLE_ID, MODEL, FARE_PER_DAY, STATUS FROM CYCLE"
         cursor.execute(sql)
         cycle_list = cursor.fetchall()
         cursor.close()

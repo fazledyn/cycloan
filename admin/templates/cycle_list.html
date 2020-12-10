@@ -18,6 +18,7 @@ Cycles
             <th scope="col">Cycle ID</th>
             <th scope="col">Model</th>
             <th scope="col">Fare/Day (BDT)</th>
+            <th scope="col">Status</th>
         </tr>
     </thead>
     <tbody>
@@ -28,6 +29,11 @@ Cycles
             <td><a href="{% url 'cycle-details-view' cycle_id=row.0 %}" target="_blank">{{ row.0 }}</a></td>
             <td>{{ row.1 }}</td>
             <td>{{ row.2 }}</td>
+            {% if row.3 == 0 %}
+                <td>✅Available</td>
+            {% else %}
+                <td>❌Booked</td>
+            {% endif %}    
         </tr>
 
         {% endfor %}
