@@ -255,7 +255,7 @@ class ReceiveCycleView(View):
 
                 start_time = result[0][0]
 
-                if (end_time - start_time) <= 0:
+                if end_time < start_time:
                     cursor = connection.cursor()
                     sql = """ UPDATE TRIP_DETAILS SET END_DATE_TIME = %s WHERE TRIP_ID = %s """
                     cursor.execute(sql, [start_time, trip_id])
