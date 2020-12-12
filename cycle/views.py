@@ -8,7 +8,7 @@ from core.utils import check_owner, check_customer
 from core.utils import verify_auth_token
 
 from .utils import save_cycle_photo
-from cycloan.settings import CYCLE_AVAILABLE, CYCLE_BOOKED
+from cycloan.settings import CYCLE_AVAILABLE, CYCLE_BOOKED, CYCLE_DELETED
 
 from cycloan.settings import TRIP_REQUESTED, TRIP_ONGOING, TRIP_REJECTED, TRIP_COMPLETED, TRIP_REVIEWED
 from cycloan.settings import DLONG, DLAT
@@ -102,11 +102,27 @@ class CycleDeleteView(View):
         count = int(result[0][0])
 
         if count == 0:
+
             cursor = connection.cursor()
-            sql = "DELETE FROM CYCLE WHERE CYCLE_ID = %s"
+            sql = "SELECT COUNT(*) FROM TRIP_DETAILS WHERE CYCLE_ID = %s"
             cursor.execute(sql, [cycle_id])
-            connection.commit()
+            delete_con = cursor.fetchall()
             cursor.close()
+            delete_count = int(delete_con[0][0])
+
+            if delete_count == 0:
+                cursor = connection.cursor()
+                sql = "DELETE FROM CYCLE WHERE CYCLE_ID = %s"
+                cursor.execute(sql, [cycle_id])
+                connection.commit()
+                cursor.close()
+
+            else:
+                cursor = connection.cursor()
+                sql = "UPDATE CYCLE SET STATUS = %s WHERE CYCLE_ID = %s"
+                cursor.execute(sql, [CYCLE_DELETED, cycle_id])
+                connection.commit()
+                cursor.close()
 
             messages.info(request, "The cycle has been deleted.")
             return redirect('owner-cycle-view')
