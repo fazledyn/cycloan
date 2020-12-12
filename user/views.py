@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.http import request
 
 from core.utils import verify_auth_token
+from cycloan.settings import CYCLE_DELETED
 
 
 class OwnerPublicView(View):
@@ -31,8 +32,8 @@ class OwnerPublicView(View):
             cursor.close()
 
             cursor = connection.cursor()
-            sql = "SELECT CYCLE_ID, MODEL FROM CYCLE WHERE OWNER_ID = %s"
-            cursor.execute(sql, [owner_id])
+            sql = "SELECT CYCLE_ID, MODEL FROM CYCLE WHERE OWNER_ID = %s AND STATUS != %s"
+            cursor.execute(sql, [owner_id, CYCLE_DELETED])
             cycle_list = cursor.fetchall()
             cursor.close()
 

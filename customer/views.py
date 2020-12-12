@@ -11,7 +11,7 @@ from django.contrib import messages
 
 from cycloan.settings import SECRET_KEY
 from cycloan.settings import TRIP_COMPLETED, TRIP_ONGOING, TRIP_REJECTED, TRIP_REQUESTED, TRIP_REVIEWED
-from cycloan.settings import CYCLE_AVAILABLE, CYCLE_BOOKED
+from cycloan.settings import CYCLE_AVAILABLE, CYCLE_BOOKED, CYCLE_DELETED
 from cycloan.settings import DLAT, DLONG
 
 from core.utils import verify_auth_token, check_customer
@@ -241,7 +241,7 @@ class CustomerDashboardView(View):
                     WHERE C.OWNER_ID = O.OWNER_ID
                     AND C.STATUS = %s
                 """
-            cursor.execute(sql, [CYCLE_AVAILABLE])
+            cursor.execute(sql, [ CYCLE_AVAILABLE ])
             result = cursor.fetchall()
 
             if preference == "1":

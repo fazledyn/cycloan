@@ -11,7 +11,7 @@ from django.contrib import messages
 from django.shortcuts import render, redirect
 
 from cycloan.settings import SECRET_KEY
-from cycloan.settings import CYCLE_BOOKED, CYCLE_AVAILABLE
+from cycloan.settings import CYCLE_BOOKED, CYCLE_AVAILABLE, CYCLE_DELETED
 from cycloan.settings import TRIP_REQUESTED, TRIP_ONGOING, TRIP_REJECTED, TRIP_COMPLETED, TRIP_REVIEWED
 
 from .utils import save_owner_photo
@@ -219,8 +219,8 @@ class OwnerCycleView(View):
         owner_id = request.session.get('owner_id')
 
         cursor = connection.cursor()
-        sql = "SELECT * FROM CYCLE WHERE OWNER_ID = %s"
-        cursor.execute(sql, [owner_id])
+        sql = "SELECT * FROM CYCLE WHERE OWNER_ID = %s AND STATUS != %s"
+        cursor.execute(sql, [owner_id, CYCLE_DELETED])
         cycle_list = cursor.fetchall()
         connection.commit()
         cursor.close()

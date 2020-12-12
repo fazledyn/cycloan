@@ -15,6 +15,7 @@ from cycloan.settings import DLONG, DLAT
 from datetime import datetime
 
 
+
 class CycleDetailsView(View):
 
     @verify_auth_token

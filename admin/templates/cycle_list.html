@@ -31,8 +31,10 @@ Cycles
             <td>{{ row.2 }}</td>
             {% if row.3 == 0 %}
                 <td>✅Available</td>
-            {% else %}
+            {% elif row.3 == 1 %}
                 <td>❌Booked</td>
+            {% else %}
+                <td>❗Deleted</td>
             {% endif %}    
         </tr>
 

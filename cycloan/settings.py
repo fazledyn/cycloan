@@ -155,6 +155,8 @@ CYCLE_AVAILABLE = 0
 
 CYCLE_BOOKED = 1
 
+CYCLE_DELETED = 2
+
 # Trip Status Constants
 
 TRIP_REQUESTED = 0

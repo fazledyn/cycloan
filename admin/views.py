@@ -7,6 +7,7 @@ from django.http import request
 from core.utils import create_auth_token, verify_auth_token
 from .utils import check_admin
 from cycloan.settings import TRIP_COMPLETED, TRIP_ONGOING, TRIP_REJECTED, TRIP_REVIEWED, TRIP_REQUESTED
+from cycloan.settings import CYCLE_AVAILABLE, CYCLE_BOOKED, CYCLE_DELETED
 
 import hashlib
 
@@ -99,8 +100,8 @@ class AdminDashboardView(View):
         cursor.close()
         
         cursor = connection.cursor()
-        sql = "SELECT COUNT(*) FROM CYCLE"
-        cursor.execute(sql, [])
+        sql = "SELECT COUNT(*) FROM CYCLE WHERE STATUS != %s"
+        cursor.execute(sql, [ CYCLE_DELETED ])
         total_cycle = cursor.fetchall()[0][0]
         connection.commit()
         cursor.close()
