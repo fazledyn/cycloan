@@ -125,7 +125,7 @@ For example, this method takes an `InMemoryUploadedFile` object called photo, `i
 photo = request.FILES.get('photo')
 ```
 
-At first, the name of the file is splitted into two segments (name and extension). Then the file is renamed as **<customer_id>_<contact>.<extension>**. Then it's appended to `CUSTOMER_PHOTO_DIR` from `settings.py`. Since, it's saved in the **static** folder, the name appends it's parent directory and an empty file is created and opened in "byte mode".
+At first, the name of the file is splitted into two segments (name and extension). Then the file is renamed as **<customer_id> _ <contact> . <extension>**. Then it's appended to `CUSTOMER_PHOTO_DIR` from `settings.py`. Since, it's saved in the **static** folder, the name appends it's parent directory and an empty file is created and opened in "byte mode".
 
 Then the file data are written into the empty file and the relative path inside the static folder is returned. Then the path is stored into database table. There are several usage of such which can be found in-
 
