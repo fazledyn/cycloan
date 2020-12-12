@@ -1,10 +1,10 @@
 # Cycloan
 
-Cycloan is a ride sharing platform where users can put up their cycles for renting it to others and vice versa. This was my project for Level 2 Term 2 CSE216 (Relational Database Management System Sessional) course. A working overview of this project can be found here: 
+Cycloan is a ride sharing platform where users can put up their cycles for renting it to others and vice versa. This was my project for Level 2 Term 2 CSE216 (Relational Database Management System Sessional) course. **Click the image below to see our project video**
 
 [![Watch the video](https://img.youtube.com/vi/5lOaXUqJ86M/maxresdefault.jpg)](https://youtu.be/5lOaXUqJ86M)
 
-In this project, I had @purbasha-nishat as my project partner and [Md. Saiful Islam](https://github.com/saiful1105020) Sir as our project supervisor. The motive behind this project was to design a RDBMS based system on using only raw SQL queries.
+In this project, I had [Purbasha Nishat](https://www.github.com/purbasha-nishat) as my project partner and [Md. Saiful Islam](https://github.com/saiful1105020) Sir as our project supervisor. The motive behind this project was to design a RDBMS based system on using only raw SQL queries.
 
 Django was the framework of our choice for this project and we weren't allowed to use any pre-built components of Django that relies on Django-Models. So, we had to **evolve backwards** while using this cutting-edge tools. As a result, we had to face quite a few challenges due to the limitation of this project. And yes, we did learn quite a few things.
 
