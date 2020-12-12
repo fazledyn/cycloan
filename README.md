@@ -13,7 +13,7 @@ In this write-up, all of those components has been explained for archive and fut
 1. [Architecture](#architecture)
 2. [Entity Relationship Diagram](#entity-relationship-diagram)
 3. [Location Based Searching](#location-based-searching)
-4. [Static Contents](#static-contents)
+4. [Static Contents](#static-contents-uploading)
 5. [Authentication](#authentication)
 6. [Emailing](#emailing)
 
