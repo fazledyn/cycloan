@@ -31,14 +31,14 @@ There are total six Django apps used for different purposes, some of them have b
 - Owner
 - User
 
-![Project Modules](module.png)
+![Project Modules](docs/module.png)
 
 ***
 
 ## Entity Relationship Diagram
 Our project contains overall 10 database tables, 3 triggers, 3 functions and 3 procedures. The [PLSQL](PLSQL.sql) and [Schema](schema.sql) contains the SQL queries.
 
-![Project ERD](erd.png)
+![Project ERD](docs/erd.png)
 
 ***
 
@@ -48,24 +48,29 @@ We improved our searching system by introducing Google Maps API. Every time a cu
 The `map.js` file contains the main Google Map related code for the project. What that code does is, each time a webpage containing Google Map window starts, it loads it up with the given location in the map.
 
 ```javascript
+
 var currentLocation = marker.getPosition();
 document.getElementById('lat').value = currentLocation.lat();
 document.getElementById('lng').value = currentLocation.lng();
+
 ```
 
 After user puts the marker on the map, the `markerLocation()` method sets the longtitude and latitude value into two of our hidden input field. After user clicks the button to submit, the input field values are also submitted by a POST request.
 
 ```html
+
 <div>
       <input type="hidden" id="lng" readonly="yes" name="longtitude">
       <input type="hidden" id="lat" readonly="yes" name="latitude">
 </div>
+
 ```
 
 ### Nearby Searching Algorithm
 During cycle search, we used [Haversine Formula](https://en.wikipedia.org/wiki/Haversine_formula) to calculate the distance between two points on earth. The code for calculating the distance is as below:
 
 ```python
+
 def calculate_distance(baseLat, baseLong, pointLat, pointLong):
 
     baseLat = radians(baseLat)
@@ -82,6 +87,7 @@ def calculate_distance(baseLat, baseLong, pointLat, pointLong):
     distance = curvature * radius
     
     return distance
+
 ```
 
 The function returns the great-circle-distance between those two points in KM. And while showing our search results, we only kept those distances in a 5KM radius.
@@ -96,15 +102,18 @@ Also, we had uploaded it as BLOB into our database but fetching it from there an
 Firstly, we named some constants in our `cycloan > settings.py` file for each file based on their use cases.
 
 ```python
+
 OWNER_PHOTO_DIR = 'files/owner/photo/'
 CYCLE_PHOTO_DIR = 'files/owner/cycle/'
 CUSTOMER_PHOTO_DIR = 'files/customer/photo/'
 CUSTOMER_DOC_DIR = 'files/customer/doc/'
+
 ```
 
 This `files` directory here is created beforehand in our project's static directory, since all static contents are loaded from here. Then methods were written for each files to be renamed and saved so that the original filenames do not collide and overwrite each other.
 
 ```python
+
 def save_customer_photo(photo, customer_id, contact):
 
     photo_ext = photo.name.split('.')[-1]
@@ -117,12 +126,15 @@ def save_customer_photo(photo, customer_id, contact):
     photo_file.close()
 
     return photo_path
+
 ```
 
 For example, this method takes an `InMemoryUploadedFile` object called photo, `int` type customer_id and `string` contact. The `InMemoryUploadedFile` is the one django receives through it's incoming POST request. Which looks something like this-
 
 ```python
+
 photo = request.FILES.get('photo')
+
 ```
 
 At first, the name of the file is splitted into two segments (name and extension). Then the file is renamed as **<customer_id> _ <contact> . <extension>**. Then it's appended to `CUSTOMER_PHOTO_DIR` from `settings.py`. Since, it's saved in the **static** folder, the name appends it's parent directory and an empty file is created and opened in "byte mode".
@@ -140,9 +152,11 @@ In order to identify each users and their roles' uniquely, authentication was se
 First, we changed the session storage in `settings.py` file by overwriting the default config as such below:
 
 ```python
+
 SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_AGE = 1209600
+
 ```
 
 Here, we only approved HTTP cookies and set their age to 1209600 seconds (2 weeks). After setting up sessions, a few wrappers were created to give "specific access to specific user roles."
@@ -155,6 +169,7 @@ There were two layers of authentication for protected pages.
 Only verifying the authentication key would suffice. So, the wrapper written in `core > utils.py` looks somewhat like this:
 
 ```python
+
 def verify_auth_token(func):
     @wraps(func)
     def wrapped(self, request, *args, **kwargs):
@@ -173,6 +188,7 @@ def verify_auth_token(func):
         return func(self, request, *args, **kwargs)
     
     return wrapped
+
 ```
 
 Point to note here is that, since we used class-based-view, there had to be four arguments for the `wrapped` method. For function-based-view, only the later three would suffice.
@@ -182,6 +198,7 @@ Point to note here is that, since we used class-based-view, there had to be four
 The role specified wrappers are written in `utils.py` file for admin, customer and owner apps.
 
 ```python
+
 def check_customer(func):
     @wraps(func)
     def wrapped(self, request, *args, **kwargs):
@@ -195,6 +212,7 @@ def check_customer(func):
 
         return func(self, request, *args, **kwargs)
     return wrapped
+
 ```
 
 We put up these wrappers only around those view-functions which are only allowed for customers only. If any different role based user tries to access them, they would get redirected to an HTTP 403 page. 
@@ -205,6 +223,7 @@ We put up these wrappers only around those view-functions which are only allowed
 In order to send verification email, a email was needed to send to users' email that they had provided during registration. In order to do such, first the mail account has to be set up in `settings.py` file.
 
 ```python
+
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'mail.dhaka-ai.com'
 EMAIL_PORT = 587
@@ -214,6 +233,7 @@ EMAIL_HOST_PASSWORD = os.environ.get('password')
 
 EMAIL_USE_TLS = False
 EMAIL_USE_SSL = False
+
 ```
 
 For production, it is advisable to use one of TLS/SSL encryption. Here, I've used one of my hosting server mail. Now that our configuration is set up, time to write the methods for sending the email.
@@ -221,6 +241,7 @@ For production, it is advisable to use one of TLS/SSL encryption. Here, I've use
 In our project's `core > utils.py` file, a method called `send_verification_email` has been written. This is the method which will be called every time a mail is to be sent.
 
 ```python
+
 def send_verification_email(to, user_name, user_type, verification_token):
 
     site_address = "http://localhost:8000/"
@@ -237,16 +258,20 @@ def send_verification_email(to, user_name, user_type, verification_token):
 
     subject = "[CYCLOAN] Verify your email"
     from_email = 'rabid@dhaka-ai.com'
+
     msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
     msg.attach_alternative(html_content, "text/html")
     msg.send(fail_silently=False)
+
 ```
 
 Now, this function has to be called from another thread which we will call `email_thread`. Then the thread is to be executed as such below.
 
 ```python
+
 email_thread = threading.Thread(target=send_verification_email, args=(email, fullname, 'customer', verification_token))
 email_thread.start()
+
 ```
 
 If anyone want to use the minimalized HTML Email template, it can be found [here.](https://github.com/leemunroe/responsive-html-email-template) I used this one for my project.
